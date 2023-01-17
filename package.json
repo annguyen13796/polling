@@ -1,42 +1,42 @@
 {
-  "name": "kat_mini_project_backend",
-  "version": "1.0.0",
-  "description": "mini project backend of KAT",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "commit": "git-cz",
-    "lint": "eslint . --fix",
-    "format": "prettier . --write",
-    "prepare": "husky install"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://git.zoi.de/khoa.pham/polling-be.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "commitizen": "^4.2.6",
-    "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^8.32.0",
-    "eslint-config-prettier": "^8.6.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.1.0",
-    "prettier": "2.8.3"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.48.2",
-    "@typescript-eslint/parser": "^5.48.2",
-    "eslint-plugin-react": "^7.32.1"
-  },
-  "lint-staged": {
-    "*.js": "npm run lint",
-    "*.--write": "npm run format"
-  }
+	"name": "kat_mini_project_backend",
+	"version": "1.0.0",
+	"description": "mini project backend of KAT",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"commit": "git-cz",
+		"lint": "eslint . --fix",
+		"format": "prettier . --write",
+		"prepare": "husky install"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://git.zoi.de/khoa.pham/polling-be.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"commitizen": "^4.2.6",
+		"cz-conventional-changelog": "^3.3.0",
+		"eslint": "^8.32.0",
+		"eslint-config-prettier": "^8.6.0",
+		"husky": "^8.0.3",
+		"lint-staged": "^13.1.0",
+		"prettier": "2.8.3"
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		}
+	},
+	"dependencies": {
+		"@typescript-eslint/eslint-plugin": "^5.48.2",
+		"@typescript-eslint/parser": "^5.48.2",
+		"eslint-plugin-react": "^7.32.1"
+	},
+	"lint-staged": {
+		"*.js": "npm run lint",
+		"*.--write": "npm run format"
+	}
 }
