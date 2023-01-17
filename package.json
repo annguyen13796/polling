@@ -1,0 +1,20 @@
+{
+  "name": "kat_miniproject_backend",
+  "version": "1.0.0",
+  "description": "- Function Name           : VERB - Variable Name           : NOUN - Boolean Variable Name   : Start with \"is\" or \"has\"",
+  "main": "index.js",
+  "scripts": {
+
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.zoi.de/thien.dinh/polling-be.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "commitizen": "^4.2.6",
+    "cz-conventional-changelog": "^3.3.0"
+  }
+}

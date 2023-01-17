@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "incremental": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "resolveJsonModule": true,
+    "alwaysStrict": false,
+    "isolatedModules": true,
+    "strictNullChecks": false,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "outDir": "./dist",
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ]
+  }
+}
