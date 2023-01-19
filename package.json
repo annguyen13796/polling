@@ -58,7 +58,7 @@
 		  "json",
 		  "ts"
 		],
-		"rootDir": "microservice/services",
+		"rootDir": "services",
 		"testRegex": ".*\\.spec\\.ts$",
 		"transform": {
 		  "^.+\\.(t|j)s$": "ts-jest"
