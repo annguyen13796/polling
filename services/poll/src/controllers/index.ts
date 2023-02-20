@@ -1,1 +1,1 @@
-export {};
+export * from './poll.controller';

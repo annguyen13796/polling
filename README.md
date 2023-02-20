@@ -1,83 +1,112 @@
 # CODING CONVENTION
 
 ## Coding style and convention
+
 ### 1) Function
-- Function name is a VERB 
+
+- Function name is a VERB
 - Function naming style : camelCase  
-Ex:
+  Ex:
+
 ```javascript
-  const addUserName = ()=>{
-    console.log("Welcome to my page")
-  };
+const addUserName = () => {
+	console.log('Welcome to my page');
+};
 ```
+
 ### 2) Variable
+
 - Variable name is a NOUN  
-Ex:
+  Ex:
+
 ```javascript
-  const numberOfTasks = 100;
+const numberOfTasks = 100;
 ```
+
 - Boolean Variable name starts with "is" or "has"  
-Ex:
+  Ex:
+
 ```javascript
-  let isInvalid = false;
+let isInvalid = false;
 ```
+
 ### 3) File
+
 - File Naming Style : ke-bab."type".ts  
-Ex:
+  Ex:
+
 ```javascript
-  add-address.dto.ts
-  auth.controller.ts
+add - address.dto.ts;
+auth.controller.ts;
 ```
+
 ### 4) Class, Interface and Object
+
 - Class Naming Style : PasCal  
-Ex:
+  Ex:
+
 ```javascript
-  class AddAddressUseCaseInput {
-
-  }
+class AddAddressUseCaseInput {}
 ```
+
 - Interface (TypeScript) Naming Style : PasCal  
-Ex:
+  Ex:
+
 ```typescript
-  interface AddressProps {
-    street: string | null | undefined;
-  }
+interface AddressProps {
+	street: string | null | undefined;
+}
 ```
+
 - Object' attributes naming order : Follow alphabet order  
-Ex:
+  Ex:
+
 ```typescript
-  const object= {
-    age : 19,
-    family : "home",
-    name : "Object",
-  }
+const object = {
+	age: 19,
+	family: 'home',
+	name: 'Object',
+};
 ```
+
 ### 5) Logic Statement
+
 - If Statement Declaration : Always make curly brace instead of inline-code  
-Ex:
+  Ex:
+
 ```typescript
-  if (isValid){
-  //do sth
-  }
+if (isValid) {
+	//do sth
+}
 ```
+
 ---
+
 ## Git Note
-  - Use Git Flow
-  - "Follow Commitizen Convention when committing"
-  - No console.log when commit
-  - Use git pre-commit/pre-push with husky
+
+- Use Git Flow
+- "Follow Commitizen Convention when committing"
+- No console.log when commit
+- Use git pre-commit/pre-push with husky
 
 ---
+
 ## Some Extra Note
-  - Export Import Convention : Every folder should have index.ts file
 
-  - Comment  
-  ```typescript
-  /* */ instead of //  
-  ```
+- Export Import Convention : Every folder should have index.ts file
+
+- Comment
+
+```typescript
+/* */ instead of //
+```
+
 ---
+
 ## Rules for Eslint and Prettier
+
 ### Eslint
+
 ```json
 {
 	"env": {
@@ -105,25 +134,28 @@ Ex:
 	}
 }
 ```
+
 ### Prettier
+
 ```json
 {
 	"tabWidth": 2,
 	"useTabs": true,
 	"semi": true,
 	"trailingComma": "all"
-}  
+}
 ```
+
 ---
+
 ## Testing Convention
-  1. Arrange
-  2. Act
-  3. Assert
+
+1. Arrange
+2. Act
+3. Assert
+
 ---
+
 ## Reference
+
 https://google.github.io/styleguide/tsguide.html
-
-
-
-
-
