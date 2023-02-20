@@ -1,0 +1,2 @@
+export type POLLSTATUS = 'IDLE' | 'IN PROGRESS' | 'CLOSED';
+export type QUESTIONTYPE = 'MULTIPLE' | 'CHECKBOX' | 'TEXT_AREA';

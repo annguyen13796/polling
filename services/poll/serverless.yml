@@ -1,0 +1,75 @@
+service: PL-poll
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  tags:
+    author: thien.dinh@zoi.tech
+  region: eu-central-1
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - arn:aws:dynamodb:eu-central-1:437822295963:table/khoa.pham_polling_poll
+        - arn:aws:dynamodb:eu-central-1:437822295963:table/khoa.pham_polling_poll/index/CreatorEmail-SK-index
+  apiGateway:
+    restApiId: 24dp6xrmlb
+    restApiRootResourceId: cq0b9cenbg
+
+functions:
+  createPoll:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls
+          method: POST
+          cors: true
+  getAllPolls:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls
+          method: GET
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                creatorEmail: true
+  getPollById:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls/{pollId}
+          method: GET
+          cors: true
+  getPollQuestions:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls/{pollId}/questions
+          method: GET
+          cors: true
+  createQuestion:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls/questions
+          method: POST
+          cors: true
+  deletePollById:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls/{pollId}
+          method: DELETE
+          cors: true
+
+plugins:
+  - serverless-offline

@@ -4,8 +4,8 @@ import {
 	BadRequestException,
 	UnAuthenticated,
 	UnAuthorized,
-} from "../exceptions";
-import { Response } from "express";
+} from '../exceptions';
+import { Response } from 'express';
 
 export class ApiErrorMapper {
 	public static toErrorResponse(error: Error, response: Response) {

@@ -1,0 +1,42 @@
+service: PL-authentication
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  tags:
+    author: khoa.pham@zoi.tech
+  region: eu-central-1
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 'arn:aws:dynamodb:eu-central-1:437822295963:table/khoa.pham_polling_user'
+
+  apiGateway:
+    restApiId: 24dp6xrmlb
+    restApiRootResourceId: cq0b9cenbg
+
+functions:
+  signin:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /auth/signin
+          method: POST
+          cors: true
+  signup:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /auth/signup
+          method: POST
+          cors: true
+
+plugins:
+  - serverless-offline

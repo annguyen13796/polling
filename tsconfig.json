@@ -1,4 +1,7 @@
 {
+	"ts-node": {
+		"require": ["tsconfig-paths/register"]
+	},
 	"compilerOptions": {
 		"module": "commonjs",
 		"declaration": true,
@@ -26,6 +29,10 @@
 		"forceConsistentCasingInFileNames": false,
 		"noFallthroughCasesInSwitch": false,
 		"outDir": "./dist",
-		"typeRoots": ["./src/types", "./node_modules/@types"]
+		"typeRoots": ["./src/types", "./node_modules/@types"],
+		"paths": {
+			"@libs/common": ["./libs/common/src/index.ts"]
+			// "@libs/common/*": ["./libs/common/src/*"]
+		}
 	}
 }

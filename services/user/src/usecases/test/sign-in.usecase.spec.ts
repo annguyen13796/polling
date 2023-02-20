@@ -1,112 +1,163 @@
-// import { SignInUseCase, SignInUseCaseInput } from '../signin.usecase';
-// import { IUserRepository, User } from '../../domains';
-// import { BadRequestionException, NotFoundException } from '../../exceptions';
-export{}
+import { SignInUseCase, SignInUseCaseInput } from '../sign-in.usecase';
+import { IUserRepository, JwtConfig, SignInDto, User } from '../../domains';
+import { BadRequestException, NotFoundException } from '@libs/common';
 
-describe('SignInUseCase', () => {
-      it('should throw Missing email', async () => {
-        expect(1).toEqual(1)
-      }
-    )
-  }
-);
-// describe('SignInUseCase', () => {
+describe('SignInUseCase test', () => {
+	beforeAll(() => {
+		jest.clearAllMocks();
+	});
 
-//   describe('execute', () => {
+	const userRepositoryMock: jest.Mocked<IUserRepository> = {
+		create: jest.fn(),
+		findByEmail: jest.fn(),
+		update: jest.fn(),
+	};
 
-//     let userRepository : IUserRepository
-//     let signinUseCaseInput : SignInUseCaseInput
+	const userModelMock: jest.Mocked<
+		Pick<User, 'createAccessToken' | 'createIdToken' | 'hasMatchingPassword'>
+	> = {
+		createAccessToken: jest.fn(),
+		createIdToken: jest.fn(),
+		hasMatchingPassword: jest.fn(),
+	};
 
-//     const userRepoMockCreate = jest.fn() 
-//     const userRepoMockUpdate = jest.fn()
-//     const userRepoMockFindByEmail = jest.fn()
-//     const userRepoMockFindById = jest.fn()
+	const jwtMock: JwtConfig = {
+		expiresIn: '30d',
+		secretKeyOfAccessToken: 'accessTokenSecret',
+		secretKeyOfIdToken: 'idTokenSecret',
+	};
 
-//     beforeEach(()=>{
-//       userRepository  = {
-//         create: userRepoMockCreate,
-//         update: userRepoMockUpdate,
-//         findByEmail: userRepoMockFindByEmail,
-//         findById: userRepoMockFindById
-//       } 
-//     })
+	it('should throw error when email is missing', async () => {
+		const signInDtoMock: SignInDto = {
+			email: null,
+			password: 'P@ssw0rd',
+		};
 
-//     afterEach(()=>{
-//       jest.clearAllMocks()
-//     })
+		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
 
-//     it('should throw Missing email', async () => {
-//       const signInUseCase = new SignInUseCase(userRepository)
-//       signinUseCaseInput = {
-//         dto : {
-//           email: undefined,
-//           password: "asd",
-//         }
-//       }
-//       await expect(signInUseCase.execute(signinUseCaseInput)).rejects.toThrowError(new BadRequestionException("Missing email"))
-//     });
+		const expectedError = new NotFoundException('Missing email');
 
-//     it('should call findByEmail then throw User is not existed', async () => {
-//       const signinUsecase = new SignInUseCase(userRepository)
-//       signinUseCaseInput = {
-//         dto : {
-//           email: "Namkhoa@gmail.com",
-//           password: "P@ssw0rd",
-//         }
-//       }
-//       userRepoMockFindByEmail.mockResolvedValueOnce(null)
-      
-//       await expect(signinUsecase.execute(signinUseCaseInput)).rejects.toThrowError(new NotFoundException("User is not existed"))
-//     });
+		await expect(
+			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+		).rejects.toThrow(expectedError);
 
-//     it('should call findByEmail then throw Password is incorrect', async () => {
-//       const signinUsecase = new SignInUseCase(userRepository)
-//       signinUseCaseInput = {
-//         dto : {
-//           email: "Namkhoa@gmail.com",
-//           password: "P@ssw0rdddd",
-//         }
-//       }
-//       const newUser = new User({
-//           email: "Namkhoa@gmail.com",
-//           password: "P@ssw0rd",
-//           username: "asdfghjklmnb",
-//           phoneNumber: "0123456789"
-//       })  
+		expect(userRepositoryMock.findByEmail).not.toBeCalled();
+		expect(userModelMock.createAccessToken).not.toBeCalled();
+		expect(userModelMock.createIdToken).not.toBeCalled();
+		expect(userModelMock.hasMatchingPassword).not.toBeCalled();
+	});
 
-//       userRepoMockFindByEmail.mockResolvedValueOnce(newUser)
-      
-//       await expect(signinUsecase.execute(signinUseCaseInput)).rejects.toThrowError(new BadRequestionException("Password is incorrect"))
-//       expect(userRepoMockFindByEmail).toBeCalledWith(signinUseCaseInput.dto.email)
-//     });
+	it('should throw error when password is missing', async () => {
+		const signInDtoMock: SignInDto = {
+			email: 'email@gmail.com',
+			password: null,
+		};
 
-//     it('should call findByEmail then return token successfully', async () => {
-//         const signinUsecase = new SignInUseCase(userRepository)
-//         signinUseCaseInput = {
-//           dto : {
-//             email: "Namkhoa@gmail.com",
-//             password: "P@ssw0rd",
-//           }
-//         }
-//         const newUser = new User({
-//             email: "Namkhoa@gmail.com",
-//             password: "P@ssw0rd",
-//             username: "asdfghjklmnb",
-//             phoneNumber: "0123456789"
-//         })  
+		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
 
-//         const mockReturnAccessToken = jest.fn(()=>{return 'this is access token'})
-//         const mockReturnIdToken = jest.fn(()=>{return 'this is id token'})
-//         newUser.getAccessToken = mockReturnAccessToken
-//         newUser.getIdToken = mockReturnIdToken
-//         userRepoMockFindByEmail.mockResolvedValueOnce(newUser)
-        
-//         const value =await signinUsecase.execute(signinUseCaseInput)
-//         expect(userRepoMockFindByEmail).toBeCalledWith(signinUseCaseInput.dto.email)
-//         expect(mockReturnAccessToken).toBeCalled()
-//         expect(mockReturnIdToken).toBeCalled()
-//         expect(value).toEqual({accessToken:'this is access token', idToken:'this is id token'})
-//     });
-//   })
+		const expectedError = new BadRequestException('Missing password');
 
-// });
+		await expect(
+			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+		).rejects.toThrow(expectedError);
+
+		expect(userRepositoryMock.findByEmail).not.toBeCalled();
+		expect(userModelMock.createAccessToken).not.toBeCalled();
+		expect(userModelMock.createIdToken).not.toBeCalled();
+		expect(userModelMock.hasMatchingPassword).not.toBeCalled();
+	});
+
+	it('should throw error when user is not existed', async () => {
+		const signInDtoMock: SignInDto = {
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+		};
+
+		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+
+		const expectedError = new BadRequestException('User is not existed');
+
+		userRepositoryMock.findByEmail.mockResolvedValueOnce(null);
+
+		await expect(
+			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+		).rejects.toThrow(expectedError);
+
+		expect(userRepositoryMock.findByEmail).toBeCalledWith('email@gmail.com');
+		expect(userModelMock.createAccessToken).not.toBeCalled();
+		expect(userModelMock.createIdToken).not.toBeCalled();
+		expect(userModelMock.hasMatchingPassword).not.toBeCalled();
+	});
+
+	it('should throw error when password is incorrect', async () => {
+		const signInDtoMock: SignInDto = {
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+		};
+
+		const existedUserMock: User = new User({
+			email: 'email@gmail.com',
+			password: 'anotherP@ssw0rd',
+			username: 'username',
+			id: 'random id',
+		});
+
+		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+
+		userRepositoryMock.findByEmail.mockResolvedValueOnce(existedUserMock);
+
+		existedUserMock.hasMatchingPassword = userModelMock.hasMatchingPassword;
+		userModelMock.hasMatchingPassword.mockReturnValueOnce(false);
+
+		const expectedError = new BadRequestException('Password is incorrect');
+
+		await expect(
+			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+		).rejects.toThrow(expectedError);
+
+		expect(userRepositoryMock.findByEmail).toBeCalledWith('email@gmail.com');
+		expect(userModelMock.hasMatchingPassword).toBeCalledWith('P@ssw0rd');
+		expect(userModelMock.createAccessToken).not.toBeCalled();
+		expect(userModelMock.createIdToken).not.toBeCalled();
+	});
+
+	it('should execute successfully with valid credential', async () => {
+		const signInDtoMock: SignInDto = {
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+		};
+
+		const existedUserMock: User = new User({
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+			username: 'username',
+			id: 'id',
+		});
+
+		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+
+		userRepositoryMock.findByEmail.mockResolvedValueOnce(existedUserMock);
+
+		existedUserMock.hasMatchingPassword = userModelMock.hasMatchingPassword;
+		userModelMock.hasMatchingPassword.mockReturnValueOnce(true);
+
+		existedUserMock.createAccessToken = userModelMock.createAccessToken;
+		userModelMock.createAccessToken.mockReturnValueOnce('accessToken');
+
+		existedUserMock.createIdToken = userModelMock.createIdToken;
+		userModelMock.createIdToken.mockReturnValueOnce('idToken');
+
+		const result = await signInUseCaseMock.execute(
+			new SignInUseCaseInput(signInDtoMock, jwtMock),
+		);
+
+		expect(result).toEqual({
+			accessToken: 'accessToken',
+			idToken: 'idToken',
+		});
+		expect(userRepositoryMock.findByEmail).toBeCalledWith('email@gmail.com');
+		expect(userModelMock.hasMatchingPassword).toBeCalledWith('P@ssw0rd');
+		expect(userModelMock.createAccessToken).toBeCalled();
+		expect(userModelMock.createIdToken).toBeCalled();
+	});
+});

@@ -36,19 +36,23 @@
 		"ts-jest": "^26.5.4",
 		"ts-loader": "^8.0.18",
 		"ts-node": "10.6.0",
-		"tsconfig-paths": "^3.9.0"
+		"eslint-config-google": "^0.14.0",
+		"tsconfig-paths": "^3.9.0",
+		"@typescript-eslint/eslint-plugin": "^5.48.2",
+		"@typescript-eslint/parser": "^5.48.2",
+		"eslint-plugin-react": "^7.32.1"
 	},
 	"config": {
 		"commitizen": {
 			"path": "./node_modules/cz-conventional-changelog"
 		}
 	},
-	"dependencies": {
-		"@typescript-eslint/eslint-plugin": "^5.48.2",
-		"@typescript-eslint/parser": "^5.48.2",
-		"eslint-config-google": "^0.14.0",
-		"eslint-plugin-react": "^7.32.1"
+	"husky": {
+		"hooks": {
+			"prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
+		}
 	},
+	"dependencies": {},
 	"lint-staged": {
 		"*.ts": "npm run lint",
 		"*.--write": "npm run format"
@@ -69,16 +73,23 @@
 			}
 		},
 		"moduleNameMapper": {
-			"^@libs/common/(.*)$": "<rootDir>/libs/common/src/$1"
+			"^@libs/common": "<rootDir>/libs/common/src/index.ts"
 		},
 		"testRegex": ".*\\.spec\\.ts$",
 		"transform": {
-			"^.+\\.(t|j)s$": "ts-jest"
+			"^.+\\.ts$": "ts-jest"
 		},
 		"collectCoverageFrom": [
-			"**/*.(t|j)s"
+			"**/*.ts"
 		],
 		"coverageDirectory": "../coverage",
-		"testEnvironment": "node"
+		"testEnvironment": "node",
+		"coveragePathIgnorePatterns": [
+			"/node_modules/",
+			"<rootDir>/libs/common/dist",
+			"<rootDir>/services/poll/dist",
+			"<rootDir>/services/user/dist",
+			"<rootDir>/services/voting/dist"
+		]
 	}
 }

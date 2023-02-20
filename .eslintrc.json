@@ -5,10 +5,9 @@
 	},
 	"extends": [
 		"eslint:recommended",
-		"plugin:react/recommended",
 		"plugin:@typescript-eslint/recommended",
-		"prettier",
-		"google"
+		"google",
+		"prettier"
 	],
 	"overrides": [],
 	"parser": "@typescript-eslint/parser",
@@ -16,11 +15,15 @@
 		"ecmaVersion": "latest",
 		"sourceType": "module"
 	},
-	"plugins": ["react", "@typescript-eslint"],
+	"plugins": ["@typescript-eslint"],
+	"ignorePatterns": ["libs/common/dist/*", "services/*/dist/*", "**.spec.ts"],
 	"rules": {
 		"@typescript-eslint/interface-name-prefix": "off",
 		"@typescript-eslint/explicit-function-return-type": "off",
 		"@typescript-eslint/explicit-module-boundary-types": "off",
-		"@typescript-eslint/no-explicit-any": "off"
+		"@typescript-eslint/no-explicit-any": "off",
+		"new-cap": "off",
+		"require-jsdoc": 0,
+		"no-undef": "off"
 	}
 }

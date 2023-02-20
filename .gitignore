@@ -1,6 +1,11 @@
 # compiled output
+dist
+build
 /dist
+/dist/*
 node_modules
+./package-lock.json
+package-lock.json
 # Logs
 logs
 *.log
@@ -31,3 +36,13 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+#compile
+*.js
+*.js.map
+*.d.ts
+.env
+#serverless
+**/.serverless
+/build
+services/**/dist
