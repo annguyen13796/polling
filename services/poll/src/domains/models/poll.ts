@@ -1,6 +1,6 @@
 import { isStringEmptyOrUndefined, BadRequestException } from '@libs/common';
 import moment from 'moment';
-import { POLLSTATUS } from '../../constants';
+import { POLL_STATUS } from '../../constants';
 import { Question } from './question';
 
 export interface PollProps {
@@ -8,10 +8,10 @@ export interface PollProps {
 	title: string | null | undefined;
 	description: string | null | undefined;
 	createdAt?: string;
-	version?: string;
 	questions?: Question[];
 	id?: string;
-	status?: POLLSTATUS;
+	version?: string;
+	status?: POLL_STATUS;
 	voteLink?: string;
 }
 
@@ -92,7 +92,7 @@ export class Poll {
 		}
 
 		if (!version) {
-			this.props.version = '1';
+			this.props.version = '0';
 		}
 
 		if (!questions) {

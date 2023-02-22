@@ -5,9 +5,10 @@ import {
 	GetPollsByCreatorEmailUseCase,
 	GetPollByIdUseCase,
 	GetQuestionsByPollIdUseCase,
+	EditQuestionUseCase,
 } from '../usecases';
 
-import { pollRepository, questionRepository } from './init-repositories';
+import { pollRepository } from './init-repositories';
 
 export const createPollUseCase = new CreatePollUseCase(pollRepository);
 
@@ -19,11 +20,9 @@ export const getQuestionsUseCase = new GetQuestionsByPollIdUseCase(
 	pollRepository,
 );
 
-export const createQuestionUseCase = new CreateQuestionUseCase(
-	questionRepository,
-	pollRepository,
-);
+export const createQuestionUseCase = new CreateQuestionUseCase(pollRepository);
 
 export const deletePollByIdUseCase = new DeletePollByIdUseCase(pollRepository);
-
 export const getPollByIdUseCase = new GetPollByIdUseCase(pollRepository);
+
+export const editQuestionUseCase = new EditQuestionUseCase(pollRepository);

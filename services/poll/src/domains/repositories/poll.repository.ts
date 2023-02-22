@@ -11,4 +11,10 @@ export interface IPollRepository extends IRepository<Poll> {
 	getQuestionsByPollId(pollId: string): Promise<Question[]>;
 	deletePollById(pollId: string): Promise<void>;
 	findPollById(pollId: string): Promise<Poll | null>;
+	createQuestion(questionObj: Question): Promise<void>;
+	findQuestionByPollIdAndQuestionId(
+		pollId: string,
+		questionId: string,
+	): Promise<Question | null>;
+	updateQuestionGeneralInformation(modifiedQuestion: Question): Promise<void>;
 }

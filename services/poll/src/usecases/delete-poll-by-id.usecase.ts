@@ -1,12 +1,8 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
-import {
-	DeletePollByIdResponseDto,
-	DeletePollDto,
-	IPollRepository,
-} from '../domains';
+import { DeletePollByIdResponseDto, IPollRepository } from '../domains';
 
 export class DeletePollByIdUseCaseInput {
-	constructor(public readonly dto: DeletePollDto) {}
+	constructor(public readonly pollId: string) {}
 }
 
 export class DeletePollByIdUseCase {
@@ -15,8 +11,7 @@ export class DeletePollByIdUseCase {
 	async execute(
 		input: DeletePollByIdUseCaseInput,
 	): Promise<DeletePollByIdResponseDto> {
-		const { dto } = input;
-		const { pollId } = dto;
+		const { pollId } = input;
 
 		if (!pollId) {
 			throw new BadRequestException('Poll Id is missing');

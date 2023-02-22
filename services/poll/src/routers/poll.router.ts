@@ -6,6 +6,7 @@ import {
 	getPollQuestions,
 	deletePollById,
 	getPollById,
+	editQuestion,
 } from '../controllers';
 
 const router: Router = express.Router();
@@ -15,7 +16,9 @@ router.get('/', getAllPolls);
 router.get('/:pollId', getPollById);
 router.delete('/:pollId', deletePollById);
 
-router.post('/questions', createQuestion);
+router.post('/:pollId/questions', createQuestion);
 router.get('/:pollId/questions', getPollQuestions);
+
+router.put('/:pollId/questions/:questionId', editQuestion);
 
 export const pollRouter: Router = router;

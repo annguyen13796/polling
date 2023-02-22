@@ -3,27 +3,26 @@ import {
 	CreateQuestionDto,
 	CreateQuestionResponseDto,
 	Question,
-	IQuestionRepository,
 	IPollRepository,
 } from '../domains';
 
 export class CreateQuestionUseCaseInput {
-	constructor(public readonly dto: CreateQuestionDto) {}
+	constructor(
+		public readonly dto: CreateQuestionDto,
+		public readonly pollId: string,
+	) {}
 }
 
 export class CreateQuestionUseCase {
-	constructor(
-		private readonly questionRepository: IQuestionRepository,
-		private readonly pollRepository: IPollRepository,
-	) {}
+	constructor(private readonly pollRepository: IPollRepository) {}
 
 	async execute(
 		input: CreateQuestionUseCaseInput,
 	): Promise<CreateQuestionResponseDto> {
-		const { dto } = input;
-		const { pollId, content, questionType, isRequired, answers } = dto;
+		const { dto, pollId } = input;
+		const { content, questionType, isRequired, answers } = dto;
 
-		const isFieldMissing = !pollId || !content || !questionType;
+		const isFieldMissing = !pollId || !content || !questionType || !answers;
 
 		if (isFieldMissing) {
 			const missingFields: string[] = [];
@@ -40,6 +39,10 @@ export class CreateQuestionUseCase {
 				missingFields.push('questionType');
 			}
 
+			if (!answers) {
+				missingFields.push('answers');
+			}
+
 			throw new BadRequestException(`Missing ${missingFields.join(', ')}`);
 		}
 
@@ -49,8 +52,12 @@ export class CreateQuestionUseCase {
 		}
 
 		const isAnswerListEmpty = !answers.length;
-		if (isAnswerListEmpty) {
-			throw new BadRequestException(`Answer list can not be empty`);
+		const notHasTextBoxType = !(questionType === 'TEXT_BOX');
+
+		if (isAnswerListEmpty && notHasTextBoxType) {
+			throw new BadRequestException(
+				`Answer list of this question type can not be empty`,
+			);
 		}
 
 		const isPollExisted = await this.pollRepository.findPollById(pollId);
@@ -66,8 +73,10 @@ export class CreateQuestionUseCase {
 			answers,
 		});
 
-		await this.questionRepository.create(newQuestion);
-
-		return { message: 'Create Question successfully' };
+		await this.pollRepository.createQuestion(newQuestion);
+		return {
+			message: 'Create Question successfully',
+			questionId: newQuestion.questionId,
+		};
 	}
 }
