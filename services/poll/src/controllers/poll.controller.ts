@@ -12,6 +12,7 @@ import {
 	GetPollsByCreatorEmailResponseDto,
 	EditQuestionDto,
 	EditQuestionResponseDto,
+	DeleteQuestionResponseDto,
 } from '../domains';
 import {
 	CreatePollUseCaseInput,
@@ -21,11 +22,13 @@ import {
 	GetPollByIdUseCaseInput,
 	GetQuestionsByPollIdUseCaseInput,
 	EditQuestionUseCaseInput,
+	DeleteQuestionByIdUseCaseInput,
 } from '../usecases';
 import {
 	createPollUseCase,
 	createQuestionUseCase,
 	deletePollByIdUseCase,
+	deleteQuestionByIdUseCase,
 	editQuestionUseCase,
 	getAllPollsUseCase,
 	getPollByIdUseCase,
@@ -143,6 +146,26 @@ export const deletePollById = async (
 
 		const input = new DeletePollByIdUseCaseInput(pollIdParam);
 		const result = await deletePollByIdUseCase.execute(input);
+
+		return response.send(result);
+	} catch (error) {
+		return ApiErrorMapper.toErrorResponse(error, response);
+	}
+};
+
+export const deleteQuestionById = async (
+	request: Request,
+	response: Response,
+): Promise<Response<DeleteQuestionResponseDto>> => {
+	try {
+		const pollIdParam = request.params?.pollId;
+		const questionIdParam = request.params?.questionId;
+
+		const input = new DeleteQuestionByIdUseCaseInput(
+			pollIdParam,
+			questionIdParam,
+		);
+		const result = await deleteQuestionByIdUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {

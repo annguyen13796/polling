@@ -3,6 +3,8 @@ import { IQuestionRepository, Question } from '../domains';
 import { DynamoDBRepository, DatabaseMapper } from '@libs/common';
 import { QUESTION_TYPE } from '../constants';
 import {
+	DeleteItemCommand,
+	DeleteItemCommandInput,
 	UpdateItemCommand,
 	UpdateItemCommandInput,
 } from '@aws-sdk/client-dynamodb';
@@ -119,5 +121,31 @@ export class QuestionDynamoRepository
 			},
 		};
 		await this.dynamoDBDocClient.send(new UpdateItemCommand(params));
+	}
+	async deleteQuestionById(
+		pollId: string,
+		questionId: string,
+	): Promise<boolean> {
+		const params: DeleteItemCommandInput = {
+			TableName: this.config.tableName,
+			Key: {
+				PK: { S: `POLL#${pollId}` },
+				SK: { S: `QUES#${questionId}` },
+			},
+			ReturnValues: 'ALL_OLD',
+		};
+
+		const { Attributes } = await this.dynamoDBDocClient.send(
+			new DeleteItemCommand(params),
+		);
+		if (Attributes) {
+			const deletedQuestionId = Attributes.SK.S.split('#')[1];
+			if (questionId === deletedQuestionId) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
 	}
 }

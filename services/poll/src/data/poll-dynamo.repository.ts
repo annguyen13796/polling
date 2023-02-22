@@ -159,6 +159,17 @@ export class PollDynamoRepository
 		);
 	}
 
+	async deleteQuestionById(
+		pollId: string,
+		questionId: string,
+	): Promise<boolean> {
+		const isDeleted = await this.questionRepository.deleteQuestionById(
+			pollId,
+			questionId,
+		);
+		return isDeleted;
+	}
+
 	async deletePollById(pollId: string): Promise<void> {
 		const params: DeleteCommandInput = {
 			TableName: this.config.tableName,

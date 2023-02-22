@@ -6,6 +6,7 @@ import {
 	GetPollByIdUseCase,
 	GetQuestionsByPollIdUseCase,
 	EditQuestionUseCase,
+	DeleteQuestionByIdUseCase,
 } from '../usecases';
 
 import { pollRepository } from './init-repositories';
@@ -26,3 +27,6 @@ export const deletePollByIdUseCase = new DeletePollByIdUseCase(pollRepository);
 export const getPollByIdUseCase = new GetPollByIdUseCase(pollRepository);
 
 export const editQuestionUseCase = new EditQuestionUseCase(pollRepository);
+export const deleteQuestionByIdUseCase = new DeleteQuestionByIdUseCase(
+	pollRepository,
+);
