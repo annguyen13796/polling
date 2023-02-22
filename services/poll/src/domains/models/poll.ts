@@ -33,6 +33,10 @@ export class Poll {
 		return this.props.version;
 	}
 
+	public set version(ver) {
+		this.props.version = ver;
+	}
+
 	public get questions() {
 		return this.props.questions;
 	}
@@ -51,6 +55,10 @@ export class Poll {
 
 	public get voteLink() {
 		return this.props.voteLink;
+	}
+
+	public set voteLink(url: string) {
+		this.props.voteLink = url;
 	}
 
 	constructor(private readonly props: PollProps) {

@@ -5,6 +5,8 @@ import {
 	GetCommandInput,
 	GetCommand,
 	QueryCommandInput,
+	UpdateCommandInput,
+	UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import {
 	Poll,
@@ -199,5 +201,41 @@ export class PollDynamoRepository
 				}),
 			);
 		}
+	}
+
+	generateVoteURL(pollId: string): string {
+		const encodePollId = btoa(`${pollId}`);
+
+		return encodePollId;
+	}
+
+	async updatePollGeneralInformation(
+		pollId: string,
+		version: string,
+		voteURL?: string,
+	): Promise<void> {
+		const params: UpdateCommandInput = {
+			TableName: this.config.tableName,
+			Key: {
+				SK: `POLL#${pollId}`,
+				PK: `POLL#${pollId}`,
+			},
+			...(voteURL
+				? {
+						UpdateExpression: 'set Version = :newVersion, VoteLink = :voteURL',
+						ExpressionAttributeValues: {
+							':newVersion': version,
+							':voteURL': voteURL,
+						},
+				  }
+				: {
+						UpdateExpression: 'set Version = :newVersion',
+						ExpressionAttributeValues: {
+							':newVersion': version,
+						},
+				  }),
+		};
+
+		await this.dynamoDBDocClient.send(new UpdateCommand(params));
 	}
 }

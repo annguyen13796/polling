@@ -101,7 +101,6 @@ export class QuestionDynamoRepository
 	): Promise<void> {
 		const parsedAnswersToDynamodbFormat = modifiedQuestion.answers.map(
 			(element) => {
-				// eslint-disable-next-line no-unused-labels
 				return { S: element };
 			},
 		);

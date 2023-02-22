@@ -13,6 +13,7 @@ import {
 	EditQuestionDto,
 	EditQuestionResponseDto,
 	DeleteQuestionResponseDto,
+	CreateVoteLinkResponseDto,
 } from '../domains';
 import {
 	CreatePollUseCaseInput,
@@ -23,10 +24,12 @@ import {
 	GetQuestionsByPollIdUseCaseInput,
 	EditQuestionUseCaseInput,
 	DeleteQuestionByIdUseCaseInput,
+	CreateVoteURLUseCaseInput,
 } from '../usecases';
 import {
 	createPollUseCase,
 	createQuestionUseCase,
+	createVoteLinkUseCase,
 	deletePollByIdUseCase,
 	deleteQuestionByIdUseCase,
 	editQuestionUseCase,
@@ -243,4 +246,24 @@ export const sendPollGeneralInfoToClient = (response: Response, poll: Poll) => {
 	};
 
 	return response.send(pollForClient);
+};
+
+export const createVoteLink = async (
+	request: Request,
+	response: Response,
+): Promise<Response<CreateVoteLinkResponseDto>> => {
+	try {
+		const pollIdParam = request.params?.pollId;
+		const createVoteLinkUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdParam,
+		);
+
+		const result = await createVoteLinkUseCase.execute(
+			createVoteLinkUseCaseInput,
+		);
+
+		return response.send(result);
+	} catch (error) {
+		return ApiErrorMapper.toErrorResponse(error, response);
+	}
 };
