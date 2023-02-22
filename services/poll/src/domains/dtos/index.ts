@@ -7,3 +7,4 @@ export * from './delete-poll-res.dto';
 export * from './get-poll-by-email-res.dto';
 export * from './edit-question.dto';
 export * from './edit-question-res.dto';
+export * from './delete-question-res.dto';

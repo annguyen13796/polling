@@ -17,4 +17,5 @@ export interface IPollRepository extends IRepository<Poll> {
 		questionId: string,
 	): Promise<Question | null>;
 	updateQuestionGeneralInformation(modifiedQuestion: Question): Promise<void>;
+	deleteQuestionById(pollId: string, questionId: string): Promise<boolean>;
 }
