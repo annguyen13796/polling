@@ -3,7 +3,6 @@ import moment from 'moment';
 import {
 	CreateQuestionDto,
 	IPollRepository,
-	IQuestionRepository,
 	Poll,
 	Question,
 } from '../../domains';
@@ -12,16 +11,21 @@ import {
 	CreateQuestionUseCaseInput,
 } from '../create-question.usecase';
 
+const valueOfMock = jest.fn();
+const toISOStringMock = jest.fn();
+jest.mock('moment', () => {
+	return function () {
+		return {
+			valueOf: () => valueOfMock(),
+			toISOString: () => toISOStringMock(),
+		};
+	};
+});
+
 describe('CreatQuestionUsecase', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
-
-	const questionRepositoryMock: jest.Mocked<IQuestionRepository> = {
-		create: jest.fn(),
-		getQuestionsByPollId: jest.fn(),
-		update: jest.fn(),
-	};
 
 	const pollRepositoryMock: jest.Mocked<IPollRepository> = {
 		create: jest.fn(),
@@ -30,16 +34,18 @@ describe('CreatQuestionUsecase', () => {
 		deletePollById: jest.fn(),
 		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
+		generateVoteURL: jest.fn(),
+		updatePollGeneralInformation: jest.fn(),
+		createQuestion: jest.fn(),
+		findQuestionByPollIdAndQuestionId: jest.fn(),
+		updateQuestionGeneralInformation: jest.fn(),
+		deleteQuestionById: jest.fn(),
 	};
 
 	test('should throw error when content is null or undefined', async () => {
-		const creatQuestionUsecase = new CreateQuestionUseCase(
-			questionRepositoryMock,
-			pollRepositoryMock,
-		);
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 
 		const questionDtoMock: CreateQuestionDto = {
-			pollId: '12344322',
 			content: '',
 			answers: ['Sure', 'A little bit'],
 			questionType: 'MULTIPLE',
@@ -48,6 +54,7 @@ describe('CreatQuestionUsecase', () => {
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
 			questionDtoMock,
+			'12344322',
 		);
 
 		const expectedError = new BadRequestException('Missing content');
@@ -57,17 +64,13 @@ describe('CreatQuestionUsecase', () => {
 		).rejects.toThrowError(expectedError);
 
 		expect(pollRepositoryMock.findPollById).not.toBeCalled();
-		expect(questionRepositoryMock.create).not.toBeCalled();
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
 	});
 
 	test('should throw error when pollId is null or undefined', async () => {
-		const creatQuestionUsecase = new CreateQuestionUseCase(
-			questionRepositoryMock,
-			pollRepositoryMock,
-		);
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 
 		const questionDtoMock: CreateQuestionDto = {
-			pollId: '',
 			content: 'Do you like playing aov',
 			answers: ['Sure', 'A little bit'],
 			questionType: 'MULTIPLE',
@@ -76,6 +79,7 @@ describe('CreatQuestionUsecase', () => {
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
 			questionDtoMock,
+			undefined,
 		);
 
 		const expectedError = new BadRequestException('Missing pollId');
@@ -84,18 +88,14 @@ describe('CreatQuestionUsecase', () => {
 			creatQuestionUsecase.execute(createQuestionUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(questionRepositoryMock.create).not.toBeCalled();
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
 		expect(pollRepositoryMock.findPollById).not.toBeCalled();
 	});
 
 	test('should throw error when question type is null or undefined', async () => {
-		const creatQuestionUsecase = new CreateQuestionUseCase(
-			questionRepositoryMock,
-			pollRepositoryMock,
-		);
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 
 		const questionDtoMock: CreateQuestionDto = {
-			pollId: '422343',
 			content: 'Do you like playing aov',
 			answers: ['Sure', 'A little bit'],
 			questionType: null,
@@ -104,6 +104,7 @@ describe('CreatQuestionUsecase', () => {
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
 			questionDtoMock,
+			'422343',
 		);
 
 		const expectedError = new BadRequestException('Missing questionType');
@@ -112,17 +113,36 @@ describe('CreatQuestionUsecase', () => {
 			creatQuestionUsecase.execute(createQuestionUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(questionRepositoryMock.create).not.toBeCalled();
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
+	});
+	test('should throw error when answers is null or undefined', async () => {
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
+
+		const questionDtoMock: CreateQuestionDto = {
+			content: 'Do you like playing aov',
+			answers: undefined,
+			questionType: 'CHECKBOX',
+			isRequired: true,
+		};
+
+		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
+			questionDtoMock,
+			'422343',
+		);
+
+		const expectedError = new BadRequestException('Missing answers');
+
+		await expect(
+			creatQuestionUsecase.execute(createQuestionUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
 	});
 
 	test('should throw error when provided empty answer list', async () => {
-		const creatQuestionUsecase = new CreateQuestionUseCase(
-			questionRepositoryMock,
-			pollRepositoryMock,
-		);
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 
 		const questionDtoMock: CreateQuestionDto = {
-			pollId: '422343',
 			content: 'Do you like playing aov',
 			answers: [],
 			questionType: 'MULTIPLE',
@@ -131,27 +151,24 @@ describe('CreatQuestionUsecase', () => {
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
 			questionDtoMock,
+			'422343',
 		);
 
 		const expectedError = new BadRequestException(
-			'Answer list can not be empty',
+			'Answer list of this question type can not be empty',
 		);
 
 		await expect(
 			creatQuestionUsecase.execute(createQuestionUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(questionRepositoryMock.create).not.toBeCalled();
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
 		expect(pollRepositoryMock.findPollById).not.toBeCalled();
 	});
 	test('should throw error when isRequired type is not boolean', async () => {
-		const creatQuestionUsecase = new CreateQuestionUseCase(
-			questionRepositoryMock,
-			pollRepositoryMock,
-		);
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 
 		const questionDtoMock: CreateQuestionDto = {
-			pollId: '422343',
 			content: 'Do you like playing aov',
 			answers: ['yes', 'no'],
 			questionType: 'MULTIPLE',
@@ -160,6 +177,7 @@ describe('CreatQuestionUsecase', () => {
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
 			questionDtoMock,
+			'422343',
 		);
 
 		const expectedError = new BadRequestException(
@@ -170,17 +188,13 @@ describe('CreatQuestionUsecase', () => {
 			creatQuestionUsecase.execute(createQuestionUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(questionRepositoryMock.create).not.toBeCalled();
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
 		expect(pollRepositoryMock.findPollById).not.toBeCalled();
 	});
 	test('should throw error poll Id is not existed', async () => {
-		const creatQuestionUsecase = new CreateQuestionUseCase(
-			questionRepositoryMock,
-			pollRepositoryMock,
-		);
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 
 		const questionDtoMock: CreateQuestionDto = {
-			pollId: '123',
 			content: 'Do you like playing aov',
 			answers: ['yes', 'no'],
 			questionType: 'MULTIPLE',
@@ -189,34 +203,30 @@ describe('CreatQuestionUsecase', () => {
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
 			questionDtoMock,
+			'422343',
 		);
 
 		pollRepositoryMock.findPollById.mockResolvedValueOnce(null);
 
 		const expectedError = new NotFoundException(
-			'Poll with id 123 is not existed',
+			'Poll with id 422343 is not existed',
 		);
 
 		await expect(
 			creatQuestionUsecase.execute(createQuestionUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(pollRepositoryMock.findPollById).toBeCalledWith('123');
-		expect(questionRepositoryMock.create).not.toBeCalled();
+		expect(pollRepositoryMock.findPollById).toBeCalledWith('422343');
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
 	});
 
 	test('Create Question successfully with valid dto', async () => {
-		const creatQuestionUsecase = new CreateQuestionUseCase(
-			questionRepositoryMock,
-			pollRepositoryMock,
-		);
+		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 
-		jest
-			.spyOn<any, any>(Date, 'now')
-			.mockReturnValue(new Date().getMilliseconds);
+		valueOfMock.mockReturnValue('555');
+		toISOStringMock.mockReturnValue('23456789');
 
 		const questionDtoMock: CreateQuestionDto = {
-			pollId: '123',
 			content: 'Do you like playing aov',
 			answers: ['Sure', 'A little bit'],
 			questionType: 'MULTIPLE',
@@ -241,14 +251,19 @@ describe('CreatQuestionUsecase', () => {
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
 			questionDtoMock,
+			'123',
 		);
-		questionRepositoryMock.create.mockResolvedValue();
+		pollRepositoryMock.createQuestion.mockResolvedValue();
 
 		const result = await creatQuestionUsecase.execute(
 			createQuestionUseCaseInput,
 		);
 
-		expect(result).toEqual({ message: 'Create Question successfully' });
-		expect(questionRepositoryMock.create).toBeCalledWith(questionMock);
+		expect(result).toEqual({
+			message: 'Create Question successfully',
+			questionId: '555',
+		});
+
+		expect(pollRepositoryMock.createQuestion).toBeCalledWith(questionMock);
 	});
 });

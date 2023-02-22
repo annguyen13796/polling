@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
-import { GetQuestionsDto, IPollRepository, Question } from '../../domains';
+import { IPollRepository, Question } from '../../domains';
 import {
 	GetQuestionsByPollIdUseCaseInput,
 	GetQuestionsByPollIdUseCase,
@@ -12,11 +12,17 @@ describe('GetQuestionsByPollIdUseCase', () => {
 
 	const pollRepositoryMock: jest.Mocked<IPollRepository> = {
 		create: jest.fn(),
+		getPollsByCreatorEmail: jest.fn(),
 		update: jest.fn(),
 		deletePollById: jest.fn(),
-		getPollsByCreatorEmail: jest.fn(),
 		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
+		generateVoteURL: jest.fn(),
+		updatePollGeneralInformation: jest.fn(),
+		createQuestion: jest.fn(),
+		findQuestionByPollIdAndQuestionId: jest.fn(),
+		updateQuestionGeneralInformation: jest.fn(),
+		deleteQuestionById: jest.fn(),
 	};
 
 	test(`Get poll's list question failed when pollId is blank`, async () => {
@@ -24,9 +30,8 @@ describe('GetQuestionsByPollIdUseCase', () => {
 			pollRepositoryMock,
 		);
 
-		const getQuestionDto: GetQuestionsDto = {
-			pollId: '',
-		};
+		const getQuestionDto = undefined;
+
 		const getPollQuestionsByIdUseCaseInput =
 			new GetQuestionsByPollIdUseCaseInput(getQuestionDto);
 
@@ -40,9 +45,7 @@ describe('GetQuestionsByPollIdUseCase', () => {
 	});
 
 	test('Should throw error when poll is not existed', async () => {
-		const getQuestionDto: GetQuestionsDto = {
-			pollId: '123',
-		};
+		const getQuestionDto = '123';
 
 		const getPollQuestionsByIdUseCaseInput =
 			new GetQuestionsByPollIdUseCaseInput(getQuestionDto);
@@ -81,9 +84,8 @@ describe('GetQuestionsByPollIdUseCase', () => {
 			questionMock,
 		]);
 
-		const getQuestionDto: GetQuestionsDto = {
-			pollId: '123',
-		};
+		const getQuestionDto = '123';
+
 		const getPollQuestionsByIdUseCaseInput =
 			new GetQuestionsByPollIdUseCaseInput(getQuestionDto);
 

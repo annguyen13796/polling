@@ -70,6 +70,13 @@ functions:
           path: /polls/{pollId}
           method: DELETE
           cors: true
+  createVoteLink:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls/{pollId}/link
+          method: GET
+          cors: true
 
 plugins:
   - serverless-offline

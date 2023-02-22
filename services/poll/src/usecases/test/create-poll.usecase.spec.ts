@@ -18,6 +18,12 @@ describe('CreatePollUseCase', () => {
 		deletePollById: jest.fn(),
 		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
+		generateVoteURL: jest.fn(),
+		updatePollGeneralInformation: jest.fn(),
+		createQuestion: jest.fn(),
+		findQuestionByPollIdAndQuestionId: jest.fn(),
+		updateQuestionGeneralInformation: jest.fn(),
+		deleteQuestionById: jest.fn(),
 	};
 
 	it('should throw error when creator email is null/undefined', async () => {
@@ -73,11 +79,9 @@ describe('CreatePollUseCase', () => {
 
 		const createPollUseCaseInput = new CreatePollUseCaseInput(pollDtoMock);
 
-		jest.spyOn<typeof moment, any>(moment, 'valueOf').mockReturnValue(123);
-
-		// jest
-		// 	.spyOn<any, any>(Date, 'now')
-		// 	.mockReturnValue(new Date().getMilliseconds);
+		jest
+			.spyOn<any, string>(Date, 'now')
+			.mockReturnValue(new Date().getMilliseconds);
 
 		const pollMock = new Poll({
 			creatorEmail: 'td@gmail.com',

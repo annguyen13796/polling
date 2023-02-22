@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
-import { GetPollByIdDto, IPollRepository, Poll } from '../../domains';
+import { IPollRepository, Poll } from '../../domains';
 import {
 	GetPollByIdUseCaseInput,
 	GetPollByIdUseCase,
@@ -12,17 +12,21 @@ describe('get Poll by Id usecase test', () => {
 
 	const pollRepositoryMock: jest.Mocked<IPollRepository> = {
 		create: jest.fn(),
-		deletePollById: jest.fn(),
 		getPollsByCreatorEmail: jest.fn(),
-		getQuestionsByPollId: jest.fn(),
 		update: jest.fn(),
+		deletePollById: jest.fn(),
+		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
+		generateVoteURL: jest.fn(),
+		updatePollGeneralInformation: jest.fn(),
+		createQuestion: jest.fn(),
+		findQuestionByPollIdAndQuestionId: jest.fn(),
+		updateQuestionGeneralInformation: jest.fn(),
+		deleteQuestionById: jest.fn(),
 	};
 
 	it('Should throw error when poll Id is missing', async () => {
-		const pollIdDto: GetPollByIdDto = {
-			pollId: undefined,
-		};
+		const pollIdDto = undefined;
 
 		const getPollByIdUseCaseInput = new GetPollByIdUseCaseInput(pollIdDto);
 
@@ -38,9 +42,7 @@ describe('get Poll by Id usecase test', () => {
 	});
 
 	it('Should throw error when poll is not existed', async () => {
-		const pollIdDto: GetPollByIdDto = {
-			pollId: '1234',
-		};
+		const pollIdDto = '1234';
 
 		const getPollByIdUseCaseInput = new GetPollByIdUseCaseInput(pollIdDto);
 
@@ -60,9 +62,7 @@ describe('get Poll by Id usecase test', () => {
 	});
 
 	it('Should execute successfully with valid pollId and the poll is existed on the DB', async () => {
-		const pollIdDto: GetPollByIdDto = {
-			pollId: '1234',
-		};
+		const pollIdDto = '1234';
 
 		const getPollByIdUseCaseInput = new GetPollByIdUseCaseInput(pollIdDto);
 
@@ -83,7 +83,7 @@ describe('get Poll by Id usecase test', () => {
 			getPollByIdUseCaseInput,
 		);
 
-		expect(pollRepositoryMock.findPollById).toBeCalledWith(pollIdDto.pollId);
+		expect(pollRepositoryMock.findPollById).toBeCalledWith(pollIdDto);
 		expect(result).toEqual(existedPoll);
 	});
 });

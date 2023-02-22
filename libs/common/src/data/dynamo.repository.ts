@@ -29,7 +29,10 @@ export class DynamoDBRepository<DomainModel, DataModel>
 			region: 'eu-central-1',
 		});
 		this.dynamoDBDocClient = DynamoDBDocumentClient.from(this.dynamoDBClient, {
-			marshallOptions: { convertEmptyValues: false },
+			marshallOptions: {
+				convertEmptyValues: false,
+				removeUndefinedValues: true,
+			},
 		});
 	}
 
@@ -54,6 +57,8 @@ export class DynamoDBRepository<DomainModel, DataModel>
 				TableName: this.config.tableName,
 				Key: dataModel,
 			};
+
+			console.log(params);
 
 			await this.dynamoDBDocClient.send(new UpdateCommand(params));
 		} catch (error) {

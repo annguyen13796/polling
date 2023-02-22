@@ -1,5 +1,5 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
-import { IPollRepository, Poll, DeletePollDto } from '../../domains';
+import { IPollRepository, Poll } from '../../domains';
 import {
 	DeletePollByIdUseCaseInput,
 	DeletePollByIdUseCase,
@@ -12,17 +12,21 @@ describe('delete poll by id usecase test', () => {
 
 	const pollRepositoryMock: jest.Mocked<IPollRepository> = {
 		create: jest.fn(),
-		deletePollById: jest.fn(),
 		getPollsByCreatorEmail: jest.fn(),
-		getQuestionsByPollId: jest.fn(),
 		update: jest.fn(),
+		deletePollById: jest.fn(),
+		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
+		generateVoteURL: jest.fn(),
+		updatePollGeneralInformation: jest.fn(),
+		createQuestion: jest.fn(),
+		findQuestionByPollIdAndQuestionId: jest.fn(),
+		updateQuestionGeneralInformation: jest.fn(),
+		deleteQuestionById: jest.fn(),
 	};
 
 	it('Should throw error when pollId is missing', async () => {
-		const pollIdDto: DeletePollDto = {
-			pollId: undefined,
-		};
+		const pollIdDto = undefined;
 
 		const deletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
 			pollIdDto,
@@ -42,9 +46,7 @@ describe('delete poll by id usecase test', () => {
 	});
 
 	it('Should throw error when poll is not existed', async () => {
-		const pollIdDto: DeletePollDto = {
-			pollId: '1234',
-		};
+		const pollIdDto = '1234';
 
 		const deletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
 			pollIdDto,
@@ -66,9 +68,7 @@ describe('delete poll by id usecase test', () => {
 	});
 
 	it('Should execute successfully with valid pollId and the poll is existed on the DB', async () => {
-		const pollIdDto: DeletePollDto = {
-			pollId: '1234',
-		};
+		const pollIdDto = '1234';
 
 		const deletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
 			pollIdDto,

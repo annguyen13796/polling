@@ -1,1 +1,1 @@
-export {};
+export * from './decode-params.middleware';
