@@ -1,17 +1,15 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
-import { GetPollByIdDto, IPollRepository, Poll } from '../domains';
+import { IPollRepository, Poll } from '../domains';
 
 export class GetPollByIdUseCaseInput {
-	constructor(public readonly dto: GetPollByIdDto) {}
+	constructor(public readonly pollId: string) {}
 }
 
 export class GetPollByIdUseCase {
 	constructor(private readonly pollRepository: IPollRepository) {}
 
 	async execute(input: GetPollByIdUseCaseInput): Promise<Poll> {
-		const { dto } = input;
-
-		const { pollId } = dto;
+		const { pollId } = input;
 
 		if (!pollId) {
 			throw new BadRequestException('Poll Id is missing');

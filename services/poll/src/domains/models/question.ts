@@ -1,12 +1,12 @@
 import { BadRequestException, isStringEmptyOrUndefined } from '@libs/common';
 import moment from 'moment';
-import { QUESTIONTYPE } from '../../constants';
+import { QUESTION_TYPE } from '../../constants';
 
 export interface QuestionProps {
 	pollId: string | null | undefined;
 	questionId?: string;
 	content: string | null | undefined;
-	questionType: QUESTIONTYPE | null | undefined;
+	questionType: QUESTION_TYPE | null | undefined;
 	isRequired: boolean;
 	answers: string[];
 }
@@ -15,7 +15,6 @@ export class Question {
 	public get content() {
 		return this.props.content;
 	}
-
 	public get questionType() {
 		return this.props.questionType;
 	}
@@ -66,6 +65,25 @@ export class Question {
 
 		if (!questionId) {
 			this.props.questionId = String(moment().valueOf());
+		}
+	}
+
+	public updateContent(newContent: string): void {
+		if (newContent) {
+			this.props.content = newContent;
+		}
+	}
+	public updateQuestionType(newQuestionType: QUESTION_TYPE): void {
+		if (newQuestionType) {
+			this.props.questionType = newQuestionType;
+		}
+	}
+	public updateIsRequired(newIsRequiredValue: boolean): void {
+		this.props.isRequired = newIsRequiredValue;
+	}
+	public updateAnswers(newAnswers: string[]): void {
+		if (newAnswers) {
+			this.props.answers = newAnswers;
 		}
 	}
 }

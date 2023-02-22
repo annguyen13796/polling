@@ -8,9 +8,10 @@ import {
 	Question,
 	CreateQuestionResponseDto,
 	CreateQuestionDto,
-	GetQuestionsDto,
 	DeletePollByIdResponseDto,
 	GetPollsByCreatorEmailResponseDto,
+	EditQuestionDto,
+	EditQuestionResponseDto,
 } from '../domains';
 import {
 	CreatePollUseCaseInput,
@@ -19,11 +20,13 @@ import {
 	GetPollsByCreatorEmailUseCaseInput,
 	GetPollByIdUseCaseInput,
 	GetQuestionsByPollIdUseCaseInput,
+	EditQuestionUseCaseInput,
 } from '../usecases';
 import {
 	createPollUseCase,
 	createQuestionUseCase,
 	deletePollByIdUseCase,
+	editQuestionUseCase,
 	getAllPollsUseCase,
 	getPollByIdUseCase,
 	getQuestionsUseCase,
@@ -79,11 +82,9 @@ export const getPollQuestions = async (
 	try {
 		const inputPollId = request.params.pollId;
 
-		const dto: GetQuestionsDto = {
-			pollId: inputPollId + '',
-		};
-
-		const getQuestionsUseCaseInput = new GetQuestionsByPollIdUseCaseInput(dto);
+		const getQuestionsUseCaseInput = new GetQuestionsByPollIdUseCaseInput(
+			inputPollId,
+		);
 		const result = await getQuestionsUseCase.execute(getQuestionsUseCaseInput);
 
 		next(sendQuestionsToClient(response, result));
@@ -98,10 +99,35 @@ export const createQuestion = async (
 ): Promise<Response<CreateQuestionResponseDto>> => {
 	try {
 		const dto = request.body as CreateQuestionDto;
+		const inputPollId = request.params.pollId;
 
-		const input = new CreateQuestionUseCaseInput(dto);
-		const result = await createQuestionUseCase.execute(input);
+		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
+			dto,
+			inputPollId,
+		);
+		const result = await createQuestionUseCase.execute(
+			createQuestionUseCaseInput,
+		);
+		return response.send(result);
+	} catch (error) {
+		return ApiErrorMapper.toErrorResponse(error, response);
+	}
+};
 
+export const editQuestion = async (
+	request: Request,
+	response: Response,
+): Promise<Response<EditQuestionResponseDto>> => {
+	try {
+		const dto = request.body as EditQuestionDto;
+		const inputPollId = request.params.pollId;
+		const inputQuestionId = request.params.questionId;
+		const editQuestionUseCaseInput = new EditQuestionUseCaseInput(
+			dto,
+			inputPollId,
+			inputQuestionId,
+		);
+		const result = await editQuestionUseCase.execute(editQuestionUseCaseInput);
 		return response.send(result);
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
@@ -115,9 +141,7 @@ export const deletePollById = async (
 	try {
 		const pollIdParam = request.params?.pollId;
 
-		const pollId = pollIdParam;
-
-		const input = new DeletePollByIdUseCaseInput({ pollId });
+		const input = new DeletePollByIdUseCaseInput(pollIdParam);
 		const result = await deletePollByIdUseCase.execute(input);
 
 		return response.send(result);
@@ -134,9 +158,7 @@ export const getPollById = async (
 	try {
 		const pollIdParam = request.params?.pollId;
 
-		const pollId = pollIdParam;
-
-		const input = new GetPollByIdUseCaseInput({ pollId });
+		const input = new GetPollByIdUseCaseInput(pollIdParam);
 		const result = await getPollByIdUseCase.execute(input);
 
 		next(sendPollGeneralInfoToClient(response, result));

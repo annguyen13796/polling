@@ -1,28 +1,26 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
-import { GetPollByIdDto, Question } from '../domains';
+import { Question } from '../domains';
 import { IPollRepository } from '../domains/repositories';
 
 export class GetQuestionsByPollIdUseCaseInput {
-	constructor(public readonly dto: GetPollByIdDto) {}
+	constructor(public readonly inputPollId: string) {}
 }
 
 export class GetQuestionsByPollIdUseCase {
 	constructor(private readonly pollRepository: IPollRepository) {}
 
 	async execute(input: GetQuestionsByPollIdUseCaseInput): Promise<Question[]> {
-		const {
-			dto: { pollId: pollId },
-		} = input;
-		if (!pollId) {
+		const { inputPollId } = input;
+		if (!inputPollId) {
 			throw new BadRequestException('Poll ID is required');
 		}
 
-		const isPollExisted = await this.pollRepository.findPollById(pollId);
+		const isPollExisted = await this.pollRepository.findPollById(inputPollId);
 		if (isPollExisted === null) {
-			throw new NotFoundException(`Poll with id ${pollId} is not existed`);
+			throw new NotFoundException(`Poll with id ${inputPollId} is not existed`);
 		}
 
-		const result = await this.pollRepository.getQuestionsByPollId(pollId);
+		const result = await this.pollRepository.getQuestionsByPollId(inputPollId);
 
 		return result;
 	}

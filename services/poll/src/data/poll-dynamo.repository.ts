@@ -15,7 +15,7 @@ import {
 import { DynamoDBConfig } from '@libs/common';
 import { DynamoDBRepository, DatabaseMapper } from '@libs/common';
 import { QuestionDynamoRepository } from './question-dynamo.repository';
-import { POLLSTATUS } from '../constants';
+import { POLL_STATUS } from '../constants';
 
 interface PollDataModel {
 	PK: string | null | undefined;
@@ -25,7 +25,7 @@ interface PollDataModel {
 	CreatedAt: string | null | undefined;
 	CreatorEmail: string | null | undefined;
 	Version: string | null | undefined;
-	Status: POLLSTATUS;
+	Status: POLL_STATUS;
 	VoteLink: string | null | undefined;
 }
 
@@ -115,6 +115,10 @@ export class PollDynamoRepository
 		return listQuestion;
 	}
 
+	async createQuestion(questionObj: Question): Promise<void> {
+		await this.questionRepository.create(questionObj);
+	}
+
 	async findPollById(pollId: string): Promise<Poll | null> {
 		const params: GetCommandInput = {
 			TableName: this.config.tableName,
@@ -133,6 +137,26 @@ export class PollDynamoRepository
 		}
 
 		return null;
+	}
+
+	async findQuestionByPollIdAndQuestionId(
+		pollId: string,
+		questionId: string,
+	): Promise<Question | null> {
+		const question =
+			await this.questionRepository.getQuestionByPollIdAndQuestionId(
+				pollId,
+				questionId,
+			);
+		return question;
+	}
+
+	async updateQuestionGeneralInformation(
+		modifiedQuestion: Question,
+	): Promise<void> {
+		await this.questionRepository.updateQuestionGeneralInformation(
+			modifiedQuestion,
+		);
 	}
 
 	async deletePollById(pollId: string): Promise<void> {
