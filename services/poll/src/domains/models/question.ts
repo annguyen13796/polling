@@ -51,7 +51,7 @@ export class Question {
 			throw new BadRequestException('Question type is null/undefined');
 		}
 
-		if (!answers.length) {
+		if (!answers.length && questionType !== 'TEXT_BOX') {
 			throw new BadRequestException('Answer list is empty');
 		}
 

@@ -91,7 +91,6 @@ export class PollDynamoRepository
 			KeyConditionExpression: 'CreatorEmail = :creatorEmail',
 			ExpressionAttributeValues: { ':creatorEmail': creatorEmail },
 			ScanIndexForward: false,
-			ExclusiveStartKey: lastEvaluateValue,
 			...(lastPollId ? { ExclusiveStartKey: lastEvaluateValue } : {}),
 		};
 
@@ -104,8 +103,9 @@ export class PollDynamoRepository
 		);
 		const result: GetPollsByCreatorEmailResponseDto = {
 			polls: listPoll,
-			lastPollId: LastEvaluatedKey?.PK.split('#')[1],
+			lastPollId: LastEvaluatedKey?.PK.split('#')[1] ?? null,
 		};
+
 		return result;
 	}
 
