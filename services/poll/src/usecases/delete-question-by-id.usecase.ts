@@ -35,7 +35,10 @@ export class DeleteQuestionByIdUseCase {
 		);
 
 		if (isDeleted) {
-			return { message: `Successfully Delete Poll`, questionId: questionId };
+			return {
+				message: `Successfully Delete Question`,
+				questionId: questionId,
+			};
 		}
 		throw new NotFoundException('Question is not existed');
 	}

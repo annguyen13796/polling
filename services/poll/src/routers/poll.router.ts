@@ -25,8 +25,10 @@ router.post('/:pollId/questions', createQuestion);
 
 router.get('/:pollId/questions', getPollQuestions);
 
-router.get('/:pollId/link', createVoteLink);
+router.post('/:pollId/link', createVoteLink);
 
 router.put('/:pollId/questions/:questionId', editQuestion);
+
 router.delete('/:pollId/questions/:questionId', deleteQuestionById);
+
 export const pollRouter: Router = router;
