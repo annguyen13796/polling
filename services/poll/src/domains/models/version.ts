@@ -7,6 +7,7 @@ export interface VersionProps {
 	version: string | null | undefined;
 	questions?: Question[] | null | undefined;
 	createdAt?: string;
+	recurrence: string[] | null | undefined;
 }
 
 export class Version {
@@ -26,8 +27,12 @@ export class Version {
 		return this.props.pollId;
 	}
 
+	public get recurrence() {
+		return this.props.recurrence;
+	}
+
 	constructor(private readonly props: VersionProps) {
-		const { createdAt, pollId, questions, version } = props;
+		const { createdAt, pollId, questions, version, recurrence } = props;
 
 		if (!pollId) {
 			throw new BadRequestException(`PollId is null/undefined`);
@@ -41,10 +46,17 @@ export class Version {
 			throw new BadRequestException('Version is null/undefined');
 		}
 
+		const timestampToMilisecond = moment().valueOf();
 		if (!createdAt) {
-			const timestampToMilisecond = moment().valueOf();
-
 			this.props.createdAt = moment(timestampToMilisecond).toISOString(true);
+		}
+
+		if (!recurrence) {
+			throw new BadRequestException('Recurrence is null/undefined');
+		}
+
+		if (!recurrence.length) {
+			throw new BadRequestException('Recurrence list is empty');
 		}
 	}
 }
