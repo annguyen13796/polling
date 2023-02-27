@@ -5,6 +5,7 @@ export * from './create-question.dto';
 export * from './create-question-res.dto';
 export * from './delete-poll-res.dto';
 export * from './get-poll-by-email-res.dto';
+export * from './create-vote-link';
 export * from './create-vote-link-res.dto';
 export * from './edit-question.dto';
 export * from './edit-question-res.dto';

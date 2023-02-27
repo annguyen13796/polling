@@ -51,10 +51,70 @@ describe('create vote link test suite', () => {
 		);
 
 		const pollIdMock = undefined;
+		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
 
-		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(pollIdMock);
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
 
 		const expectedError = new BadRequestException('Poll Id is missing');
+
+		await expect(
+			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
+		).rejects.toThrow(expectedError);
+
+		expect(pollRepositoryMock.findPollById).not.toBeCalled();
+		expect(pollRepositoryMock.getQuestionsByPollId).not.toBeCalled();
+		expect(
+			versionPollRepositoryMock.packageQuestionsWithVersion,
+		).not.toBeCalled();
+		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
+	});
+	it('Should throw error when recurrence is missing', async () => {
+		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
+			pollRepositoryMock,
+			versionPollRepositoryMock,
+		);
+
+		const pollIdMock = '123';
+		const createVoteLinkDto = { recurrence: undefined };
+
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
+
+		const expectedError = new BadRequestException('Recurrence is missing');
+
+		await expect(
+			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
+		).rejects.toThrow(expectedError);
+
+		expect(pollRepositoryMock.findPollById).not.toBeCalled();
+		expect(pollRepositoryMock.getQuestionsByPollId).not.toBeCalled();
+		expect(
+			versionPollRepositoryMock.packageQuestionsWithVersion,
+		).not.toBeCalled();
+		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
+	});
+	it('Should throw error when recurrence list is empty', async () => {
+		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
+			pollRepositoryMock,
+			versionPollRepositoryMock,
+		);
+
+		const pollIdMock = '123';
+		const createVoteLinkDto = { recurrence: [] };
+
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
+
+		const expectedError = new BadRequestException(
+			'Recurrence list cannot be empty',
+		);
 
 		await expect(
 			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
@@ -75,8 +135,12 @@ describe('create vote link test suite', () => {
 		);
 
 		const pollIdMock = '123';
+		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
 
-		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(pollIdMock);
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
 
 		pollRepositoryMock.findPollById.mockResolvedValueOnce(null);
 
@@ -102,7 +166,12 @@ describe('create vote link test suite', () => {
 
 		const pollIdMock = '123';
 
-		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(pollIdMock);
+		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
+
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
 
 		const pollMock = new Poll({
 			creatorEmail: 'an@gmail.com',
@@ -135,8 +204,12 @@ describe('create vote link test suite', () => {
 		);
 
 		const pollIdMock = '123';
+		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
 
-		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(pollIdMock);
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
 
 		const pollMock = new Poll({
 			creatorEmail: 'an@gmail.com',
@@ -164,6 +237,7 @@ describe('create vote link test suite', () => {
 			pollId: '123',
 			version: '1',
 			questions: questionsMock,
+			recurrence: createVoteLinkDto.recurrence,
 		});
 
 		pollRepositoryMock.findPollById.mockResolvedValueOnce(pollMock);
@@ -197,8 +271,12 @@ describe('create vote link test suite', () => {
 		);
 
 		const pollIdMock = '123';
+		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
 
-		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(pollIdMock);
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
 
 		const pollMock = new Poll({
 			creatorEmail: 'an@gmail.com',
@@ -226,6 +304,7 @@ describe('create vote link test suite', () => {
 			pollId: '123',
 			version: String(Number(pollMock.version) + 1),
 			questions: questionsMock,
+			recurrence: createVoteLinkDto.recurrence,
 		});
 
 		pollRepositoryMock.findPollById.mockResolvedValueOnce(pollMock);
@@ -259,6 +338,7 @@ describe('create vote link test suite', () => {
 		expect(result).toEqual({
 			message: 'Successfully publish poll',
 			voteLink: 'somerandomstringasurl',
+			createdAt: versionMock.createdAt,
 		});
 	});
 	it('Should execute successfully when poll already has the vote url', async () => {
@@ -268,8 +348,12 @@ describe('create vote link test suite', () => {
 		);
 
 		const pollIdMock = '123';
+		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
 
-		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(pollIdMock);
+		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
+			pollIdMock,
+			createVoteLinkDto,
+		);
 
 		const pollMock = new Poll({
 			creatorEmail: 'an@gmail.com',
@@ -299,6 +383,7 @@ describe('create vote link test suite', () => {
 			pollId: '123',
 			version: String(Number(pollMock.version) + 1),
 			questions: questionsMock,
+			recurrence: createVoteLinkDto.recurrence,
 		});
 
 		pollRepositoryMock.findPollById.mockResolvedValueOnce(pollMock);
@@ -327,6 +412,7 @@ describe('create vote link test suite', () => {
 		expect(result).toEqual({
 			message: 'Successfully publish poll',
 			voteLink: 'somerandomstringasurl',
+			createdAt: versionMock.createdAt,
 		});
 	});
 });

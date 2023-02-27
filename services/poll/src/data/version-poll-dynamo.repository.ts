@@ -16,6 +16,7 @@ export interface VersionPollDataModel {
 	PK: string | null | undefined;
 	SK?: string | null | undefined;
 	CreatedAt: string;
+	Recurrence: string[] | null | undefined;
 }
 
 export class VersionPollDynamoDBMapper extends DatabaseMapper<
@@ -27,6 +28,7 @@ export class VersionPollDynamoDBMapper extends DatabaseMapper<
 			pollId: dataModel.PK.split('#')[1],
 			version: dataModel.CreatedAt,
 			createdAt: dataModel.CreatedAt,
+			recurrence: dataModel.Recurrence,
 		});
 
 		return versionsOfPoll;
@@ -36,6 +38,7 @@ export class VersionPollDynamoDBMapper extends DatabaseMapper<
 			PK: `POLL#${domainModel.pollId}`,
 			SK: `POLL#${domainModel.pollId}#VERSION#${domainModel.version}`,
 			CreatedAt: domainModel.createdAt,
+			Recurrence: domainModel.recurrence,
 		};
 		return versionDataModel;
 	}
