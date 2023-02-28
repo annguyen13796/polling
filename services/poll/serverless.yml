@@ -72,7 +72,7 @@ functions:
           path: /polls/{pollId}/link
           method: POST
           cors: true
-  getQuestionsByLatestVersion:
+  getLatestVersion:
     handler: dist/index.handler
     events:
       - http:
