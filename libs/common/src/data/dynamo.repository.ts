@@ -58,8 +58,6 @@ export class DynamoDBRepository<DomainModel, DataModel>
 				Key: dataModel,
 			};
 
-			console.log(params);
-
 			await this.dynamoDBDocClient.send(new UpdateCommand(params));
 		} catch (error) {
 			throw new UnknownException(error);

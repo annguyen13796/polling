@@ -45,7 +45,7 @@ export const sendLatestVersionToClient = async (
 		activeDate: result.activeDate,
 	};
 	return response.send({
-		message: 'Successfully get version',
+		message: 'Successfully get latest version',
 		version: versionForClient,
 	});
 };
