@@ -1,4 +1,6 @@
 import {
+	GetCommand,
+	GetCommandInput,
 	PutCommand,
 	PutCommandInput,
 	QueryCommand,
@@ -9,6 +11,7 @@ import {
 	DynamoDBConfig,
 	DynamoDBRepository,
 } from '@libs/common';
+import { RECURRENCE_TYPE } from '../constants';
 import { IVersionPollRepository, Question, Version } from '../domains';
 import { VersionQuestionDynamoRepository } from './version-question.repository';
 
@@ -16,7 +19,8 @@ export interface VersionPollDataModel {
 	PK: string | null | undefined;
 	SK?: string | null | undefined;
 	CreatedAt: string;
-	Recurrence: string[] | null | undefined;
+	RecurrenceType: RECURRENCE_TYPE | null | undefined;
+	ActiveDate: string;
 }
 
 export class VersionPollDynamoDBMapper extends DatabaseMapper<
@@ -26,9 +30,10 @@ export class VersionPollDynamoDBMapper extends DatabaseMapper<
 	toDomain(dataModel: VersionPollDataModel): Version {
 		const versionsOfPoll = new Version({
 			pollId: dataModel.PK.split('#')[1],
-			version: dataModel.CreatedAt,
+			version: dataModel.SK.split('#')[1],
 			createdAt: dataModel.CreatedAt,
-			recurrence: dataModel.Recurrence,
+			recurrenceType: dataModel.RecurrenceType,
+			activeDate: dataModel.ActiveDate,
 		});
 
 		return versionsOfPoll;
@@ -38,7 +43,8 @@ export class VersionPollDynamoDBMapper extends DatabaseMapper<
 			PK: `POLL#${domainModel.pollId}`,
 			SK: `POLL#${domainModel.pollId}#VERSION#${domainModel.version}`,
 			CreatedAt: domainModel.createdAt,
-			Recurrence: domainModel.recurrence,
+			RecurrenceType: domainModel.recurrenceType,
+			ActiveDate: domainModel.activeDate,
 		};
 		return versionDataModel;
 	}
@@ -112,6 +118,32 @@ export class VersionPollDynamoRepository
 
 		if (questions?.length) {
 			return questions;
+		}
+
+		return null;
+	}
+
+	async getLatestVersionInformation(
+		pollId: string,
+		version: string,
+	): Promise<Version | null> {
+		const params: GetCommandInput = {
+			TableName: this.config.tableName,
+
+			Key: {
+				PK: `POLL#${pollId}`,
+				SK: `POLL#${pollId}#VERSION#${version}`,
+			},
+		};
+
+		const { Item } = await this.dynamoDBDocClient.send(new GetCommand(params));
+
+		if (Item) {
+			const versionInformation = this.mapper.toDomain(
+				Item as VersionPollDataModel,
+			);
+
+			return versionInformation;
 		}
 
 		return null;

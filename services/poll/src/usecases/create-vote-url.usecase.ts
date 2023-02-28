@@ -1,6 +1,5 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
 import {
-	CreateVoteLinkDto,
 	CreateVoteLinkResponseDto,
 	IPollRepository,
 	IVersionPollRepository,
@@ -8,10 +7,7 @@ import {
 } from '../domains';
 
 export class CreateVoteURLUseCaseInput {
-	constructor(
-		public readonly pollId: string,
-		public readonly dto: CreateVoteLinkDto,
-	) {}
+	constructor(public readonly pollId: string) {}
 }
 
 export class CreateVoteURLUseCase {
@@ -23,20 +19,10 @@ export class CreateVoteURLUseCase {
 	async execute(
 		input: CreateVoteURLUseCaseInput,
 	): Promise<CreateVoteLinkResponseDto> {
-		const { pollId, dto } = input;
-
-		const { recurrence } = dto;
+		const { pollId } = input;
 
 		if (!pollId) {
 			throw new BadRequestException('Poll Id is missing');
-		}
-
-		if (!recurrence) {
-			throw new BadRequestException('Recurrence is missing');
-		}
-
-		if (!recurrence.length) {
-			throw new BadRequestException('Recurrence list cannot be empty');
 		}
 
 		const existedPoll = await this.pollRepository.findPollById(pollId);
@@ -55,7 +41,6 @@ export class CreateVoteURLUseCase {
 			pollId: existedPoll.id,
 			version: String(Number(existedPoll.version) + 1),
 			questions: questionsToPackage,
-			recurrence: recurrence,
 		});
 
 		await this.versionPollRepository.packageQuestionsWithVersion(pollVersion);
@@ -82,7 +67,7 @@ export class CreateVoteURLUseCase {
 		return {
 			message: 'Successfully publish poll',
 			voteLink: existedPoll.voteLink,
-			createdAt: pollVersion.createdAt,
+			activeDate: pollVersion.createdAt,
 		};
 	}
 }

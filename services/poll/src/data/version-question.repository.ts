@@ -1,8 +1,6 @@
 import {
 	BatchWriteCommand,
 	BatchWriteCommandInput,
-	// PutCommand,
-	// PutCommandInput,
 	QueryCommand,
 	QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb';

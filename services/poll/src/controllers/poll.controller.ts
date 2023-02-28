@@ -14,7 +14,6 @@ import {
 	EditQuestionResponseDto,
 	DeleteQuestionResponseDto,
 	CreateVoteLinkResponseDto,
-	CreateVoteLinkDto,
 } from '../domains';
 import {
 	CreatePollUseCaseInput,
@@ -255,10 +254,9 @@ export const createVoteLink = async (
 ): Promise<Response<CreateVoteLinkResponseDto>> => {
 	try {
 		const pollIdParam = request.params?.pollId;
-		const createVoteLinkDto = request.body as CreateVoteLinkDto;
+
 		const createVoteLinkUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdParam,
-			createVoteLinkDto,
 		);
 
 		const result = await createVoteLinkUseCase.execute(

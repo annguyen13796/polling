@@ -1,41 +1,51 @@
 import { NextFunction, Response } from 'express';
 import { ApiErrorMapper } from '@libs/common';
-import { GetQuestionByLatestVersionUseCaseInput } from '../usecases';
-import { getAllQuestionsByLatestVersionUseCase } from '../di';
-import { GetQuestionsByLatestVersionResponse } from '../domains';
+import { GetLatestVersionUseCaseInput } from '../usecases';
+import { getLatestVersionUseCase } from '../di';
+import { GetLatestVersionResponseDto, Version } from '../domains';
 
-export const getQuestionsByLatestVersion = async (
+export const getLatestVersion = async (
 	request: any,
 	response: Response,
 	next: NextFunction,
-): Promise<Response<GetQuestionsByLatestVersionResponse>> => {
+): Promise<Response<GetLatestVersionResponseDto>> => {
 	try {
 		const { pollId } = request;
 
 		const getAllQuestionsByLatestVersionUseCaseInput =
-			new GetQuestionByLatestVersionUseCaseInput(pollId);
+			new GetLatestVersionUseCaseInput(pollId);
 
-		const result = await getAllQuestionsByLatestVersionUseCase.execute(
+		const result = await getLatestVersionUseCase.execute(
 			getAllQuestionsByLatestVersionUseCaseInput,
 		);
 
-		next(sendLatestQuestionsToClient(response, result));
+		next(sendLatestVersionToClient(response, result));
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
 	}
 };
 
-export const sendLatestQuestionsToClient = async (
+export const sendLatestVersionToClient = async (
 	response: Response,
-	result: GetQuestionsByLatestVersionResponse,
+	result: Version,
 ) => {
-	const questionsMapped = result.questions.map((question) => ({
-		pollId: question.pollId,
-		questionId: question.questionId,
-		content: question.content,
-		questionType: question.questionType,
-		isRequired: question.isRequired,
-		answers: question.answers,
-	}));
-	return response.send({ questions: questionsMapped, version: result.version });
+	const versionForClient = {
+		pollId: result.pollId,
+		version: result.version,
+		questions: result.questions.map((question) => ({
+			questionId: question.questionId,
+			pollId: question.pollId,
+			content: question.content,
+			answers: question.answers,
+			isRequired: question.isRequired,
+			questionType: question.questionType,
+		})),
+		createdAt: result.createdAt,
+		recurrenceType: result.recurrenceType,
+		activeDate: result.activeDate,
+	};
+	return response.send({
+		message: 'Successfully get version',
+		version: versionForClient,
+	});
 };
