@@ -7,7 +7,7 @@ import {
 	GetQuestionsByPollIdUseCase,
 	CreateVoteURLUseCase,
 	EditQuestionUseCase,
-	GetQuestionByLatestVersionUseCase,
+	GetLatestVersionUseCase,
 	DeleteQuestionByIdUseCase,
 } from '../usecases';
 
@@ -38,5 +38,7 @@ export const deleteQuestionByIdUseCase = new DeleteQuestionByIdUseCase(
 	pollRepository,
 );
 
-export const getAllQuestionsByLatestVersionUseCase =
-	new GetQuestionByLatestVersionUseCase(pollRepository, versionPollRepository);
+export const getLatestVersionUseCase = new GetLatestVersionUseCase(
+	pollRepository,
+	versionPollRepository,
+);

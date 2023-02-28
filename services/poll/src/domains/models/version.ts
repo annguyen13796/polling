@@ -1,5 +1,6 @@
 import { BadRequestException } from '@libs/common';
 import moment from 'moment';
+import { RECURRENCE_TYPE } from '../../constants';
 import { Question } from './question';
 
 export interface VersionProps {
@@ -7,7 +8,8 @@ export interface VersionProps {
 	version: string | null | undefined;
 	questions?: Question[] | null | undefined;
 	createdAt?: string;
-	recurrence: string[] | null | undefined;
+	recurrenceType?: RECURRENCE_TYPE;
+	activeDate?: string;
 }
 
 export class Version {
@@ -18,6 +20,9 @@ export class Version {
 	public get questions() {
 		return this.props.questions;
 	}
+	public set questions(questions: Question[]) {
+		this.props.questions = questions;
+	}
 
 	public get createdAt() {
 		return this.props.createdAt;
@@ -27,19 +32,30 @@ export class Version {
 		return this.props.pollId;
 	}
 
-	public get recurrence() {
-		return this.props.recurrence;
+	public get recurrenceType() {
+		return this.props.recurrenceType;
+	}
+
+	public get activeDate() {
+		return this.props.activeDate;
 	}
 
 	constructor(private readonly props: VersionProps) {
-		const { createdAt, pollId, questions, version, recurrence } = props;
+		const {
+			createdAt,
+			pollId,
+			questions,
+			version,
+			recurrenceType,
+			activeDate,
+		} = props;
 
 		if (!pollId) {
 			throw new BadRequestException(`PollId is null/undefined`);
 		}
 
-		if (!questions.length) {
-			throw new BadRequestException(`Questions is empty`);
+		if (!questions) {
+			this.props.questions = [];
 		}
 
 		if (!version) {
@@ -47,16 +63,17 @@ export class Version {
 		}
 
 		const timestampToMilisecond = moment().valueOf();
+
 		if (!createdAt) {
 			this.props.createdAt = moment(timestampToMilisecond).toISOString(true);
 		}
 
-		if (!recurrence) {
-			throw new BadRequestException('Recurrence is null/undefined');
+		if (!recurrenceType) {
+			this.props.recurrenceType = 'NONE';
 		}
 
-		if (!recurrence.length) {
-			throw new BadRequestException('Recurrence list is empty');
+		if (!activeDate) {
+			this.props.activeDate = moment(timestampToMilisecond).toISOString(true);
 		}
 	}
 }
