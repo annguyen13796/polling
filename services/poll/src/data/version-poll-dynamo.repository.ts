@@ -30,7 +30,7 @@ export class VersionPollDynamoDBMapper extends DatabaseMapper<
 	toDomain(dataModel: VersionPollDataModel): Version {
 		const versionsOfPoll = new Version({
 			pollId: dataModel.PK.split('#')[1],
-			version: dataModel.SK.split('#')[1],
+			version: dataModel.SK.split('#')[3],
 			createdAt: dataModel.CreatedAt,
 			recurrenceType: dataModel.RecurrenceType,
 			activeDate: dataModel.ActiveDate,
