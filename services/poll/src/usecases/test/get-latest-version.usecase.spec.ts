@@ -167,6 +167,7 @@ describe('get question with latest version test suite', () => {
 			pollId: '123',
 			version: '2',
 			recurrenceType: 'NONE',
+			activeDate: 'some date',
 		});
 
 		mockPollRepository.findPollById.mockResolvedValueOnce(pollMock);
@@ -222,6 +223,7 @@ describe('get question with latest version test suite', () => {
 			pollId: '123',
 			version: '2',
 			recurrenceType: 'NONE',
+			activeDate: 'some date',
 		});
 
 		mockPollRepository.findPollById.mockResolvedValueOnce(pollMock);
@@ -272,6 +274,7 @@ describe('get question with latest version test suite', () => {
 			pollId: '123',
 			version: '1',
 			recurrenceType: 'NONE',
+			activeDate: 'some date',
 		});
 
 		jest.spyOn<any, string>(moment, 'valueOf').mockReturnValueOnce(555);

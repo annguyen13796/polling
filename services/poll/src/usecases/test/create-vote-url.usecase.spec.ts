@@ -1,4 +1,5 @@
 import {
+	CreateVoteLinkDto,
 	IPollRepository,
 	IVersionPollRepository,
 	Poll,
@@ -20,7 +21,7 @@ describe('create vote link test suite', () => {
 		jest.clearAllMocks();
 	});
 
-	const pollRepositoryMock: jest.Mocked<IPollRepository> = {
+	const mockPollRepository: jest.Mocked<IPollRepository> = {
 		create: jest.fn(),
 		deletePollById: jest.fn(),
 		getPollsByCreatorEmail: jest.fn(),
@@ -35,23 +36,24 @@ describe('create vote link test suite', () => {
 		updateQuestionGeneralInformation: jest.fn(),
 	};
 
-	const versionPollRepositoryMock: jest.Mocked<IVersionPollRepository> = {
+	const mockVersionPollRepository: jest.Mocked<IVersionPollRepository> = {
 		create: jest.fn(),
 		createPollVersion: jest.fn(),
 		getAllPollVersions: jest.fn(),
 		packageQuestionsWithVersion: jest.fn(),
 		update: jest.fn(),
 		getQuestionsByLatestVersion: jest.fn(),
+		getLatestVersionInformation: jest.fn(),
 	};
 
 	it('Should throw error when pollId is missing', async () => {
 		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
+			mockPollRepository,
+			mockVersionPollRepository,
 		);
 
 		const pollIdMock = undefined;
-		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
+		const createVoteLinkDto: CreateVoteLinkDto = { activeDate: 'some day' };
 
 		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdMock,
@@ -64,85 +66,56 @@ describe('create vote link test suite', () => {
 			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
 		).rejects.toThrow(expectedError);
 
-		expect(pollRepositoryMock.findPollById).not.toBeCalled();
-		expect(pollRepositoryMock.getQuestionsByPollId).not.toBeCalled();
+		expect(mockPollRepository.findPollById).not.toBeCalled();
+		expect(mockPollRepository.getQuestionsByPollId).not.toBeCalled();
 		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
+			mockVersionPollRepository.packageQuestionsWithVersion,
 		).not.toBeCalled();
-		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
 	});
-	it('Should throw error when recurrence is missing', async () => {
+	it('Should throw error when active date is missing', async () => {
 		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
+			mockPollRepository,
+			mockVersionPollRepository,
 		);
 
 		const pollIdMock = '123';
-		const createVoteLinkDto = { recurrence: undefined };
+		const createVoteLinkDto = { activeDate: undefined };
 
 		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdMock,
 			createVoteLinkDto,
 		);
 
-		const expectedError = new BadRequestException('Recurrence is missing');
+		const expectedError = new BadRequestException('Active date is missing');
 
 		await expect(
 			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
 		).rejects.toThrow(expectedError);
 
-		expect(pollRepositoryMock.findPollById).not.toBeCalled();
-		expect(pollRepositoryMock.getQuestionsByPollId).not.toBeCalled();
+		expect(mockPollRepository.findPollById).not.toBeCalled();
+		expect(mockPollRepository.getQuestionsByPollId).not.toBeCalled();
 		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
+			mockVersionPollRepository.packageQuestionsWithVersion,
 		).not.toBeCalled();
-		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
-	});
-	it('Should throw error when recurrence list is empty', async () => {
-		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
-		);
-
-		const pollIdMock = '123';
-		const createVoteLinkDto = { recurrence: [] };
-
-		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
-			pollIdMock,
-			createVoteLinkDto,
-		);
-
-		const expectedError = new BadRequestException(
-			'Recurrence list cannot be empty',
-		);
-
-		await expect(
-			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
-		).rejects.toThrow(expectedError);
-
-		expect(pollRepositoryMock.findPollById).not.toBeCalled();
-		expect(pollRepositoryMock.getQuestionsByPollId).not.toBeCalled();
-		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
-		).not.toBeCalled();
-		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
 	});
 
 	it('Should throw error when poll is not existed', async () => {
 		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
+			mockPollRepository,
+			mockVersionPollRepository,
 		);
 
 		const pollIdMock = '123';
-		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
+		const createVoteLinkDto = { activeDate: 'some day' };
 
 		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdMock,
 			createVoteLinkDto,
 		);
 
-		pollRepositoryMock.findPollById.mockResolvedValueOnce(null);
+		mockPollRepository.findPollById.mockResolvedValueOnce(null);
 
 		const expectedError = new NotFoundException('Poll is not existed');
 
@@ -150,23 +123,23 @@ describe('create vote link test suite', () => {
 			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
 		).rejects.toThrow(expectedError);
 
-		expect(pollRepositoryMock.findPollById).toBeCalledWith('123');
-		expect(pollRepositoryMock.getQuestionsByPollId).not.toBeCalled();
+		expect(mockPollRepository.findPollById).toBeCalledWith('123');
+		expect(mockPollRepository.getQuestionsByPollId).not.toBeCalled();
 		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
+			mockVersionPollRepository.packageQuestionsWithVersion,
 		).not.toBeCalled();
-		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
 	});
 
 	it('Should throw error when poll is existed but no question provided', async () => {
 		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
+			mockPollRepository,
+			mockVersionPollRepository,
 		);
 
 		const pollIdMock = '123';
 
-		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
+		const createVoteLinkDto = { activeDate: 'some day' };
 
 		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdMock,
@@ -180,8 +153,8 @@ describe('create vote link test suite', () => {
 			id: '123',
 		});
 
-		pollRepositoryMock.findPollById.mockResolvedValueOnce(pollMock);
-		pollRepositoryMock.getQuestionsByPollId.mockReturnValueOnce(null);
+		mockPollRepository.findPollById.mockResolvedValueOnce(pollMock);
+		mockPollRepository.getQuestionsByPollId.mockReturnValueOnce(null);
 
 		const expectedError = new BadRequestException('No questions provided');
 
@@ -189,22 +162,22 @@ describe('create vote link test suite', () => {
 			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
 		).rejects.toThrow(expectedError);
 
-		expect(pollRepositoryMock.findPollById).toBeCalledWith('123');
-		expect(pollRepositoryMock.getQuestionsByPollId).toBeCalledWith('123');
+		expect(mockPollRepository.findPollById).toBeCalledWith('123');
+		expect(mockPollRepository.getQuestionsByPollId).toBeCalledWith('123');
 		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
+			mockVersionPollRepository.packageQuestionsWithVersion,
 		).not.toBeCalled();
-		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
 	});
 
 	it('Should throw error when packageQuestionsWithVersion failed', async () => {
 		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
+			mockPollRepository,
+			mockVersionPollRepository,
 		);
 
 		const pollIdMock = '123';
-		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
+		const createVoteLinkDto = { activeDate: 'some day' };
 
 		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdMock,
@@ -237,16 +210,16 @@ describe('create vote link test suite', () => {
 			pollId: '123',
 			version: '1',
 			questions: questionsMock,
-			recurrence: createVoteLinkDto.recurrence,
+			activeDate: createVoteLinkDto.activeDate,
 		});
 
-		pollRepositoryMock.findPollById.mockResolvedValueOnce(pollMock);
+		mockPollRepository.findPollById.mockResolvedValueOnce(pollMock);
 
-		pollRepositoryMock.getQuestionsByPollId.mockResolvedValueOnce(
+		mockPollRepository.getQuestionsByPollId.mockResolvedValueOnce(
 			questionsMock,
 		);
 
-		versionPollRepositoryMock.packageQuestionsWithVersion.mockRejectedValueOnce(
+		mockVersionPollRepository.packageQuestionsWithVersion.mockRejectedValueOnce(
 			new UnknownException('Unknown Exception'),
 		);
 
@@ -256,22 +229,22 @@ describe('create vote link test suite', () => {
 			createVoteURLUseCaseMock.execute(createVoteURLUseCaseInput),
 		).rejects.toThrow(expectedError);
 
-		expect(pollRepositoryMock.findPollById).toBeCalledWith('123');
-		expect(pollRepositoryMock.getQuestionsByPollId).toBeCalledWith('123');
+		expect(mockPollRepository.findPollById).toBeCalledWith('123');
+		expect(mockPollRepository.getQuestionsByPollId).toBeCalledWith('123');
 		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
+			mockVersionPollRepository.packageQuestionsWithVersion,
 		).toBeCalledWith(versionMock);
-		expect(pollRepositoryMock.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
 	});
 
 	it('Should execute successfully with valid data and generate url when poll does not have url yet', async () => {
 		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
+			mockPollRepository,
+			mockVersionPollRepository,
 		);
 
 		const pollIdMock = '123';
-		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
+		const createVoteLinkDto = { activeDate: 'some day' };
 
 		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdMock,
@@ -304,20 +277,20 @@ describe('create vote link test suite', () => {
 			pollId: '123',
 			version: String(Number(pollMock.version) + 1),
 			questions: questionsMock,
-			recurrence: createVoteLinkDto.recurrence,
+			activeDate: createVoteLinkDto.activeDate,
 		});
 
-		pollRepositoryMock.findPollById.mockResolvedValueOnce(pollMock);
+		mockPollRepository.findPollById.mockResolvedValueOnce(pollMock);
 
-		pollRepositoryMock.getQuestionsByPollId.mockResolvedValueOnce(
+		mockPollRepository.getQuestionsByPollId.mockResolvedValueOnce(
 			questionsMock,
 		);
 
-		versionPollRepositoryMock.packageQuestionsWithVersion.mockResolvedValueOnce();
+		mockVersionPollRepository.packageQuestionsWithVersion.mockResolvedValueOnce();
 
-		pollRepositoryMock.updatePollGeneralInformation.mockResolvedValueOnce();
+		mockPollRepository.updatePollGeneralInformation.mockResolvedValueOnce();
 
-		pollRepositoryMock.generateVoteURL.mockReturnValueOnce(
+		mockPollRepository.generateVoteURL.mockReturnValueOnce(
 			'somerandomstringasurl',
 		);
 
@@ -325,12 +298,12 @@ describe('create vote link test suite', () => {
 			createVoteURLUseCaseInput,
 		);
 
-		expect(pollRepositoryMock.findPollById).toBeCalledWith('123');
-		expect(pollRepositoryMock.getQuestionsByPollId).toBeCalledWith('123');
+		expect(mockPollRepository.findPollById).toBeCalledWith('123');
+		expect(mockPollRepository.getQuestionsByPollId).toBeCalledWith('123');
 		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
+			mockVersionPollRepository.packageQuestionsWithVersion,
 		).toBeCalledWith(versionMock);
-		expect(pollRepositoryMock.updatePollGeneralInformation).toBeCalledWith(
+		expect(mockPollRepository.updatePollGeneralInformation).toBeCalledWith(
 			pollMock.id,
 			pollMock.version,
 			'somerandomstringasurl',
@@ -338,17 +311,17 @@ describe('create vote link test suite', () => {
 		expect(result).toEqual({
 			message: 'Successfully publish poll',
 			voteLink: 'somerandomstringasurl',
-			createdAt: versionMock.createdAt,
+			activeDate: versionMock.activeDate,
 		});
 	});
-	it('Should execute successfully when poll already has the vote url', async () => {
+	it('Should execute successfully when update to new version and poll already has the vote url', async () => {
 		const createVoteURLUseCaseMock = new CreateVoteURLUseCase(
-			pollRepositoryMock,
-			versionPollRepositoryMock,
+			mockPollRepository,
+			mockVersionPollRepository,
 		);
 
 		const pollIdMock = '123';
-		const createVoteLinkDto = { recurrence: ['date1', 'date2'] };
+		const createVoteLinkDto = { activeDate: 'some day' };
 
 		const createVoteURLUseCaseInput = new CreateVoteURLUseCaseInput(
 			pollIdMock,
@@ -383,36 +356,36 @@ describe('create vote link test suite', () => {
 			pollId: '123',
 			version: String(Number(pollMock.version) + 1),
 			questions: questionsMock,
-			recurrence: createVoteLinkDto.recurrence,
+			activeDate: createVoteLinkDto.activeDate,
 		});
 
-		pollRepositoryMock.findPollById.mockResolvedValueOnce(pollMock);
+		mockPollRepository.findPollById.mockResolvedValueOnce(pollMock);
 
-		pollRepositoryMock.getQuestionsByPollId.mockResolvedValueOnce(
+		mockPollRepository.getQuestionsByPollId.mockResolvedValueOnce(
 			questionsMock,
 		);
 
-		versionPollRepositoryMock.packageQuestionsWithVersion.mockResolvedValueOnce();
+		mockVersionPollRepository.packageQuestionsWithVersion.mockResolvedValueOnce();
 
-		pollRepositoryMock.updatePollGeneralInformation.mockResolvedValueOnce();
+		mockPollRepository.updatePollGeneralInformation.mockResolvedValueOnce();
 
 		const result = await createVoteURLUseCaseMock.execute(
 			createVoteURLUseCaseInput,
 		);
 
-		expect(pollRepositoryMock.findPollById).toBeCalledWith('123');
-		expect(pollRepositoryMock.getQuestionsByPollId).toBeCalledWith('123');
+		expect(mockPollRepository.findPollById).toBeCalledWith('123');
+		expect(mockPollRepository.getQuestionsByPollId).toBeCalledWith('123');
 		expect(
-			versionPollRepositoryMock.packageQuestionsWithVersion,
+			mockVersionPollRepository.packageQuestionsWithVersion,
 		).toBeCalledWith(versionMock);
-		expect(pollRepositoryMock.updatePollGeneralInformation).toBeCalledWith(
+		expect(mockPollRepository.updatePollGeneralInformation).toBeCalledWith(
 			pollMock.id,
 			pollMock.version,
 		);
 		expect(result).toEqual({
 			message: 'Successfully publish poll',
 			voteLink: 'somerandomstringasurl',
-			createdAt: versionMock.createdAt,
+			activeDate: versionMock.activeDate,
 		});
 	});
 });
