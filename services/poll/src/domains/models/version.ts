@@ -9,7 +9,7 @@ export interface VersionProps {
 	questions?: Question[] | null | undefined;
 	createdAt?: string;
 	recurrenceType?: RECURRENCE_TYPE;
-	activeDate?: string;
+	activeDate: string;
 }
 
 export class Version {
@@ -58,6 +58,10 @@ export class Version {
 			this.props.questions = [];
 		}
 
+		if (!activeDate) {
+			throw new BadRequestException('Active date is null/undefined');
+		}
+
 		if (!version) {
 			throw new BadRequestException('Version is null/undefined');
 		}
@@ -70,10 +74,6 @@ export class Version {
 
 		if (!recurrenceType) {
 			this.props.recurrenceType = 'NONE';
-		}
-
-		if (!activeDate) {
-			this.props.activeDate = moment(timestampToMilisecond).toISOString(true);
 		}
 	}
 }
