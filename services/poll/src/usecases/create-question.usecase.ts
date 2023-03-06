@@ -22,7 +22,8 @@ export class CreateQuestionUseCase {
 		const { dto, pollId } = input;
 		const { content, questionType, isRequired, answers, questionId } = dto;
 
-		const isFieldMissing = !pollId || !content || !questionType || !answers;
+		const isFieldMissing =
+			!pollId || !content || !questionType || !answers || !questionId;
 
 		if (isFieldMissing) {
 			const missingFields: string[] = [];

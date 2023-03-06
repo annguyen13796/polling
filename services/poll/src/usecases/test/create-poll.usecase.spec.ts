@@ -94,7 +94,7 @@ describe('CreatePollUseCase', () => {
 		const result = await createPollUseCase.execute(createPollUseCaseInput);
 		expect(result).toEqual({
 			message: 'Create Poll successfully',
-			pollId: '123',
+			pollId: pollMock.id,
 		});
 		expect(pollRepositoryMock.create).toBeCalledWith(pollMock);
 	});
