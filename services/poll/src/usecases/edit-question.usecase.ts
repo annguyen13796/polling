@@ -22,7 +22,8 @@ export class EditQuestionUseCase {
 		const { dto, pollId, questionId } = input;
 		const { content, questionType, isRequired, answers } = dto;
 
-		const isMissingFields = !pollId || !content || !questionType || !answers;
+		const isMissingFields =
+			!pollId || !content || !questionType || !answers || !questionId;
 
 		if (isMissingFields) {
 			const missingFields: string[] = [];
@@ -41,6 +42,10 @@ export class EditQuestionUseCase {
 
 			if (!answers) {
 				missingFields.push('answers');
+			}
+
+			if (!questionId) {
+				missingFields.push('questionId');
 			}
 
 			throw new BadRequestException(`Missing ${missingFields.join(', ')}`);

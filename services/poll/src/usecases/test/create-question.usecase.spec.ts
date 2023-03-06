@@ -94,6 +94,30 @@ describe('CreatQuestionUsecase', () => {
 		expect(pollRepositoryMock.findPollById).not.toBeCalled();
 	});
 
+	test('should throw error when question id is null or undefined', async () => {
+		const createQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
+
+		const questionDtoMock: CreateQuestionDto = {
+			content: 'Do you like playing aov',
+			answers: ['Sure', 'A little bit'],
+			questionType: 'MULTIPLE',
+			isRequired: true,
+			questionId: undefined,
+		};
+
+		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
+			questionDtoMock,
+			'422343',
+		);
+
+		const expectedError = new BadRequestException('Missing questionId');
+
+		await expect(
+			createQuestionUsecase.execute(createQuestionUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(pollRepositoryMock.createQuestion).not.toBeCalled();
+	});
 	test('should throw error when question type is null or undefined', async () => {
 		const creatQuestionUsecase = new CreateQuestionUseCase(pollRepositoryMock);
 

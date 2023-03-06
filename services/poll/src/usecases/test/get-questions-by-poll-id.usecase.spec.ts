@@ -79,6 +79,7 @@ describe('GetQuestionsByPollIdUseCase', () => {
 			isRequired: true,
 			pollId: '123',
 			questionType: 'CHECKBOX',
+			questionId: '222',
 		});
 		pollRepositoryMock.getQuestionsByPollId.mockResolvedValueOnce([
 			questionMock,
