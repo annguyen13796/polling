@@ -1,0 +1,63 @@
+service: PL-report
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  tags:
+    author: khoa.pham@zoi.tech
+  region: eu-central-1
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        - arn:aws:dynamodb:eu-central-1:437822295963:table/khoa.pham_polling_report
+  apiGateway:
+    restApiId: 24dp6xrmlb
+    restApiRootResourceId: cq0b9cenbg
+
+functions:
+  getOverviewReportsForPoll:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /reports/overview/{pollId}/versions
+          method: GET
+          cors: true
+  getOverviewReportForRecurrence:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /reports/overview/{pollId}/versions/{pollVersion}/recurrences/{pollRecurrence}
+          method: GET
+          cors: true
+  updateStatusForRecurrence:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /reports/overview/{pollId}/versions/{pollVersion}/recurrences/{pollRecurrence}
+          method: PATCH
+          cors: true
+  createOverviewReportForRecurrence:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /reports/overview/{pollId}/versions/{pollVersion}/recurrences
+          method: POST
+          cors: true
+  createUserResponseForRecurrence:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /reports/detail/{pollId}/versions/{pollVersion}/recurrences
+          method: POST
+          cors: true
+plugins:
+  - serverless-offline
