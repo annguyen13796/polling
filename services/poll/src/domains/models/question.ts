@@ -1,10 +1,9 @@
 import { BadRequestException, isStringEmptyOrUndefined } from '@libs/common';
-import moment from 'moment';
 import { QUESTION_TYPE } from '../../constants';
 
 export interface QuestionProps {
 	pollId: string | null | undefined;
-	questionId?: string;
+	questionId: string | null | undefined;
 	content: string | null | undefined;
 	questionType: QUESTION_TYPE | null | undefined;
 	isRequired: boolean;
@@ -44,27 +43,27 @@ export class Question {
 			props;
 
 		if (isStringEmptyOrUndefined(pollId)) {
-			throw new BadRequestException('PollId is null/undefined');
+			throw new BadRequestException('Poll Id is null/undefined');
 		}
 
 		if (isStringEmptyOrUndefined(questionType)) {
-			throw new BadRequestException('Question type is null/undefined');
+			throw new BadRequestException('Question Type is null/undefined');
 		}
 
 		if (!answers.length && questionType !== 'TEXT_BOX') {
-			throw new BadRequestException('Answer list is empty');
+			throw new BadRequestException('Answer List is empty');
 		}
 
 		if (isStringEmptyOrUndefined(content)) {
-			throw new BadRequestException('Question content is null/undefined');
+			throw new BadRequestException('Question Content is null/undefined');
 		}
 
 		if (typeof isRequired !== 'boolean') {
-			throw new BadRequestException('isRequired must be in boolean type');
+			throw new BadRequestException('IsRequired must be in boolean type');
 		}
 
 		if (!questionId) {
-			this.props.questionId = String(moment().valueOf());
+			throw new BadRequestException('Question Id is null/undefined');
 		}
 	}
 

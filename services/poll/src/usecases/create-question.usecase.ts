@@ -20,7 +20,7 @@ export class CreateQuestionUseCase {
 		input: CreateQuestionUseCaseInput,
 	): Promise<CreateQuestionResponseDto> {
 		const { dto, pollId } = input;
-		const { content, questionType, isRequired, answers } = dto;
+		const { content, questionType, isRequired, answers, questionId } = dto;
 
 		const isFieldMissing = !pollId || !content || !questionType || !answers;
 
@@ -41,6 +41,10 @@ export class CreateQuestionUseCase {
 
 			if (!answers) {
 				missingFields.push('answers');
+			}
+
+			if (!questionId) {
+				missingFields.push('questionId');
 			}
 
 			throw new BadRequestException(`Missing ${missingFields.join(', ')}`);
@@ -71,6 +75,7 @@ export class CreateQuestionUseCase {
 			questionType,
 			isRequired,
 			answers,
+			questionId,
 		});
 
 		await this.pollRepository.createQuestion(newQuestion);
