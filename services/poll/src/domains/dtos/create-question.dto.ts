@@ -5,4 +5,5 @@ export interface CreateQuestionDto {
 	content: string | null | undefined;
 	isRequired: boolean | null;
 	questionType: QUESTION_TYPE | null | undefined;
+	questionId: string | null | undefined;
 }

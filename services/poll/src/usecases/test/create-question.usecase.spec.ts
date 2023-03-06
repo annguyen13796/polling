@@ -50,6 +50,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: ['Sure', 'A little bit'],
 			questionType: 'MULTIPLE',
 			isRequired: true,
+			questionId: '1678076899515',
 		};
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
@@ -75,6 +76,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: ['Sure', 'A little bit'],
 			questionType: 'MULTIPLE',
 			isRequired: true,
+			questionId: '1678076899515',
 		};
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
@@ -100,6 +102,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: ['Sure', 'A little bit'],
 			questionType: null,
 			isRequired: true,
+			questionId: '1678076899515',
 		};
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
@@ -123,6 +126,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: undefined,
 			questionType: 'CHECKBOX',
 			isRequired: true,
+			questionId: '1678076899515',
 		};
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
@@ -147,6 +151,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: [],
 			questionType: 'MULTIPLE',
 			isRequired: true,
+			questionId: '1678076899515',
 		};
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
@@ -173,6 +178,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: ['yes', 'no'],
 			questionType: 'MULTIPLE',
 			isRequired: undefined,
+			questionId: '1678076899515',
 		};
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
@@ -199,6 +205,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: ['yes', 'no'],
 			questionType: 'MULTIPLE',
 			isRequired: true,
+			questionId: '1678076899515',
 		};
 
 		const createQuestionUseCaseInput = new CreateQuestionUseCaseInput(
@@ -231,6 +238,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: ['Sure', 'A little bit'],
 			questionType: 'MULTIPLE',
 			isRequired: true,
+			questionId: '1678076899515',
 		};
 
 		const questionMock = new Question({
@@ -239,6 +247,7 @@ describe('CreatQuestionUsecase', () => {
 			answers: ['Sure', 'A little bit'],
 			questionType: 'MULTIPLE',
 			isRequired: true,
+			questionId: '1678076899515',
 		});
 
 		const pollMock = new Poll({
@@ -261,7 +270,7 @@ describe('CreatQuestionUsecase', () => {
 
 		expect(result).toEqual({
 			message: 'Create Question successfully',
-			questionId: '555',
+			questionId: '1678076899515',
 		});
 
 		expect(pollRepositoryMock.createQuestion).toBeCalledWith(questionMock);
