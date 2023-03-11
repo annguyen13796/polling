@@ -211,7 +211,7 @@ export class PollDynamoRepository
 
 	async updatePollGeneralInformation(
 		pollId: string,
-		version: string,
+		newVersion: string,
 		voteURL?: string,
 	): Promise<void> {
 		const params: UpdateCommandInput = {
@@ -224,14 +224,44 @@ export class PollDynamoRepository
 				? {
 						UpdateExpression: 'set Version = :newVersion, VoteLink = :voteURL',
 						ExpressionAttributeValues: {
-							':newVersion': version,
+							':newVersion': newVersion,
 							':voteURL': voteURL,
 						},
 				  }
 				: {
 						UpdateExpression: 'set Version = :newVersion',
 						ExpressionAttributeValues: {
-							':newVersion': version,
+							':newVersion': newVersion,
+						},
+				  }),
+		};
+
+		await this.dynamoDBDocClient.send(new UpdateCommand(params));
+	}
+
+	async updatePoll(
+		pollId: string,
+		title: string,
+		description?: string,
+	): Promise<void> {
+		const params: UpdateCommandInput = {
+			TableName: this.config.tableName,
+			Key: {
+				SK: `POLL#${pollId}`,
+				PK: `POLL#${pollId}`,
+			},
+			...(description
+				? {
+						UpdateExpression: 'set Title = :title, Description = :description',
+						ExpressionAttributeValues: {
+							':title': title,
+							':description': description,
+						},
+				  }
+				: {
+						UpdateExpression: 'set Title = :title',
+						ExpressionAttributeValues: {
+							':title': title,
 						},
 				  }),
 		};

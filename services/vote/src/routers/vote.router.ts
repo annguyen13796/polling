@@ -1,20 +1,18 @@
 import express, { Router } from 'express';
 import {
-	getDraftAnswersForUser,
+	getDraftAnswers,
 	putDraftAnswersForQuestion,
-	putGeneralVotingStatusOfUser,
+	putDraftInformation,
 } from '../controllers';
 
 const router: Router = express.Router();
-router.get(
-	'/userResponses/:userResponseId/draftAnswersForQuestions',
-	getDraftAnswersForUser,
-);
+router.get('/drafts/:draftId/answers-for-questions', getDraftAnswers);
 
 router.put(
-	'/userResponses/:userResponseId/draftAnswersForQuestions/:questionId',
+	'/drafts/:draftId/answers-for-questions/:questionId',
 	putDraftAnswersForQuestion,
 );
-router.put('/userResponses/:userResponseId', putGeneralVotingStatusOfUser);
+
+router.put('/drafts/:draftId', putDraftInformation);
 
 export const voteRouter: Router = router;

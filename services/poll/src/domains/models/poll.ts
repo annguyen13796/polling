@@ -89,14 +89,14 @@ export class Poll {
 			this.props.description = null;
 		}
 
-		const timestampToMilisecond = moment().valueOf();
+		const timestampToMillisecond = moment().valueOf();
 
 		if (isStringEmptyOrUndefined(createdAt)) {
-			this.props.createdAt = moment(timestampToMilisecond).toISOString(true);
+			this.props.createdAt = moment(timestampToMillisecond).toISOString(true);
 		}
 
 		if (!id) {
-			this.props.id = String(timestampToMilisecond);
+			this.props.id = String(timestampToMillisecond);
 		}
 
 		if (!version) {

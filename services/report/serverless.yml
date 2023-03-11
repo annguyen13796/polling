@@ -35,28 +35,42 @@ functions:
     handler: dist/index.handler
     events:
       - http:
-          path: /reports/overview/{pollId}/versions/{pollVersion}/recurrences/{pollRecurrence}
+          path: /reports/overview/{pollId}/versions/{pollVersion}/time/{timeInterval}
           method: GET
           cors: true
-  updateStatusForRecurrence:
+  updateOverviewReport:
     handler: dist/index.handler
     events:
       - http:
-          path: /reports/overview/{pollId}/versions/{pollVersion}/recurrences/{pollRecurrence}
+          path: /reports/overview/{pollId}/versions/{pollVersion}/time/{timeInterval}
           method: PATCH
           cors: true
-  createOverviewReportForRecurrence:
+  createOverviewReport:
     handler: dist/index.handler
     events:
       - http:
-          path: /reports/overview/{pollId}/versions/{pollVersion}/recurrences
+          path: /reports/overview/{pollId}/versions/{pollVersion}/time
           method: POST
           cors: true
-  createUserResponseForRecurrence:
+  getAnswerReports:
     handler: dist/index.handler
     events:
       - http:
-          path: /reports/detail/{pollId}/versions/{pollVersion}/recurrences
+          path: /reports/detail/{pollId}/versions/{pollVersion}/time/{timeInterval}/answers
+          method: GET
+          cors: true
+  getVoterReportsForAnswer:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /reports/detail/{pollId}/versions/{pollVersion}/time/{timeInterval}/questions/{questionId}/answers/{answer}/voters
+          method: GET
+          cors: true
+  createUserResponse:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /reports/detail/{pollId}/versions/{pollVersion}/time
           method: POST
           cors: true
 plugins:

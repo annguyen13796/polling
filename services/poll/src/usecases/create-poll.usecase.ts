@@ -14,12 +14,19 @@ export class CreatePollUseCase {
 		const { dto } = input;
 		const { creatorEmail, title, description } = dto;
 
-		if (!creatorEmail) {
-			throw new BadRequestException('Creator Email cannot be null');
-		}
+		const isMissingFields = !creatorEmail || !title;
 
-		if (!title) {
-			throw new BadRequestException('Title cannot be null');
+		if (isMissingFields) {
+			const missingFields: string[] = [];
+			if (!creatorEmail) {
+				missingFields.push('creatorEmail');
+			}
+
+			if (!title) {
+				missingFields.push('title');
+			}
+
+			throw new BadRequestException(`Missing ${missingFields.join(', ')}`);
 		}
 
 		const poll = new Poll({

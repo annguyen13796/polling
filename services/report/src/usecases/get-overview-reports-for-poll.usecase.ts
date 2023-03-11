@@ -1,5 +1,8 @@
 import { BadRequestException } from '@libs/common';
-import { IOverviewReportRepository, OverviewReport } from '../domains';
+import {
+	GetOverviewReportsForPollResponseDto,
+	IOverviewReportRepository,
+} from '../domains';
 export class GetOverviewReportsForPollUseCaseInput {
 	constructor(public readonly pollId: string) {}
 }
@@ -11,7 +14,7 @@ export class GetOverviewReportsForPollUseCase {
 
 	async execute(
 		input: GetOverviewReportsForPollUseCaseInput,
-	): Promise<OverviewReport[]> {
+	): Promise<GetOverviewReportsForPollResponseDto> {
 		const { pollId } = input;
 
 		if (!pollId) {
@@ -21,6 +24,9 @@ export class GetOverviewReportsForPollUseCase {
 		const result =
 			await this.overviewReportRepository.getOverviewReportsForPoll(pollId);
 
-		return result;
+		return {
+			message: 'get overview reports successfully',
+			overviewReports: result,
+		};
 	}
 }

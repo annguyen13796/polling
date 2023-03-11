@@ -17,9 +17,9 @@ export class DeletePollByIdUseCase {
 			throw new BadRequestException('Poll Id is missing');
 		}
 
-		const isPollExisted = await this.pollRepository.findPollById(pollId);
+		const existedPoll = await this.pollRepository.findPollById(pollId);
 
-		if (isPollExisted === null) {
+		if (existedPoll === null) {
 			throw new NotFoundException('Poll is not existed');
 		}
 

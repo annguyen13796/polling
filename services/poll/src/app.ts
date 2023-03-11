@@ -9,7 +9,7 @@ export class Application {
 	constructor() {
 		this._server = express();
 		this._server.set('host', 'localhost');
-		this._server.set('port', 3001);
+		this._server.set('port', 3000);
 		this._server.use(bodyParser.json());
 		this._server.use(bodyParser.urlencoded({ extended: true }));
 		this._server.use(cors());

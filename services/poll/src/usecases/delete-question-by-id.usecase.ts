@@ -34,12 +34,13 @@ export class DeleteQuestionByIdUseCase {
 			questionId,
 		);
 
-		if (isDeleted) {
-			return {
-				message: `Successfully Delete Question`,
-				questionId: questionId,
-			};
+		if (isDeleted === false) {
+			throw new NotFoundException('Question is not existed');
 		}
-		throw new NotFoundException('Question is not existed');
+
+		return {
+			message: `Successfully Delete Question`,
+			questionId: questionId,
+		};
 	}
 }

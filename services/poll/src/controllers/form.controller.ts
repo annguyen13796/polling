@@ -1,38 +1,50 @@
 import { NextFunction, Response } from 'express';
 import { ApiErrorMapper } from '@libs/common';
-import { GetLatestVersionUseCaseInput } from '../usecases';
-import { getLatestVersionUseCase } from '../di';
-import { GetLatestVersionResponseDto, Version } from '../domains';
+import { GetLatestReleaseUseCaseInput } from '../usecases';
+import { getLatestReleaseUseCase } from '../di';
+import { Question, GetLatestReleaseResponseDto } from '../domains';
 
-export const getLatestVersion = async (
+interface GetLatestReleaseForClientResponse {
+	message: string;
+	latestRelease: {
+		pollId: string;
+		version: string;
+		createdAt: string;
+		startDate: string;
+		endDate: string;
+		questions: Question['props'][];
+	};
+}
+
+export const getLatestRelease = async (
 	request: any,
 	response: Response,
 	next: NextFunction,
-): Promise<Response<GetLatestVersionResponseDto>> => {
+): Promise<Response<GetLatestReleaseForClientResponse>> => {
 	try {
 		const { pollId } = request;
 
-		const getAllQuestionsByLatestVersionUseCaseInput =
-			new GetLatestVersionUseCaseInput(pollId);
+		const getAllQuestionsByLatestReleaseUseCaseInput =
+			new GetLatestReleaseUseCaseInput(pollId);
 
-		const result = await getLatestVersionUseCase.execute(
-			getAllQuestionsByLatestVersionUseCaseInput,
+		const result = await getLatestReleaseUseCase.execute(
+			getAllQuestionsByLatestReleaseUseCaseInput,
 		);
 
-		next(sendLatestVersionToClient(response, result));
+		next(sendLatestReleaseToClient(response, result));
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
 	}
 };
 
-export const sendLatestVersionToClient = async (
+export const sendLatestReleaseToClient = (
 	response: Response,
-	result: Version,
+	result: GetLatestReleaseResponseDto,
 ) => {
-	const versionForClient = {
-		pollId: result.pollId,
-		version: result.version,
-		questions: result.questions.map((question) => ({
+	const latestReleasedPollForClient = {
+		pollId: result.latestRelease.pollId,
+		version: result.latestRelease.version,
+		questions: result.latestRelease.questions.map((question) => ({
 			questionId: question.questionId,
 			pollId: question.pollId,
 			content: question.content,
@@ -40,12 +52,12 @@ export const sendLatestVersionToClient = async (
 			isRequired: question.isRequired,
 			questionType: question.questionType,
 		})),
-		createdAt: result.createdAt,
-		recurrenceType: result.recurrenceType,
-		activeDate: result.activeDate,
+		createdAt: result.latestRelease.createdAt,
+		startDate: result.latestRelease.startDate,
+		endDate: result.latestRelease.endDate,
 	};
 	return response.send({
-		message: 'Successfully get latest version',
-		version: versionForClient,
+		message: result.message,
+		latestRelease: latestReleasedPollForClient,
 	});
 };

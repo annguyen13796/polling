@@ -1,51 +1,49 @@
 import { NextFunction, Request, Response } from 'express';
 import { ApiErrorMapper } from '@libs/common';
 import {
-	DraftAnswersForQuestion,
-	GetDraftAnswersForUserResponseDto,
+	GetDraftAnswersResponseDto,
 	PutDraftAnswersForQuestionDto,
-	PutDraftAnswersForQuestionResponseDto,
-	PutGeneralVotingStatusOfUserDto,
-	PutGeneralVotingStatusOfUserResponseDto,
+	PutDraftInformationDto,
 } from '../domains';
 import {
-	GetDraftAnswersForUserUseCaseInput,
+	GetDraftAnswersUseCaseInput,
 	PutDraftAnswersForQuestionUseCaseInput,
-	PutGeneralVotingStatusOfUserUseCaseInput,
+	PutDraftInformationUseCaseInput,
 } from '../usecases';
 import {
-	getDraftAnswersForUserUseCase,
+	getDraftAnswersUseCase,
 	putDraftAnswersForQuestionUseCase,
-	putGeneralVotingStatusOfUserUseCase,
+	putDraftInformationUseCase,
 } from '../di';
 
-type PollId_pollVersion_pollRecurrence_voterEmail = string;
-type UserResponseIdType = PollId_pollVersion_pollRecurrence_voterEmail;
+type PollId_pollVersion_startDate_endDate_voterEmail = string;
+type DraftIdType = PollId_pollVersion_startDate_endDate_voterEmail;
 interface ReqParamTypeGetDraftAnswersForQuestion {
-	userResponseId: UserResponseIdType;
+	draftId: DraftIdType;
 }
 
-export const getDraftAnswersForUser = async (
+export const getDraftAnswers = async (
 	request: Request<ReqParamTypeGetDraftAnswersForQuestion, any, any, any>,
 	response: Response,
 	next: NextFunction,
-): Promise<Response<GetDraftAnswersForUserResponseDto>> => {
+) => {
 	try {
-		const chainedUrl = request.params.userResponseId;
+		const chainedUrl = request.params.draftId;
 		const pollId = chainedUrl.split('_')[0];
 		const pollVersion = chainedUrl.split('_')[1];
-		const pollRecurrence = chainedUrl.split('_')[2];
-		const voterEmail = chainedUrl.split('_')[3];
+		const startDate = chainedUrl.split('_')[2];
+		const endDate = chainedUrl.split('_')[3];
+		const voterEmail = chainedUrl.split('_')[4];
 
-		const input = new GetDraftAnswersForUserUseCaseInput(
+		const input = new GetDraftAnswersUseCaseInput(
 			pollId,
 			pollVersion,
-			pollRecurrence,
+			startDate,
+			endDate,
 			voterEmail,
 		);
 
-		const result = await getDraftAnswersForUserUseCase.execute(input);
-
+		const result = await getDraftAnswersUseCase.execute(input);
 		next(sendGetDraftAnswersForUser(response, result));
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
@@ -53,26 +51,29 @@ export const getDraftAnswersForUser = async (
 };
 
 interface ReqParamTypePutDraftAnswersForQuestion {
-	userResponseId: UserResponseIdType;
+	draftId: DraftIdType;
 	questionId: string;
 }
 export const putDraftAnswersForQuestion = async (
 	request: Request<ReqParamTypePutDraftAnswersForQuestion, any, any, any>,
 	response: Response,
-): Promise<Response<PutDraftAnswersForQuestionResponseDto>> => {
+) => {
 	try {
-		const chainedUrl = request.params.userResponseId;
+		const chainedUrl = request.params.draftId;
 		const pollId = chainedUrl.split('_')[0];
 		const pollVersion = chainedUrl.split('_')[1];
-		const pollRecurrence = chainedUrl.split('_')[2];
-		const voterEmail = chainedUrl.split('_')[3];
+		const startDate = chainedUrl.split('_')[2];
+		const endDate = chainedUrl.split('_')[3];
+		const voterEmail = chainedUrl.split('_')[4];
+
 		const questionId = request.params.questionId;
 		const dto = request.body as PutDraftAnswersForQuestionDto;
 		const input = new PutDraftAnswersForQuestionUseCaseInput(
 			dto,
 			pollId,
 			pollVersion,
-			pollRecurrence,
+			startDate,
+			endDate,
 			voterEmail,
 			questionId,
 		);
@@ -85,27 +86,29 @@ export const putDraftAnswersForQuestion = async (
 };
 
 interface ReqParamTypePutGeneralVotingStatusOfUser {
-	userResponseId: UserResponseIdType;
+	draftId: DraftIdType;
 }
-export const putGeneralVotingStatusOfUser = async (
+export const putDraftInformation = async (
 	request: Request<ReqParamTypePutGeneralVotingStatusOfUser, any, any, any>,
 	response: Response,
-): Promise<Response<PutGeneralVotingStatusOfUserResponseDto>> => {
+) => {
 	try {
-		const chainedUrl = request.params.userResponseId;
+		const chainedUrl = request.params.draftId;
 		const pollId = chainedUrl.split('_')[0];
 		const pollVersion = chainedUrl.split('_')[1];
-		const pollRecurrence = chainedUrl.split('_')[2];
-		const voterEmail = chainedUrl.split('_')[3];
-		const dto = request.body as PutGeneralVotingStatusOfUserDto;
-		const input = new PutGeneralVotingStatusOfUserUseCaseInput(
+		const startDate = chainedUrl.split('_')[2];
+		const endDate = chainedUrl.split('_')[3];
+		const voterEmail = chainedUrl.split('_')[4];
+		const dto = request.body as PutDraftInformationDto;
+		const input = new PutDraftInformationUseCaseInput(
 			dto,
 			pollId,
 			pollVersion,
-			pollRecurrence,
+			startDate,
+			endDate,
 			voterEmail,
 		);
-		const result = await putGeneralVotingStatusOfUserUseCase.execute(input);
+		const result = await putDraftInformationUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {
@@ -114,25 +117,19 @@ export const putGeneralVotingStatusOfUser = async (
 };
 
 export const sendGetDraftAnswersForUser = (
-	response: Response<GetDraftAnswersForUserResponseDto>,
-	result: DraftAnswersForQuestion[],
+	response: Response,
+	result: GetDraftAnswersResponseDto,
 ) => {
 	try {
-		const parsedDraftAnswers = result.map((element) => {
+		const parsedDraftAnswers = result.draftAnswers.map((element) => {
 			return {
-				// eslint-disable-next-line no-unused-labels
 				pollId: element.pollId,
-				// eslint-disable-next-line no-unused-labels
 				pollVersion: element.pollVersion,
-				// eslint-disable-next-line no-unused-labels
-				pollRecurrence: element.pollRecurrence,
-				// eslint-disable-next-line no-unused-labels
+				starDate: element.startDate,
+				endDate: element.endDate,
 				voterEmail: element.voterEmail,
-				// eslint-disable-next-line no-unused-labels
 				questionId: element.questionId,
-				// eslint-disable-next-line no-unused-labels
 				question: element.question,
-				// eslint-disable-next-line no-unused-labels
 				answers: element.answers,
 			};
 		});

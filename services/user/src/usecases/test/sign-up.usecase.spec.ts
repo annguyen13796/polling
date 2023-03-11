@@ -75,7 +75,7 @@ describe('SignUpUseCase', () => {
 			).rejects.toThrowError(new BadRequestException('Username is not valid'));
 		});
 
-		it('should call findByEmail then throw User is existed', async () => {
+		it('should call findByEmail then throw exception when user is existed', async () => {
 			const signupUseCase = new SignUpUseCase(userRepository);
 			signupUseCaseInput = {
 				dto: {
@@ -122,7 +122,9 @@ describe('SignUpUseCase', () => {
 				signupUseCaseInput.dto.email,
 			);
 			expect(userRepoMockCreate).toBeCalledWith(newUser);
-			expect(value).toBe('Signup successfully');
+			expect(value).toEqual({
+				message: 'Signup successfully',
+			});
 		});
 	});
 });

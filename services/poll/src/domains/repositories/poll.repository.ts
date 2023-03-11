@@ -20,8 +20,13 @@ export interface IPollRepository extends IRepository<Poll> {
 	deleteQuestionById(pollId: string, questionId: string): Promise<boolean>;
 	updatePollGeneralInformation(
 		pollId: string,
-		version: string,
+		newVersion: string,
 		voteURL?: string,
 	): Promise<void>;
 	generateVoteURL(pollId: string): string;
+	updatePoll(
+		pollId: string,
+		title: string,
+		description?: string,
+	): Promise<void>;
 }

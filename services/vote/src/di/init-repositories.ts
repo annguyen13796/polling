@@ -1,29 +1,27 @@
 import {
 	DraftAnswersForQuestionDynamoDBMapper,
 	DraftAnswersForQuestionDynamoRepository,
-	GeneralVotingStatusOfUserDynamoDBMapper,
-	GeneralVotingStatusOfUserDynamoRepository,
+	DraftDynamoDBMapper,
+	DraftDynamoRepository,
 } from '../data';
-
-export const generalVotingStatusOfUserMapper =
-	new GeneralVotingStatusOfUserDynamoDBMapper();
-
-export const generalVotingStatusOfUserRepository =
-	new GeneralVotingStatusOfUserDynamoRepository(
-		{
-			tableName: 'khoa.pham_polling_draftVote',
-		},
-		generalVotingStatusOfUserMapper,
-	);
 
 export const draftAnswersForQuestionMapper =
 	new DraftAnswersForQuestionDynamoDBMapper();
 
 export const draftAnswersForQuestionRepository =
 	new DraftAnswersForQuestionDynamoRepository(
-		generalVotingStatusOfUserRepository,
 		{
 			tableName: 'khoa.pham_polling_draftVote',
 		},
 		draftAnswersForQuestionMapper,
 	);
+
+export const draftDynamoDBMapper = new DraftDynamoDBMapper();
+
+export const draftRepository = new DraftDynamoRepository(
+	draftAnswersForQuestionRepository,
+	{
+		tableName: 'khoa.pham_polling_draftVote',
+	},
+	draftDynamoDBMapper,
+);

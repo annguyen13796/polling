@@ -3,6 +3,8 @@ import { IVoterReportRepository, VoterReport } from '../domains';
 import {
 	BatchWriteCommand,
 	BatchWriteCommandInput,
+	QueryCommand,
+	QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 interface VoterReportDataModel {
 	PK: string | null | undefined;
@@ -17,7 +19,8 @@ export class VoterReportDynamoDBMapper extends DatabaseMapper<
 		const voterReport = new VoterReport({
 			pollId: dataModel.PK.split('#')[1],
 			pollVersion: dataModel.PK.split('#')[3],
-			pollRecurrence: dataModel.PK.split('#')[5],
+			startDate: dataModel.PK.split('#')[5],
+			endDate: dataModel.PK.split('#')[7],
 			questionId: dataModel.SK.split('#')[2],
 			answer: dataModel.SK.split('#')[4],
 			voterEmail: dataModel.SK.split('#')[6],
@@ -26,7 +29,7 @@ export class VoterReportDynamoDBMapper extends DatabaseMapper<
 	}
 	fromDomain(domainModel: VoterReport): VoterReportDataModel {
 		const data: VoterReportDataModel = {
-			PK: `POLL#${domainModel.pollId}#VERSION#${domainModel.pollVersion}#RECURRENCE#${domainModel.pollRecurrence}`,
+			PK: `POLL#${domainModel.pollId}#VERSION#${domainModel.pollVersion}#START#${domainModel.startDate}#END#${domainModel.endDate}`,
 			SK: `DETAIL#QUES#${domainModel.questionId}#ANSWER#${domainModel.answer}#VOTER#${domainModel.voterEmail}`,
 		};
 		return data;
@@ -75,5 +78,37 @@ export class VoterReportDynamoRepository
 				singleBatchRequest.splice(0, singleBatchRequest.length);
 			}
 		}
+	}
+
+	async getVoterReports(
+		pollId: string,
+		pollVersion: string,
+		startDate: string,
+		endDate: string,
+		questionId: string,
+		answer: string,
+	): Promise<VoterReport[] | null> {
+		const params: QueryCommandInput = {
+			TableName: this.config.tableName,
+			KeyConditionExpression: `PK = :partitionKeyValue AND begins_with(SK, :sortKeyPattern)`,
+			ExpressionAttributeValues: {
+				':partitionKeyValue': `POLL#${pollId}#VERSION#${pollVersion}#START#${startDate}#END#${endDate}`,
+				':sortKeyPattern': `DETAIL#QUES#${questionId}#ANSWER#${answer}#VOTER`,
+			},
+		};
+
+		const { Items } = await this.dynamoDBDocClient.send(
+			new QueryCommand(params),
+		);
+
+		if (Items) {
+			const voterReports = Items.map((item: VoterReportDataModel) =>
+				this.mapper.toDomain(item),
+			);
+
+			return voterReports;
+		}
+
+		return null;
 	}
 }

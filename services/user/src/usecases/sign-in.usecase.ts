@@ -1,10 +1,9 @@
-import { IUserRepository } from '../domains';
+import { IUserRepository, SignInDto, SignInResponseDto } from '../domains';
 import {
 	NotFoundException,
 	BadRequestException,
 	JwtConfig,
 } from '@libs/common';
-import { SignInDto } from '../domains/dtos';
 
 export class SignInUseCaseInput {
 	constructor(
@@ -12,16 +11,11 @@ export class SignInUseCaseInput {
 		public readonly jwtConfig: JwtConfig,
 	) {}
 }
-export class SignInUseCaseReturn {
-	constructor(
-		public readonly accessToken: string,
-		public readonly idToken: string,
-	) {}
-}
+
 export class SignInUseCase {
 	constructor(private readonly userRepository: IUserRepository) {}
 
-	async execute(input: SignInUseCaseInput): Promise<SignInUseCaseReturn> {
+	async execute(input: SignInUseCaseInput): Promise<SignInResponseDto> {
 		const { dto, jwtConfig } = input;
 		const { email, password } = dto;
 

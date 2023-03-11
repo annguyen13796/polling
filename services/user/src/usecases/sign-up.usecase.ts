@@ -1,5 +1,5 @@
 import { BadRequestException } from '@libs/common';
-import { IUserRepository, User } from '../domains';
+import { IUserRepository, SignUpResponseDto, User } from '../domains';
 import { SignUpDto, Password, Email, Username } from '../domains';
 
 export class SignUpUseCaseInput {
@@ -8,7 +8,7 @@ export class SignUpUseCaseInput {
 export class SignUpUseCase {
 	constructor(private readonly userRepository: IUserRepository) {}
 
-	async execute(input: SignUpUseCaseInput): Promise<string> {
+	async execute(input: SignUpUseCaseInput): Promise<SignUpResponseDto> {
 		const { dto } = input;
 		const { email, password, username } = dto;
 
@@ -39,6 +39,8 @@ export class SignUpUseCase {
 		});
 
 		await this.userRepository.create(user);
-		return 'Signup successfully';
+		return {
+			message: 'Signup successfully',
+		};
 	}
 }

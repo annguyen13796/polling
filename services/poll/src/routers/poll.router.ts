@@ -6,9 +6,10 @@ import {
 	getPollQuestions,
 	deletePollById,
 	getPollById,
-	createVoteLink,
+	createPollRelease,
 	editQuestion,
 	deleteQuestionById,
+	editPoll,
 } from '../controllers';
 
 const router: Router = express.Router();
@@ -19,13 +20,15 @@ router.get('/', getAllPolls);
 
 router.get('/:pollId', getPollById);
 
+router.put('/:pollId', editPoll);
+
 router.delete('/:pollId', deletePollById);
 
 router.post('/:pollId/questions', createQuestion);
 
 router.get('/:pollId/questions', getPollQuestions);
 
-router.post('/:pollId/link', createVoteLink);
+router.post('/:pollId/releases', createPollRelease);
 
 router.put('/:pollId/questions/:questionId', editQuestion);
 

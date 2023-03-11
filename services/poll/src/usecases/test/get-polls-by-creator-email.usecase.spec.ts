@@ -27,6 +27,7 @@ describe('CreatePollUseCase', () => {
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
+		updatePoll: jest.fn(),
 	};
 
 	test(`should throw error when creator email is null/undefined`, async () => {
