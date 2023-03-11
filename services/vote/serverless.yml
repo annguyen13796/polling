@@ -24,25 +24,25 @@ provider:
     restApiRootResourceId: cq0b9cenbg
 
 functions:
-  getDraftAnswersForUser:
+  getDraftAnswers:
     handler: dist/index.handler
     events:
       - http:
-          path: /votes/userResponses/{userResponseId}/draftAnswersForQuestions
+          path: /votes/drafts/{draftId}/answers-for-questions
           method: GET
           cors: true
   putDraftAnswersForQuestion:
     handler: dist/index.handler
     events:
       - http:
-          path: /votes/userResponses/{userResponseId}/draftAnswersForQuestions/{questionId}
+          path: /votes/drafts/{draftId}/answers-for-questions/{questionId}
           method: PUT
           cors: true
-  putGeneralVotingStatusOfUser:
+  putDraftInformation:
     handler: dist/index.handler
     events:
       - http:
-          path: /votes/userResponses/{userResponseId}
+          path: /votes/drafts/{draftId}
           method: PUT
           cors: true
 

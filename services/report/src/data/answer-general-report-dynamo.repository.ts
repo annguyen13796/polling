@@ -34,7 +34,8 @@ export class AnswerGeneralReportDynamoDBMapper extends DatabaseMapper<
 		const answerGeneralReport = new AnswerReport({
 			pollId: dataModel.PK.split('#')[1],
 			pollVersion: dataModel.PK.split('#')[3],
-			pollRecurrence: dataModel.PK.split('#')[5],
+			startDate: dataModel.PK.split('#')[5],
+			endDate: dataModel.PK.split('#')[7],
 			questionId: dataModel.SK.split('#')[3],
 			answer: dataModel.SK.split('#')[5],
 			question: dataModel.Question,
@@ -44,7 +45,7 @@ export class AnswerGeneralReportDynamoDBMapper extends DatabaseMapper<
 	}
 	fromDomain(domainModel: AnswerReport): AnswerReportDataModel {
 		const data: AnswerReportDataModel = {
-			PK: `POLL#${domainModel.pollId}#VERSION#${domainModel.pollVersion}#RECURRENCE#${domainModel.pollRecurrence}`,
+			PK: `POLL#${domainModel.pollId}#VERSION#${domainModel.pollVersion}#START#${domainModel.startDate}#END#${domainModel.endDate}`,
 			SK: `#GENERAL#QUES#${domainModel.questionId}#ANSWER#${domainModel.answer}`,
 			Question: domainModel.question,
 			NumberOfVoter: domainModel.numberOfVoter,
@@ -71,31 +72,47 @@ export class AnswerGeneralReportDynamoRepository
 	) {
 		super(config, mapper);
 	}
-	async createVoterReportsForRecurrence(
-		newVoterReports: VoterReport[],
-	): Promise<void> {
+
+	async createVoterReports(newVoterReports: VoterReport[]): Promise<void> {
 		await this.voterReportRepository.putVoterReports(newVoterReports);
 	}
-	getVotersOfSpecificAnswer(
+
+	async getVotersOfSpecificAnswer(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		questionId: string,
 		answer: string,
-	): Promise<VoterReport[]> {
-		throw new Error('Method not implemented.');
+	): Promise<VoterReport[] | null> {
+		const voterReports = await this.voterReportRepository.getVoterReports(
+			pollId,
+			pollVersion,
+			startDate,
+			endDate,
+			questionId,
+			answer,
+		);
+
+		if (voterReports) {
+			return voterReports;
+		}
+
+		return null;
 	}
+
 	async getAnswerReport(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		questionId: string,
 		answer: string,
 	): Promise<AnswerReport> {
 		const params: GetCommandInput = {
 			TableName: this.config.tableName,
 			Key: {
-				PK: `POLL#${pollId}#VERSION#${pollVersion}#RECURRENCE#${pollRecurrence}`,
+				PK: `POLL#${pollId}#VERSION#${pollVersion}#START#${startDate}#END#${endDate}`,
 				SK: `#GENERAL#QUES#${questionId}#ANSWER#${answer}`,
 			},
 		};
@@ -111,17 +128,18 @@ export class AnswerGeneralReportDynamoRepository
 		return null;
 	}
 
-	async getAnswerReportsForRecurrence(
+	async getAnswerReports(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		startItem: { PK: string; SK?: string } | null,
 	): Promise<QueryCommandReturnType<AnswerReport>> {
 		const params: QueryCommandInput = {
 			TableName: this.config.tableName,
 			KeyConditionExpression: `PK = :partitionKeyValue AND begins_with(SK,:sortKeyPattern)`,
 			ExpressionAttributeValues: {
-				':partitionKeyValue': `POLL#${pollId}#VERSION#${pollVersion}#RECURRENCE#${pollRecurrence}`,
+				':partitionKeyValue': `POLL#${pollId}#VERSION#${pollVersion}#START#${startDate}#END#${endDate}`,
 				':sortKeyPattern': `#GENERAL`,
 			},
 		};

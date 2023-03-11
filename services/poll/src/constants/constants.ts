@@ -2,7 +2,7 @@
 
 export type POLL_STATUS = 'IDLE' | 'IN PROGRESS' | 'CLOSED';
 export type QUESTION_TYPE = 'MULTIPLE' | 'CHECKBOX' | 'TEXT_BOX';
-export type RECURRENCE_TYPE = 'NONE' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
+export type STATUS_TYPE = 'IN PROGRESS' | 'CLOSED';
 
 // export class QuestionType {
 // 	private static types = ['MULTIPLE', 'CHECKBOX', 'TEXT_BOX'];

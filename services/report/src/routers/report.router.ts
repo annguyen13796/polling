@@ -1,41 +1,40 @@
 import express, { Router } from 'express';
 import {
-	createOverviewReportForRecurrence,
-	createUserResponseForRecurrence,
-	getOverviewReportForRecurrence,
+	createOverviewReport,
+	createUserResponse,
+	getAnswerReports,
+	getOverviewReport,
 	getOverviewReportsForPoll,
-	updateStatusForRecurrence,
+	getVoterReportsForAnswer,
+	updateOverviewReport,
 } from '../controllers';
 
 const router: Router = express.Router();
-router.get('/overview/:pollId/versions/', getOverviewReportsForPoll);
+router.get('/overview/:pollId/versions', getOverviewReportsForPoll);
 
 router.get(
-	'/overview/:pollId/versions/:pollVersion/recurrences/:pollRecurrence',
-	getOverviewReportForRecurrence,
+	'/overview/:pollId/versions/:pollVersion/time/:timeInterval',
+	getOverviewReport,
 );
 router.patch(
-	'/overview/:pollId/versions/:pollVersion/recurrences/:pollRecurrence',
-	updateStatusForRecurrence,
+	'/overview/:pollId/versions/:pollVersion/time/:timeInterval',
+	updateOverviewReport,
 );
 router.post(
-	'/overview/:pollId/versions/:pollVersion/recurrences/',
-	createOverviewReportForRecurrence,
+	'/overview/:pollId/versions/:pollVersion/time',
+	createOverviewReport,
 );
 
-// router.get(
-// 	'/detail/:pollId/version/:version/recurrences/:pollRecurrence/answers',
-// 	getAnswerReportsForRecurrence,
-// );
-
-// router.get(
-// 	'/detail/:pollId/version/:version/recurrence/:pollRecurrence/answers/:answer/voters',
-// 	getVoterReportsForAnswer,
-// );
-
-router.post(
-	'/detail/:pollId/versions/:pollVersion/recurrences/',
-	createUserResponseForRecurrence,
+router.get(
+	'/detail/:pollId/versions/:version/time/:timeInterval/answers',
+	getAnswerReports,
 );
+
+router.get(
+	'/detail/:pollId/versions/:version/time/:timeInterval/questions/:questionId/answers/:answer/voters',
+	getVoterReportsForAnswer,
+);
+
+router.post('/detail/:pollId/versions/:pollVersion/time', createUserResponse);
 
 export const reportRouter: Router = router;

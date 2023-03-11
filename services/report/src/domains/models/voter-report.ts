@@ -3,7 +3,8 @@ import { BadRequestException, isStringEmptyOrUndefined } from '@libs/common';
 export interface VoterReportProps {
 	pollId: string | null | undefined;
 	pollVersion: string | null | undefined;
-	pollRecurrence: string | null | undefined;
+	startDate: string | null | undefined;
+	endDate: string | null | undefined;
 	questionId: string | null | undefined;
 	answer: string | null | undefined;
 	voterEmail: string | null | undefined;
@@ -16,8 +17,11 @@ export class VoterReport {
 	public get pollVersion() {
 		return this.props.pollVersion;
 	}
-	public get pollRecurrence() {
-		return this.props.pollRecurrence;
+	public get startDate() {
+		return this.props.startDate;
+	}
+	public get endDate() {
+		return this.props.endDate;
 	}
 	public get questionId() {
 		return this.props.questionId;
@@ -37,7 +41,8 @@ export class VoterReport {
 		const {
 			pollId,
 			pollVersion,
-			pollRecurrence,
+			startDate,
+			endDate,
 			questionId,
 			answer,
 			voterEmail,
@@ -51,8 +56,12 @@ export class VoterReport {
 			throw new BadRequestException('Poll Version is null/undefined');
 		}
 
-		if (isStringEmptyOrUndefined(pollRecurrence)) {
-			throw new BadRequestException('Poll Recurrence is null/undefined');
+		if (isStringEmptyOrUndefined(startDate)) {
+			throw new BadRequestException('Start Date is null/undefined');
+		}
+
+		if (isStringEmptyOrUndefined(endDate)) {
+			throw new BadRequestException('End Date is null/undefined');
 		}
 
 		if (isStringEmptyOrUndefined(questionId)) {

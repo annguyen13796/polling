@@ -1,29 +1,34 @@
 import { NextFunction, Request, Response } from 'express';
 import { ApiErrorMapper } from '@libs/common';
 import {
-	CreateOverviewReportForRecurrenceDto,
-	CreateOverviewReportForRecurrenceResponseDto,
-	CreateUserResponseForRecurrenceDto,
-	CreateUserResponseForRecurrenceResponseDto,
-	GetOverviewReportForRecurrenceResponseDto,
-	GetOverviewReportsForPollResponseDto,
+	AnswerReport,
 	OverviewReport,
-	UpdateStatusForRecurrenceDto,
-	UpdateStatusForRecurrenceResponseDto,
+	UpdateOverviewReportDto,
+	CreateUserResponseDto,
+	CreateOverviewReportDto,
+	GetAnswerReportsResponseDto,
+	GetVotersOfAnswerReportsResponseDto,
+	VoterReport,
+	GetOverviewReportsForPollResponseDto,
+	GetOverviewReportResponseDto,
 } from '../domains';
 import {
-	CreateOverviewReportForRecurrenceUseCaseInput,
-	CreateUserResponseForRecurrenceUseCaseInput,
-	GetOverviewReportForRecurrenceUseCaseInput,
 	GetOverviewReportsForPollUseCaseInput,
-	UpdateStatusForRecurrenceUseCaseInput,
+	UpdateOverviewReportUseCaseInput,
+	CreateUserResponseUseCaseInput,
+	GetAnswerReportsUseCaseInput,
+	GetOverviewReportUseCaseInput,
+	CreateOverviewReportUseCaseInput,
+	GetVoterOfAnswerReportsUseCaseInput,
 } from '../usecases';
 import {
-	createOverviewReportForRecurrenceUseCase,
-	createUserResponseForRecurrenceUseCase,
-	getOverviewReportForRecurrenceUseCase,
+	createOverviewReportUseCase,
+	createUserResponseUseCase,
+	getAnswerReportsUseCase,
 	getOverviewReportsForPollUseCase,
-	updateStatusForRecurrenceUseCase,
+	getOverviewReportUseCase,
+	getVoterOfAnswerReportsUseCase,
+	updateOverviewReportUseCase,
 } from '../di';
 
 interface ReqParamTypeGetOverviewReports {
@@ -33,7 +38,7 @@ export const getOverviewReportsForPoll = async (
 	request: Request<ReqParamTypeGetOverviewReports, any, any, any>,
 	response: Response,
 	next: NextFunction,
-): Promise<Response<GetOverviewReportsForPollResponseDto>> => {
+) => {
 	try {
 		const pollId = request.params.pollId;
 		const input = new GetOverviewReportsForPollUseCaseInput(pollId);
@@ -43,116 +48,91 @@ export const getOverviewReportsForPoll = async (
 		return ApiErrorMapper.toErrorResponse(error, response);
 	}
 };
-
 export const sendGetOverviewReportsForPoll = (
 	response: Response,
-	result: OverviewReport[],
+	result: GetOverviewReportsForPollResponseDto,
 ) => {
-	try {
-		const parsedOverviewReports = result.map((element) => {
-			return {
-				// eslint-disable-next-line no-unused-labels
-				pollId: element.pollId,
-				// eslint-disable-next-line no-unused-labels
-				pollVersion: element.pollVersion,
-				// eslint-disable-next-line no-unused-labels
-				pollRecurrence: element.pollRecurrence,
-				// eslint-disable-next-line no-unused-labels
-				pollName: element.pollName,
-				// eslint-disable-next-line no-unused-labels
-				pollDescription: element.pollDescription,
-				// eslint-disable-next-line no-unused-labels
-				status: element.status,
-				// eslint-disable-next-line no-unused-labels
-				participants: element.participants,
-			};
-		});
-		response.send({
-			message: 'get draft answers successfully',
-			overviewReports: parsedOverviewReports,
-		});
-	} catch (error) {
-		return ApiErrorMapper.toErrorResponse(error, response);
-	}
+	return response.send({
+		message: result.message,
+		overviewReports: result.overviewReports.map((element: OverviewReport) => ({
+			pollId: element.pollId,
+			pollVersion: element.pollVersion,
+			startDate: element.startDate,
+			endDate: element.endDate,
+			status: element.status,
+			participants: element.participants,
+		})),
+	});
 };
 
 interface ReqParamTypeGetOverviewReport {
 	pollId: string;
 	pollVersion: string;
-	pollRecurrence: string;
+	timeInterval: string;
 }
-export const getOverviewReportForRecurrence = async (
+export const getOverviewReport = async (
 	request: Request<ReqParamTypeGetOverviewReport, any, any, any>,
 	response: Response,
 	next: NextFunction,
-): Promise<Response<GetOverviewReportForRecurrenceResponseDto>> => {
-	try {
-		const pollId = request.params.pollId;
-		const pollVersion = request.params.pollVersion;
-		const pollRecurrence = request.params.pollRecurrence;
-		const input = new GetOverviewReportForRecurrenceUseCaseInput(
-			pollId,
-			pollVersion,
-			pollRecurrence,
-		);
-		const result = await getOverviewReportForRecurrenceUseCase.execute(input);
-		next(sendGetOverviewReportForRecurrence(response, result));
-	} catch (error) {
-		return ApiErrorMapper.toErrorResponse(error, response);
-	}
-};
-
-export const sendGetOverviewReportForRecurrence = (
-	response: Response,
-	result: OverviewReport,
 ) => {
 	try {
-		const parsedOverviewReport = {
-			// eslint-disable-next-line no-unused-labels
-			pollId: result.pollId,
-			// eslint-disable-next-line no-unused-labels
-			pollVersion: result.pollVersion,
-			// eslint-disable-next-line no-unused-labels
-			pollRecurrence: result.pollRecurrence,
-			// eslint-disable-next-line no-unused-labels
-			pollName: result.pollName,
-			// eslint-disable-next-line no-unused-labels
-			pollDescription: result.pollDescription,
-			// eslint-disable-next-line no-unused-labels
-			status: result.status,
-			// eslint-disable-next-line no-unused-labels
-			participants: result.participants,
-		};
-		response.send({
-			message: 'get draft answers successfully',
-			overviewReport: parsedOverviewReport,
-		});
+		const pollId = request.params.pollId;
+		const pollVersion = request.params.pollVersion;
+		const startDate = request.params.timeInterval.split('_')[0];
+		const endDate = request.params.timeInterval.split('_')[1];
+		const input = new GetOverviewReportUseCaseInput(
+			pollId,
+			pollVersion,
+			startDate,
+			endDate,
+		);
+		const result = await getOverviewReportUseCase.execute(input);
+		next(sendGetOverviewReportForOccurrence(response, result));
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
 	}
 };
 
-interface ReqParamTypeUpdateStatusForRecurrence {
+export const sendGetOverviewReportForOccurrence = (
+	response: Response,
+	result: GetOverviewReportResponseDto,
+) => {
+	response.send({
+		message: result.message,
+		overviewReport: {
+			pollId: result.overviewReport.pollId,
+			pollVersion: result.overviewReport.pollVersion,
+			startDate: result.overviewReport.startDate,
+			endDate: result.overviewReport.endDate,
+			status: result.overviewReport.status,
+			participants: result.overviewReport.participants,
+		},
+	});
+};
+
+interface ReqParamTypeUpdateOverviewReport {
 	pollId: string;
 	pollVersion: string;
-	pollRecurrence: string;
+	timeInterval: string;
 }
-export const updateStatusForRecurrence = async (
-	request: Request<ReqParamTypeUpdateStatusForRecurrence, any, any, any>,
+export const updateOverviewReport = async (
+	request: Request<ReqParamTypeUpdateOverviewReport, any, any, any>,
 	response: Response,
-): Promise<Response<UpdateStatusForRecurrenceResponseDto>> => {
+) => {
 	try {
 		const pollId = request.params.pollId;
 		const pollVersion = request.params.pollVersion;
-		const pollRecurrence = request.params.pollRecurrence;
-		const dto = request.body as UpdateStatusForRecurrenceDto;
-		const input = new UpdateStatusForRecurrenceUseCaseInput(
+		const startDate = request.params.timeInterval.split('_')[0];
+		const endDate = request.params.timeInterval.split('_')[1];
+		const dto = request.body as UpdateOverviewReportDto;
+		const input = new UpdateOverviewReportUseCaseInput(
 			dto,
 			pollId,
 			pollVersion,
-			pollRecurrence,
+			startDate,
+			endDate,
 		);
-		const result = await updateStatusForRecurrenceUseCase.execute(input);
+		const result = await updateOverviewReportUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {
@@ -160,31 +140,24 @@ export const updateStatusForRecurrence = async (
 	}
 };
 
-interface ReqParamTypeCreateOverviewReportForRecurrence {
+interface ReqParamTypeCreateOverviewReport {
 	pollId: string;
 	pollVersion: string;
 }
-export const createOverviewReportForRecurrence = async (
-	request: Request<
-		ReqParamTypeCreateOverviewReportForRecurrence,
-		any,
-		any,
-		any
-	>,
+export const createOverviewReport = async (
+	request: Request<ReqParamTypeCreateOverviewReport, any, any, any>,
 	response: Response,
-): Promise<Response<CreateOverviewReportForRecurrenceResponseDto>> => {
+) => {
 	try {
 		const pollId = request.params.pollId;
 		const pollVersion = request.params.pollVersion;
-		const dto = request.body as CreateOverviewReportForRecurrenceDto;
-		const input = new CreateOverviewReportForRecurrenceUseCaseInput(
+		const dto = request.body as CreateOverviewReportDto;
+		const input = new CreateOverviewReportUseCaseInput(
 			dto,
 			pollId,
 			pollVersion,
 		);
-		const result = await createOverviewReportForRecurrenceUseCase.execute(
-			input,
-		);
+		const result = await createOverviewReportUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {
@@ -192,40 +165,127 @@ export const createOverviewReportForRecurrence = async (
 	}
 };
 
-// export const getAnswerReportsForRecurrence = async (
-// 	request: Request<any, any, any, ReqQueryTypeGetDraftAnswersForUser>,
-// 	response: Response,
-// 	next: NextFunction,
-// ): Promise<Response<GetReportForPollResponseDto>> => {};
-
-// export const getVoterReportsForAnswer = async (
-// 	request: Request<any, any, any, ReqQueryTypeGetDraftAnswersForUser>,
-// 	response: Response,
-// 	next: NextFunction,
-// ): Promise<Response<GetReportForPollResponseDto>> => {};
-
-interface ReqParamTypeUpdateUserResponseForRecurrence {
+interface ReqParamTypeUpdateUserResponse {
 	pollId: string;
 	pollVersion: string;
-	pollRecurrence: string;
 }
-export const createUserResponseForRecurrence = async (
-	request: Request<ReqParamTypeUpdateUserResponseForRecurrence, any, any, any>,
+export const createUserResponse = async (
+	request: Request<ReqParamTypeUpdateUserResponse, any, any, any>,
 	response: Response,
-): Promise<Response<CreateUserResponseForRecurrenceResponseDto>> => {
+) => {
 	try {
 		const pollId = request.params.pollId;
 		const pollVersion = request.params.pollVersion;
-		const dto = request.body as CreateUserResponseForRecurrenceDto;
-		const input = new CreateUserResponseForRecurrenceUseCaseInput(
-			dto,
-			pollId,
-			pollVersion,
-		);
-		const result = await createUserResponseForRecurrenceUseCase.execute(input);
+		const dto = request.body as CreateUserResponseDto;
+		const input = new CreateUserResponseUseCaseInput(dto, pollId, pollVersion);
+		const result = await createUserResponseUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
 	}
+};
+
+interface ReqParamTypeGetAnswerReports {
+	pollId: string;
+	version: string;
+	timeInterval: string;
+}
+
+export const getAnswerReports = async (
+	request: Request<ReqParamTypeGetAnswerReports>,
+	response: Response<AnswerReports>,
+	next: NextFunction,
+) => {
+	try {
+		const startDate = request.params.timeInterval.split('_')[0];
+		const endDate = request.params.timeInterval.split('_')[1];
+		const { pollId, version } = request.params;
+
+		const result = await getAnswerReportsUseCase.execute(
+			new GetAnswerReportsUseCaseInput(pollId, version, startDate, endDate),
+		);
+
+		next(sendAnswersReportOfPollVersionForClient(response, result));
+	} catch (error) {
+		return ApiErrorMapper.toErrorResponse(error, response);
+	}
+};
+
+interface AnswerReports {
+	nextToken: string;
+	answerReports: AnswerReport['props'][];
+}
+export const sendAnswersReportOfPollVersionForClient = (
+	response: Response<AnswerReports>,
+	result: GetAnswerReportsResponseDto,
+) => {
+	return response.send({
+		nextToken: result.nextToken,
+		answerReports: result.answerReports.map((answerReport) => ({
+			answer: answerReport.answer,
+			numberOfVoter: answerReport.numberOfVoter,
+			pollId: answerReport.pollId,
+			startDate: answerReport.startDate,
+			endDate: answerReport.endDate,
+			pollVersion: answerReport.pollVersion,
+			question: answerReport.question,
+			questionId: answerReport.questionId,
+		})),
+	});
+};
+
+interface GetAnswerReportsRequestParamsType {
+	pollId: string;
+	version: string;
+	timeInterval: string;
+	questionId: string;
+	answer: AnswerReport['answer'];
+}
+export const getVoterReportsForAnswer = async (
+	request: Request<GetAnswerReportsRequestParamsType>,
+	response: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { questionId, answer, pollId, timeInterval, version } =
+			request.params;
+		const startDate = timeInterval.split('_')[0];
+		const endDate = timeInterval.split('_')[1];
+		const result = await getVoterOfAnswerReportsUseCase.execute(
+			new GetVoterOfAnswerReportsUseCaseInput(
+				pollId,
+				version,
+				startDate,
+				endDate,
+				questionId,
+				answer,
+			),
+		);
+		next(sendVoterOfAnswerReportsToClient(response, result));
+	} catch (error) {
+		return ApiErrorMapper.toErrorResponse(error, response);
+	}
+};
+
+interface VoterOfAnswerReportsResponseForClient {
+	message: string;
+	voterReports: VoterReport['props'][];
+}
+const sendVoterOfAnswerReportsToClient = (
+	response: Response<VoterOfAnswerReportsResponseForClient>,
+	result: GetVotersOfAnswerReportsResponseDto,
+) => {
+	return response.send({
+		message: result.message,
+		voterReports: result.voterReports.map((element: VoterReport) => ({
+			answer: element.answer,
+			endDate: element.endDate,
+			pollId: element.pollId,
+			pollVersion: element.pollVersion,
+			questionId: element.questionId,
+			startDate: element.startDate,
+			voterEmail: element.voterEmail,
+		})),
+	});
 };

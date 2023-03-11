@@ -13,8 +13,10 @@ import {
 	EditQuestionDto,
 	EditQuestionResponseDto,
 	DeleteQuestionResponseDto,
-	CreateVoteLinkResponseDto,
-	CreateVoteLinkDto,
+	ReleasePollResponseDto,
+	ReleasePollDto,
+	EditPollInformationResponseDto,
+	EditPollInformationDto,
 } from '../domains';
 import {
 	CreatePollUseCaseInput,
@@ -25,14 +27,16 @@ import {
 	GetQuestionsByPollIdUseCaseInput,
 	EditQuestionUseCaseInput,
 	DeleteQuestionByIdUseCaseInput,
-	CreateVoteURLUseCaseInput,
+	ReleasePollUseCaseInput,
+	EditPollInformationUseCaseInput,
 } from '../usecases';
 import {
 	createPollUseCase,
 	createQuestionUseCase,
-	createVoteLinkUseCase,
+	releasePollUseCase,
 	deletePollByIdUseCase,
 	deleteQuestionByIdUseCase,
+	editPollInformationUseCase,
 	editQuestionUseCase,
 	getAllPollsUseCase,
 	getPollByIdUseCase,
@@ -49,6 +53,24 @@ export const createPoll = async (
 		const input = new CreatePollUseCaseInput(dto);
 
 		const result = await createPollUseCase.execute(input);
+
+		return response.send(result);
+	} catch (error) {
+		return ApiErrorMapper.toErrorResponse(error, response);
+	}
+};
+
+export const editPoll = async (
+	request: Request,
+	response: Response,
+): Promise<Response<EditPollInformationResponseDto>> => {
+	try {
+		const dto = request.body as EditPollInformationDto;
+		const inputPollId = request.params.pollId;
+
+		const input = new EditPollInformationUseCaseInput(dto, inputPollId);
+
+		const result = await editPollInformationUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {
@@ -249,23 +271,21 @@ export const sendPollGeneralInfoToClient = (response: Response, poll: Poll) => {
 	return response.send(pollForClient);
 };
 
-export const createVoteLink = async (
+export const createPollRelease = async (
 	request: Request,
 	response: Response,
-): Promise<Response<CreateVoteLinkResponseDto>> => {
+): Promise<Response<ReleasePollResponseDto>> => {
 	try {
 		const pollIdParam = request.params?.pollId;
 
-		const createVoteLinkDto = request.body as CreateVoteLinkDto;
+		const createPollReleaseDto = request.body as ReleasePollDto;
 
-		const createVoteLinkUseCaseInput = new CreateVoteURLUseCaseInput(
+		const releasePollUseCaseInput = new ReleasePollUseCaseInput(
 			pollIdParam,
-			createVoteLinkDto,
+			createPollReleaseDto,
 		);
 
-		const result = await createVoteLinkUseCase.execute(
-			createVoteLinkUseCaseInput,
-		);
+		const result = await releasePollUseCase.execute(releasePollUseCaseInput);
 
 		return response.send(result);
 	} catch (error) {

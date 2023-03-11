@@ -1,15 +1,16 @@
 import {
-	GetDraftAnswersForUserUseCase,
+	GetDraftAnswersUseCase,
 	PutDraftAnswersForQuestionUseCase,
-	PutGeneralVotingStatusOfUserUseCase,
+	PutDraftInformationUseCase,
 } from '../usecases';
-import { draftAnswersForQuestionRepository } from './init-repositories';
+import { draftRepository } from './init-repositories';
 
-export const getDraftAnswersForUserUseCase = new GetDraftAnswersForUserUseCase(
-	draftAnswersForQuestionRepository,
+export const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
+	draftRepository,
 );
 export const putDraftAnswersForQuestionUseCase =
-	new PutDraftAnswersForQuestionUseCase(draftAnswersForQuestionRepository);
+	new PutDraftAnswersForQuestionUseCase(draftRepository);
 
-export const putGeneralVotingStatusOfUserUseCase =
-	new PutGeneralVotingStatusOfUserUseCase(draftAnswersForQuestionRepository);
+export const putDraftInformationUseCase = new PutDraftInformationUseCase(
+	draftRepository,
+);

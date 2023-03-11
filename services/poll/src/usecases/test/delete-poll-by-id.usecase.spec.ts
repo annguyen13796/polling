@@ -5,12 +5,12 @@ import {
 	DeletePollByIdUseCase,
 } from '../delete-poll-by-id.usecase';
 
-describe('delete poll by id usecase test', () => {
+describe('delete poll by id use case test', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
 
-	const pollRepositoryMock: jest.Mocked<IPollRepository> = {
+	const mockPollRepository: jest.Mocked<IPollRepository> = {
 		create: jest.fn(),
 		getPollsByCreatorEmail: jest.fn(),
 		update: jest.fn(),
@@ -23,62 +23,63 @@ describe('delete poll by id usecase test', () => {
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
+		updatePoll: jest.fn(),
 	};
 
 	it('Should throw error when pollId is missing', async () => {
-		const pollIdDto = undefined;
+		const mockPollId = undefined;
 
-		const deletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
-			pollIdDto,
+		const mockDeletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
+			mockPollId,
 		);
 
-		const deletePollByIdUseCaseMock = new DeletePollByIdUseCase(
-			pollRepositoryMock,
+		const mockDeletePollByIdUseCase = new DeletePollByIdUseCase(
+			mockPollRepository,
 		);
 
 		const expectedError = new BadRequestException('Poll Id is missing');
 
 		await expect(
-			deletePollByIdUseCaseMock.execute(deletePollByIdUseCaseInput),
+			mockDeletePollByIdUseCase.execute(mockDeletePollByIdUseCaseInput),
 		).rejects.toThrow(expectedError);
 
-		expect(pollRepositoryMock.deletePollById).not.toBeCalled();
+		expect(mockPollRepository.deletePollById).not.toBeCalled();
 	});
 
 	it('Should throw error when poll is not existed', async () => {
-		const pollIdDto = '1234';
+		const mockPollId = '1234';
 
-		const deletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
-			pollIdDto,
+		const mockDeletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
+			mockPollId,
 		);
 
-		const deletePollByIdUseCaseMock = new DeletePollByIdUseCase(
-			pollRepositoryMock,
+		const mockDeletePollByIdUseCaseMock = new DeletePollByIdUseCase(
+			mockPollRepository,
 		);
 
-		pollRepositoryMock.findPollById.mockResolvedValueOnce(null);
+		mockPollRepository.findPollById.mockResolvedValueOnce(null);
 
 		const expectedError = new NotFoundException('Poll is not existed');
 
 		await expect(
-			deletePollByIdUseCaseMock.execute(deletePollByIdUseCaseInput),
+			mockDeletePollByIdUseCaseMock.execute(mockDeletePollByIdUseCaseInput),
 		).rejects.toThrow(expectedError);
 
-		expect(pollRepositoryMock.deletePollById).not.toBeCalled();
+		expect(mockPollRepository.deletePollById).not.toBeCalled();
 	});
 
 	it('Should execute successfully with valid pollId and the poll is existed on the DB', async () => {
-		const pollIdDto = '1234';
+		const mockPollId = '1234';
 
-		const deletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
-			pollIdDto,
+		const mockDeletePollByIdUseCaseInput = new DeletePollByIdUseCaseInput(
+			mockPollId,
 		);
 
-		const deletePollByIdUseCaseMock = new DeletePollByIdUseCase(
-			pollRepositoryMock,
+		const mockDeletePollByIdUseCaseMock = new DeletePollByIdUseCase(
+			mockPollRepository,
 		);
 
-		const existedPoll = new Poll({
+		const mockExistedPoll = new Poll({
 			id: '1234',
 			creatorEmail: 'mock@gmail.com',
 			description: 'fix bug 1',
@@ -87,17 +88,17 @@ describe('delete poll by id usecase test', () => {
 			status: 'IDLE',
 		});
 
-		pollRepositoryMock.findPollById.mockResolvedValueOnce(existedPoll);
+		mockPollRepository.findPollById.mockResolvedValueOnce(mockExistedPoll);
 
-		const result = await deletePollByIdUseCaseMock.execute(
-			deletePollByIdUseCaseInput,
+		const result = await mockDeletePollByIdUseCaseMock.execute(
+			mockDeletePollByIdUseCaseInput,
 		);
 
 		expect(result).toEqual({
 			message: 'Successfully Delete Poll',
 			pollId: '1234',
 		});
-		expect(pollRepositoryMock);
-		expect(pollRepositoryMock.deletePollById).toBeCalledWith('1234');
+		expect(mockPollRepository);
+		expect(mockPollRepository.deletePollById).toBeCalledWith('1234');
 	});
 });

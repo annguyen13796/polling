@@ -1,14 +1,15 @@
 import { BadRequestException, isStringEmptyOrUndefined } from '@libs/common';
 import { STATUS_TYPE } from '../../constants';
+import { AnswerReport } from './answer-report';
 
 export interface OverviewReportProps {
 	pollId: string | null | undefined;
 	pollVersion: string | null | undefined;
-	pollRecurrence: string | null | undefined;
-	pollName: string | null | undefined;
-	pollDescription: string | null | undefined;
+	startDate: string | null | undefined;
+	endDate: string | null | undefined;
 	status: STATUS_TYPE | null | undefined;
 	participants: string[] | null | undefined;
+	answerReports?: AnswerReport[];
 }
 
 export class OverviewReport {
@@ -18,15 +19,13 @@ export class OverviewReport {
 	public get pollVersion() {
 		return this.props.pollVersion;
 	}
-	public get pollRecurrence() {
-		return this.props.pollRecurrence;
+	public get startDate() {
+		return this.props.startDate;
 	}
-	public get pollName() {
-		return this.props.pollName;
+	public get endDate() {
+		return this.props.endDate;
 	}
-	public get pollDescription() {
-		return this.props.pollDescription;
-	}
+
 	public get status() {
 		return this.props.status;
 	}
@@ -59,15 +58,8 @@ export class OverviewReport {
 			throw new BadRequestException('Props of question is null/undefined');
 		}
 
-		const {
-			pollId,
-			pollVersion,
-			pollRecurrence,
-			pollName,
-			pollDescription,
-			status,
-			participants,
-		} = props;
+		const { pollId, pollVersion, startDate, endDate, status, participants } =
+			props;
 
 		if (isStringEmptyOrUndefined(pollId)) {
 			throw new BadRequestException('Poll Id is null/undefined');
@@ -77,16 +69,12 @@ export class OverviewReport {
 			throw new BadRequestException('Poll Version is null/undefined');
 		}
 
-		if (isStringEmptyOrUndefined(pollRecurrence)) {
-			throw new BadRequestException('Poll Recurrence is null/undefined');
+		if (isStringEmptyOrUndefined(startDate)) {
+			throw new BadRequestException('Start Date is null/undefined');
 		}
 
-		if (isStringEmptyOrUndefined(pollName)) {
-			throw new BadRequestException('Poll Name is null/undefined');
-		}
-
-		if (typeof pollDescription !== 'string') {
-			throw new BadRequestException('Poll Description must be a string');
+		if (isStringEmptyOrUndefined(endDate)) {
+			throw new BadRequestException('End Date is null/undefined');
 		}
 
 		if (!status) {

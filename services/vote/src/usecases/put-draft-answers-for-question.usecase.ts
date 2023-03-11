@@ -1,7 +1,7 @@
 import { BadRequestException } from '@libs/common';
 import {
 	DraftAnswersForQuestion,
-	IDraftAnswersForQuestionRepository,
+	IDraftRepository,
 	PutDraftAnswersForQuestionDto,
 	PutDraftAnswersForQuestionResponseDto,
 } from '../domains';
@@ -11,22 +11,28 @@ export class PutDraftAnswersForQuestionUseCaseInput {
 		public readonly dto: PutDraftAnswersForQuestionDto,
 		public readonly pollId: string,
 		public readonly pollVersion: string,
-		public readonly pollRecurrence: string,
+		public readonly startDate: string,
+		public readonly endDate: string,
 		public readonly voterEmail: string,
 		public readonly questionId: string,
 	) {}
 }
 
 export class PutDraftAnswersForQuestionUseCase {
-	constructor(
-		private readonly draftAnswersForQuestionRepository: IDraftAnswersForQuestionRepository,
-	) {}
+	constructor(private readonly draftRepository: IDraftRepository) {}
 
 	async execute(
 		input: PutDraftAnswersForQuestionUseCaseInput,
 	): Promise<PutDraftAnswersForQuestionResponseDto> {
-		const { dto, pollId, pollVersion, pollRecurrence, voterEmail, questionId } =
-			input;
+		const {
+			dto,
+			pollId,
+			pollVersion,
+			startDate,
+			endDate,
+			voterEmail,
+			questionId,
+		} = input;
 		const { answers, question } = dto;
 
 		if (!pollId) {
@@ -36,16 +42,23 @@ export class PutDraftAnswersForQuestionUseCase {
 			throw new BadRequestException('Poll Version is missing');
 		}
 
-		if (!pollRecurrence) {
-			throw new BadRequestException('Poll Recurrence is missing');
+		if (!startDate) {
+			throw new BadRequestException('Start Date is missing');
 		}
 
+		if (!endDate) {
+			throw new BadRequestException('End Date is missing');
+		}
 		if (!voterEmail) {
 			throw new BadRequestException('Voter Email is missing');
 		}
 
 		if (!questionId) {
 			throw new BadRequestException('Question Id is missing');
+		}
+
+		if (!question) {
+			throw new BadRequestException('Question is missing');
 		}
 
 		if (!answers) {
@@ -55,14 +68,15 @@ export class PutDraftAnswersForQuestionUseCase {
 		const newDraftAnswersForQuestion = new DraftAnswersForQuestion({
 			pollId: pollId,
 			pollVersion: pollVersion,
-			pollRecurrence: pollRecurrence,
+			startDate: startDate,
+			endDate: endDate,
 			voterEmail: voterEmail,
 			questionId: questionId,
 			question: question,
 			answers: answers,
 		});
 
-		await this.draftAnswersForQuestionRepository.putDraftAnswersForQuestion(
+		await this.draftRepository.putDraftAnswersForQuestion(
 			newDraftAnswersForQuestion,
 		);
 		return { message: 'put draft answers for question successfully' };

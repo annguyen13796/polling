@@ -3,11 +3,9 @@ import {
 	AnswerGeneralReportDynamoRepository,
 	VoterReportDynamoDBMapper,
 	VoterReportDynamoRepository,
-} from '../data';
-import {
 	OverviewReportDynamoDBMapper,
 	OverviewReportDynamoRepository,
-} from '../data/overview-report-dynamo.repository';
+} from '../data';
 
 export const voterReportDomainMapper = new VoterReportDynamoDBMapper();
 export const voterReportRepository = new VoterReportDynamoRepository(

@@ -4,29 +4,30 @@ import { AnswerReport, VoterReport } from '../models';
 
 export interface IAnswerGeneralReportRepository
 	extends IRepository<AnswerReport> {
-	getAnswerReportsForRecurrence(
+	getAnswerReports(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		startItem: { PK: string; SK?: string } | null,
 	): Promise<QueryCommandReturnType<AnswerReport>>;
 	getAnswerReport(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		questionId: string,
 		answer: string,
 	): Promise<AnswerReport>;
 	getVotersOfSpecificAnswer(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		questionId: string,
 		answer: string,
 	): Promise<VoterReport[] | null>;
 	putAnswerReports(answerReports: AnswerReport[]): Promise<void>;
 
-	createVoterReportsForRecurrence(
-		newVoterReports: VoterReport[],
-	): Promise<void>;
+	createVoterReports(newVoterReports: VoterReport[]): Promise<void>;
 }

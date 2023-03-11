@@ -1,23 +1,36 @@
 import {
-	CreateOverviewReportForRecurrenceUseCase,
-	CreateUserResponseForRecurrenceUseCase,
-	GetOverviewReportForRecurrenceUseCase,
+	CreateOverviewReportUseCase,
+	CreateUserResponseUseCase,
+	GetAnswerReportsUseCase,
 	GetOverviewReportsForPollUseCase,
-	UpdateStatusForRecurrenceUseCase,
+	GetOverviewReportUseCase,
+	GetVoterOfAnswerReportsUseCase,
+	UpdateOverviewReportUseCase,
 } from '../usecases';
 import { overviewReportRepository } from './init-repositories';
 
-export const createOverviewReportForRecurrenceUseCase =
-	new CreateOverviewReportForRecurrenceUseCase(overviewReportRepository);
+export const createOverviewReportUseCase = new CreateOverviewReportUseCase(
+	overviewReportRepository,
+);
 
-export const getOverviewReportForRecurrenceUseCase =
-	new GetOverviewReportForRecurrenceUseCase(overviewReportRepository);
+export const getOverviewReportUseCase = new GetOverviewReportUseCase(
+	overviewReportRepository,
+);
 
 export const getOverviewReportsForPollUseCase =
 	new GetOverviewReportsForPollUseCase(overviewReportRepository);
 
-export const updateStatusForRecurrenceUseCase =
-	new UpdateStatusForRecurrenceUseCase(overviewReportRepository);
+export const updateOverviewReportUseCase = new UpdateOverviewReportUseCase(
+	overviewReportRepository,
+);
 
-export const createUserResponseForRecurrenceUseCase =
-	new CreateUserResponseForRecurrenceUseCase(overviewReportRepository);
+export const createUserResponseUseCase = new CreateUserResponseUseCase(
+	overviewReportRepository,
+);
+
+export const getAnswerReportsUseCase = new GetAnswerReportsUseCase(
+	overviewReportRepository,
+);
+
+export const getVoterOfAnswerReportsUseCase =
+	new GetVoterOfAnswerReportsUseCase(overviewReportRepository);

@@ -29,8 +29,6 @@ import {
 interface OverviewReportDataModel {
 	PK: string | null | undefined;
 	SK?: string;
-	PollName: string;
-	PollDescription: string;
 	Status: STATUS_TYPE;
 	Participants: string[];
 }
@@ -43,9 +41,8 @@ export class OverviewReportDynamoDBMapper extends DatabaseMapper<
 		const overviewReport = new OverviewReport({
 			pollId: dataModel.PK.split('#')[1],
 			pollVersion: dataModel.SK.split('#')[3],
-			pollRecurrence: dataModel.SK.split('#')[5],
-			pollName: dataModel.PollName,
-			pollDescription: dataModel.PollDescription,
+			startDate: dataModel.SK.split('#')[5],
+			endDate: dataModel.SK.split('#')[7],
 			participants: dataModel.Participants,
 			status: dataModel.Status,
 		});
@@ -54,9 +51,7 @@ export class OverviewReportDynamoDBMapper extends DatabaseMapper<
 	fromDomain(domainModel: OverviewReport): OverviewReportDataModel {
 		const data: OverviewReportDataModel = {
 			PK: `POLL#${domainModel.pollId}`,
-			SK: `#METADATA#VERSION#${domainModel.pollVersion}#RECURRENCE#${domainModel.pollRecurrence}`,
-			PollName: domainModel.pollName,
-			PollDescription: domainModel.pollDescription,
+			SK: `#METADATA#VERSION#${domainModel.pollVersion}#START#${domainModel.startDate}#END#${domainModel.endDate}`,
 			Status: domainModel.status,
 			Participants: domainModel.participants,
 		};
@@ -79,36 +74,40 @@ export class OverviewReportDynamoRepository
 	) {
 		super(config, mapper);
 	}
-	async updateAnswerReportsForRecurrence(
+
+	async updateAnswerReports(
 		modifiedAnswerReports: AnswerReport[],
 	): Promise<void> {
 		await this.answerGeneralReportRepository.putAnswerReports(
 			modifiedAnswerReports,
 		);
 	}
-	async createVoterReportsForRecurrence(
-		newVoterReports: VoterReport[],
-	): Promise<void> {
-		await this.answerGeneralReportRepository.createVoterReportsForRecurrence(
+
+	async createVoterReports(newVoterReports: VoterReport[]): Promise<void> {
+		await this.answerGeneralReportRepository.createVoterReports(
 			newVoterReports,
 		);
 	}
+
 	getAnswerReport(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		questionId: string,
 		answer: string,
 	): Promise<AnswerReport> {
 		const report = this.answerGeneralReportRepository.getAnswerReport(
 			pollId,
 			pollVersion,
-			pollRecurrence,
+			startDate,
+			endDate,
 			questionId,
 			answer,
 		);
 		return report;
 	}
+
 	async getOverviewReportsForPoll(pollId: string): Promise<OverviewReport[]> {
 		const params: QueryCommandInput = {
 			TableName: this.config.tableName,
@@ -133,16 +132,18 @@ export class OverviewReportDynamoRepository
 		}
 		return [];
 	}
-	async getOverviewReportForRecurrence(
+
+	async getOverviewReportForOccurrence(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 	): Promise<OverviewReport> {
 		const params: GetCommandInput = {
 			TableName: this.config.tableName,
 			Key: {
 				PK: `POLL#${pollId}`,
-				SK: `#METADATA#VERSION#${pollVersion}#RECURRENCE#${pollRecurrence}`,
+				SK: `#METADATA#VERSION#${pollVersion}#START#${startDate}#END#${endDate}`,
 			},
 		};
 
@@ -157,14 +158,14 @@ export class OverviewReportDynamoRepository
 		return null;
 	}
 
-	async updateStatusForOverviewReport(
+	async updateOverviewReport(
 		modifiedOverviewReport: OverviewReport,
 	): Promise<void> {
 		const params: UpdateCommandInput = {
 			TableName: this.config.tableName,
 			Key: {
 				PK: `POLL#${modifiedOverviewReport.pollId}`,
-				SK: `#METADATA#VERSION#${modifiedOverviewReport.pollVersion}#RECURRENCE#${modifiedOverviewReport.pollRecurrence}`,
+				SK: `#METADATA#VERSION#${modifiedOverviewReport.pollVersion}#START#${modifiedOverviewReport.startDate}#END#${modifiedOverviewReport.endDate}`,
 			},
 			UpdateExpression: `SET #status= :status `,
 			ExpressionAttributeNames: {
@@ -177,14 +178,14 @@ export class OverviewReportDynamoRepository
 		await this.dynamoDBDocClient.send(new UpdateCommand(params));
 	}
 
-	async updateUserResponseForRecurrence(
+	async updateUserResponse(
 		modifiedOverviewReport: OverviewReport,
 	): Promise<void> {
 		const params: UpdateCommandInput = {
 			TableName: this.config.tableName,
 			Key: {
 				PK: `POLL#${modifiedOverviewReport.pollId}`,
-				SK: `#METADATA#VERSION#${modifiedOverviewReport.pollVersion}#RECURRENCE#${modifiedOverviewReport.pollRecurrence}`,
+				SK: `#METADATA#VERSION#${modifiedOverviewReport.pollVersion}#START#${modifiedOverviewReport.startDate}#END#${modifiedOverviewReport.endDate}`,
 			},
 			UpdateExpression: `SET #participants= :participants `,
 			ExpressionAttributeNames: {
@@ -197,7 +198,7 @@ export class OverviewReportDynamoRepository
 		await this.dynamoDBDocClient.send(new UpdateCommand(params));
 	}
 
-	async createOverload(
+	async createOverviewReportAndAnswerReports(
 		newOverviewReport: OverviewReport,
 		newAnswerReports: AnswerReport[],
 	): Promise<void> {
@@ -217,19 +218,45 @@ export class OverviewReportDynamoRepository
 		}
 	}
 
-	async getAnswerReportsForRecurrence(
+	async getAnswerReportsForOccurrence(
 		pollId: string,
 		pollVersion: string,
-		pollRecurrence: string,
+		startDate: string,
+		endDate: string,
 		startItem: { PK: string; SK?: string } | null,
 	): Promise<QueryCommandReturnType<AnswerReport>> {
-		const response =
-			await this.answerGeneralReportRepository.getAnswerReportsForRecurrence(
+		const response = await this.answerGeneralReportRepository.getAnswerReports(
+			pollId,
+			pollVersion,
+			startDate,
+			endDate,
+			startItem,
+		);
+		return response;
+	}
+
+	async getVoterReportsOfAnswer(
+		pollId: string,
+		pollVersion: string,
+		startDate: string,
+		endDate: string,
+		questionId: string,
+		answer: string,
+	) {
+		const result =
+			await this.answerGeneralReportRepository.getVotersOfSpecificAnswer(
 				pollId,
 				pollVersion,
-				pollRecurrence,
-				startItem,
+				startDate,
+				endDate,
+				questionId,
+				answer,
 			);
-		return response;
+
+		if (result) {
+			return result;
+		}
+
+		return null;
 	}
 }

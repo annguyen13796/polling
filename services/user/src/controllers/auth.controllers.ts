@@ -18,9 +18,7 @@ export const signup: Controller = async (
 		const dto = request.body as SignUpDto;
 		const input = new SignUpUseCaseInput(dto);
 		const result = await signUpUseCase.execute(input);
-		return response.send({
-			message: result,
-		});
+		return response.send(result);
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
 	}

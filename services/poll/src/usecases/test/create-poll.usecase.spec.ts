@@ -6,12 +6,12 @@ import {
 	CreatePollUseCaseInput,
 } from '../create-poll.usecase';
 
-describe('CreatePollUseCase', () => {
+describe('Create Poll Use Case Test', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
 
-	const pollRepositoryMock: jest.Mocked<IPollRepository> = {
+	const mockPollRepository: jest.Mocked<IPollRepository> = {
 		create: jest.fn(),
 		getPollsByCreatorEmail: jest.fn(),
 		update: jest.fn(),
@@ -24,78 +24,109 @@ describe('CreatePollUseCase', () => {
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
+		updatePoll: jest.fn(),
 	};
 
 	it('should throw error when creator email is null/undefined', async () => {
-		const createPollUseCase = new CreatePollUseCase(pollRepositoryMock);
+		const mockCreatePollUseCase = new CreatePollUseCase(mockPollRepository);
 
-		const pollDtoMock: CreatePollDto = {
+		const mockCreatePollDto: CreatePollDto = {
 			creatorEmail: undefined,
 			title: 'sometitle',
 			description: 'somedsc',
 		};
 
-		const createPollUseCaseInput = new CreatePollUseCaseInput(pollDtoMock);
-
-		const expectedError = new BadRequestException(
-			'Creator Email cannot be null',
+		const mockCreatePollUseCaseInput = new CreatePollUseCaseInput(
+			mockCreatePollDto,
 		);
 
+		const expectedError = new BadRequestException('Missing creatorEmail');
+
 		await expect(
-			createPollUseCase.execute(createPollUseCaseInput),
+			mockCreatePollUseCase.execute(mockCreatePollUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(pollRepositoryMock.create).not.toBeCalled();
+		expect(mockPollRepository.create).not.toBeCalled();
 	});
 
 	it('should throw error when title is null/undefined', async () => {
-		const createPollUseCase = new CreatePollUseCase(pollRepositoryMock);
+		const mockCreatePollUseCase = new CreatePollUseCase(mockPollRepository);
 
-		const pollDtoMock: CreatePollDto = {
+		const mockCreatePollDto: CreatePollDto = {
 			creatorEmail: 'td@gmail.com',
 			title: undefined,
 			description: 'somedsc',
 		};
 
-		const createPollUseCaseInput = new CreatePollUseCaseInput(pollDtoMock);
+		const mockCreatePollUseCaseInput = new CreatePollUseCaseInput(
+			mockCreatePollDto,
+		);
 
-		const expectedError = new BadRequestException('Title cannot be null');
+		const expectedError = new BadRequestException('Missing title');
 
 		await expect(
-			createPollUseCase.execute(createPollUseCaseInput),
+			mockCreatePollUseCase.execute(mockCreatePollUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(pollRepositoryMock.create).not.toBeCalled();
+		expect(mockPollRepository.create).not.toBeCalled();
+	});
+
+	it('should throw error when both creator email and title is null/undefined', async () => {
+		const mockCreatePollUseCase = new CreatePollUseCase(mockPollRepository);
+
+		const mockCreatePollDto: CreatePollDto = {
+			creatorEmail: undefined,
+			title: undefined,
+			description: 'somedsc',
+		};
+
+		const mockCreatePollUseCaseInput = new CreatePollUseCaseInput(
+			mockCreatePollDto,
+		);
+
+		const expectedError = new BadRequestException(
+			'Missing creatorEmail, title',
+		);
+
+		await expect(
+			mockCreatePollUseCase.execute(mockCreatePollUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(mockPollRepository.create).not.toBeCalled();
 	});
 
 	it('should create Poll successfully with valid dto', async () => {
-		const createPollUseCase = new CreatePollUseCase(pollRepositoryMock);
+		const mockCreatePollUseCase = new CreatePollUseCase(mockPollRepository);
 
-		const pollDtoMock: CreatePollDto = {
+		const mockCreatePollDto: CreatePollDto = {
 			creatorEmail: 'td@gmail.com',
 			title: 'sometitle',
 			description: 'somedsc',
 		};
 
-		const createPollUseCaseInput = new CreatePollUseCaseInput(pollDtoMock);
+		const mockCreatePollUseCaseInput = new CreatePollUseCaseInput(
+			mockCreatePollDto,
+		);
 
 		jest
 			.spyOn<any, string>(Date, 'now')
 			.mockReturnValue(new Date().getMilliseconds);
 
-		const pollMock = new Poll({
+		const mockPoll = new Poll({
 			creatorEmail: 'td@gmail.com',
 			title: 'sometitle',
 			description: 'somedsc',
 		});
 
-		pollRepositoryMock.create.mockResolvedValueOnce();
+		mockPollRepository.create.mockResolvedValueOnce();
 
-		const result = await createPollUseCase.execute(createPollUseCaseInput);
+		const result = await mockCreatePollUseCase.execute(
+			mockCreatePollUseCaseInput,
+		);
 		expect(result).toEqual({
 			message: 'Create Poll successfully',
-			pollId: pollMock.id,
+			pollId: mockPoll.id,
 		});
-		expect(pollRepositoryMock.create).toBeCalledWith(pollMock);
+		expect(mockPollRepository.create).toBeCalledWith(mockPoll);
 	});
 });

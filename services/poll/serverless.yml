@@ -51,12 +51,12 @@ functions:
           path: /polls/{pollId}
           method: GET
           cors: true
-  getPollQuestions:
+  editPoll:
     handler: dist/index.handler
     events:
       - http:
-          path: /polls/{pollId}/questions
-          method: GET
+          path: /polls/{pollId}
+          method: PUT
           cors: true
   deletePollById:
     handler: dist/index.handler
@@ -65,25 +65,25 @@ functions:
           path: /polls/{pollId}
           method: DELETE
           cors: true
-  createVoteLink:
-    handler: dist/index.handler
-    events:
-      - http:
-          path: /polls/{pollId}/link
-          method: POST
-          cors: true
-  getLatestVersion:
-    handler: dist/index.handler
-    events:
-      - http:
-          path: /forms/{url}
-          method: GET
-          cors: true
   createQuestion:
     handler: dist/index.handler
     events:
       - http:
           path: /polls/{pollId}/questions
+          method: POST
+          cors: true
+  getPollQuestions:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls/{pollId}/questions
+          method: GET
+          cors: true
+  createPollRelease:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /polls/{pollId}/releases
           method: POST
           cors: true
   editQuestion:
@@ -99,6 +99,13 @@ functions:
       - http:
           path: /polls/{pollId}/questions/{questionId}
           method: DELETE
+          cors: true
+  getLatestRelease:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /forms/{url}
+          method: GET
           cors: true
 
 plugins:

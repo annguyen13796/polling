@@ -89,7 +89,8 @@
 			"<rootDir>/libs/common/dist",
 			"<rootDir>/services/poll/dist",
 			"<rootDir>/services/user/dist",
-			"<rootDir>/services/voting/dist"
+			"<rootDir>/services/vote/dist",
+			"<rootDir>/services/report/dist"
 		]
 	}
 }
