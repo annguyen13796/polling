@@ -1,9 +1,13 @@
 import { IRepository } from '@libs/common';
-import { QueryCommandReturnType } from '../../data';
+import { LastEvaluatedKeyType, QueryCommandReturnType } from '../../data';
 import { AnswerReport, OverviewReport, VoterReport } from '../models';
 
 export interface IOverviewReportRepository extends IRepository<OverviewReport> {
-	getOverviewReportsForPoll(pollId: string): Promise<OverviewReport[] | null>;
+	getOverviewReportsForPoll(
+		pollId: string,
+		limit?: number | null | undefined,
+		lastEvaluatedKey?: LastEvaluatedKeyType | null | undefined,
+	): Promise<OverviewReport[] | null>;
 	getOverviewReportForOccurrence(
 		pollId: string,
 		pollVersion: string,

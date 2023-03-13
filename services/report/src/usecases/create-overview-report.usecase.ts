@@ -82,6 +82,16 @@ export class CreateOverviewReportUseCase {
 			}
 		}
 
+		const oldOverviewReports =
+			await this.overviewReportRepository.getOverviewReportsForPoll(pollId, 1);
+		if (oldOverviewReports.length > 0) {
+			const lastOverviewReport = oldOverviewReports[0];
+			lastOverviewReport.updateStatus('CLOSED');
+			await this.overviewReportRepository.updateOverviewReport(
+				lastOverviewReport,
+			);
+		}
+
 		await this.overviewReportRepository.createOverviewReportAndAnswerReports(
 			newOverviewReport,
 			newAnswerReports,

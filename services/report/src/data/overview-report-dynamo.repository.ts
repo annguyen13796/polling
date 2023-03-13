@@ -26,6 +26,12 @@ import {
 	AnswerGeneralReportDynamoRepository,
 	QueryCommandReturnType,
 } from './answer-general-report-dynamo.repository';
+
+export interface LastEvaluatedKeyType {
+	PK: string;
+	SK?: string;
+}
+
 interface OverviewReportDataModel {
 	PK: string | null | undefined;
 	SK?: string;
@@ -108,7 +114,11 @@ export class OverviewReportDynamoRepository
 		return report;
 	}
 
-	async getOverviewReportsForPoll(pollId: string): Promise<OverviewReport[]> {
+	async getOverviewReportsForPoll(
+		pollId: string,
+		limit?: number | null | undefined,
+		lastEvaluatedKey?: LastEvaluatedKeyType | null | undefined,
+	): Promise<OverviewReport[]> {
 		const params: QueryCommandInput = {
 			TableName: this.config.tableName,
 			KeyConditionExpression: `PK = :partitionKeyValue and begins_with(SK, :sortKeyValue)`,
@@ -118,6 +128,12 @@ export class OverviewReportDynamoRepository
 			},
 			ScanIndexForward: false,
 		};
+		if (lastEvaluatedKey) {
+			params.ExclusiveStartKey = lastEvaluatedKey;
+		}
+		if (limit) {
+			params.Limit = limit;
+		}
 
 		const { Items } = await this.dynamoDBDocClient.send(
 			new QueryCommand(params),
