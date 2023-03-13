@@ -67,6 +67,10 @@ describe('CreateOverviewReportUseCase', () => {
 			mockOverviewReportRepository.getOverviewReportForOccurrence,
 		).not.toBeCalled();
 		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
+		expect(
 			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
 		).not.toBeCalled();
 	});
@@ -106,6 +110,10 @@ describe('CreateOverviewReportUseCase', () => {
 		expect(
 			mockOverviewReportRepository.getOverviewReportForOccurrence,
 		).not.toBeCalled();
+		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
 		expect(
 			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
 		).not.toBeCalled();
@@ -147,6 +155,10 @@ describe('CreateOverviewReportUseCase', () => {
 			mockOverviewReportRepository.getOverviewReportForOccurrence,
 		).not.toBeCalled();
 		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
+		expect(
 			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
 		).not.toBeCalled();
 	});
@@ -187,6 +199,10 @@ describe('CreateOverviewReportUseCase', () => {
 			mockOverviewReportRepository.getOverviewReportForOccurrence,
 		).not.toBeCalled();
 		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
+		expect(
 			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
 		).not.toBeCalled();
 	});
@@ -222,6 +238,10 @@ describe('CreateOverviewReportUseCase', () => {
 		expect(
 			mockOverviewReportRepository.getOverviewReportForOccurrence,
 		).not.toBeCalled();
+		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
 		expect(
 			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
 		).not.toBeCalled();
@@ -282,11 +302,15 @@ describe('CreateOverviewReportUseCase', () => {
 			mockCreateOverviewReportDto.endDate,
 		);
 		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
+		expect(
 			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
 		).not.toBeCalled();
 	});
 
-	it(`should execute successfully`, async () => {
+	it(`should execute successfully when have no old report`, async () => {
 		const createOverviewReportUseCase = new CreateOverviewReportUseCase(
 			mockOverviewReportRepository,
 		);
@@ -316,13 +340,10 @@ describe('CreateOverviewReportUseCase', () => {
 		mockOverviewReportRepository.getOverviewReportForOccurrence.mockResolvedValue(
 			mockReturnOverviewReport,
 		);
-
-		const result = await createOverviewReportUseCase.execute(
-			createOverviewReportUseCaseInput,
+		const mockReturnOldOverviewReports: OverviewReport[] = [];
+		mockOverviewReportRepository.getOverviewReportsForPoll.mockResolvedValue(
+			mockReturnOldOverviewReports,
 		);
-		expect(result).toEqual({
-			message: 'create overview report successfully',
-		});
 
 		const expectedNewOverviewReport = new OverviewReport({
 			pollId,
@@ -355,6 +376,126 @@ describe('CreateOverviewReportUseCase', () => {
 			}),
 		];
 
+		const result = await createOverviewReportUseCase.execute(
+			createOverviewReportUseCaseInput,
+		);
+		expect(result).toEqual({
+			message: 'create overview report successfully',
+		});
+		expect(
+			mockOverviewReportRepository.getOverviewReportForOccurrence,
+		).toBeCalledWith(
+			pollId,
+			pollVersion,
+			mockCreateOverviewReportDto.startDate,
+			mockCreateOverviewReportDto.endDate,
+		);
+
+		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).toBeCalledWith(pollId, 1);
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
+		expect(
+			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
+		).toBeCalledWith(expectedNewOverviewReport, expectedNewAnswerReports);
+	});
+
+	it(`should execute successfully when have old reports`, async () => {
+		const createOverviewReportUseCase = new CreateOverviewReportUseCase(
+			mockOverviewReportRepository,
+		);
+
+		const mockCreateOverviewReportDto: CreateOverviewReportDto = {
+			startDate: 'startDate',
+			endDate: 'endDate',
+			questions: [
+				{
+					questionId: 'questionId',
+					content: 'questionContent',
+					answers: ['answer1', 'answer2'],
+				},
+			],
+		};
+		const pollId: string = 'pollId';
+		const pollVersion: string = 'pollVersion';
+
+		const createOverviewReportUseCaseInput =
+			new CreateOverviewReportUseCaseInput(
+				mockCreateOverviewReportDto,
+				pollId,
+				pollVersion,
+			);
+
+		const mockReturnOverviewReport: OverviewReport = null;
+		mockOverviewReportRepository.getOverviewReportForOccurrence.mockResolvedValue(
+			mockReturnOverviewReport,
+		);
+		const mockReturnOldOverviewReports: OverviewReport[] = [
+			new OverviewReport({
+				pollId,
+				pollVersion,
+				startDate: mockCreateOverviewReportDto.startDate,
+				endDate: mockCreateOverviewReportDto.endDate,
+				participants: [],
+				status: 'IN PROGRESS',
+			}),
+		];
+		mockOverviewReportRepository.getOverviewReportsForPoll.mockResolvedValue(
+			mockReturnOldOverviewReports,
+		);
+
+		const expectedNewOverviewReport = new OverviewReport({
+			pollId,
+			pollVersion,
+			startDate: mockCreateOverviewReportDto.startDate,
+			endDate: mockCreateOverviewReportDto.endDate,
+			participants: null,
+			status: null,
+		});
+		const expectedNewAnswerReports: AnswerReport[] = [
+			new AnswerReport({
+				pollId: pollId,
+				pollVersion: pollVersion,
+				startDate: mockCreateOverviewReportDto.startDate,
+				endDate: mockCreateOverviewReportDto.endDate,
+				question: mockCreateOverviewReportDto.questions[0].content,
+				questionId: mockCreateOverviewReportDto.questions[0].questionId,
+				numberOfVoter: 0,
+				answer: mockCreateOverviewReportDto.questions[0].answers[0],
+			}),
+			new AnswerReport({
+				pollId: pollId,
+				pollVersion: pollVersion,
+				startDate: mockCreateOverviewReportDto.startDate,
+				endDate: mockCreateOverviewReportDto.endDate,
+				question: mockCreateOverviewReportDto.questions[0].content,
+				questionId: mockCreateOverviewReportDto.questions[0].questionId,
+				numberOfVoter: 0,
+				answer: mockCreateOverviewReportDto.questions[0].answers[1],
+			}),
+		];
+
+		const result = await createOverviewReportUseCase.execute(
+			createOverviewReportUseCaseInput,
+		);
+		expect(result).toEqual({
+			message: 'create overview report successfully',
+		});
+		expect(
+			mockOverviewReportRepository.getOverviewReportForOccurrence,
+		).toBeCalledWith(
+			pollId,
+			pollVersion,
+			mockCreateOverviewReportDto.startDate,
+			mockCreateOverviewReportDto.endDate,
+		);
+
+		expect(
+			mockOverviewReportRepository.getOverviewReportsForPoll,
+		).toBeCalledWith(pollId, 1);
+		expect(mockOverviewReportRepository.updateOverviewReport).toBeCalledWith(
+			mockReturnOldOverviewReports[0],
+		);
 		expect(
 			mockOverviewReportRepository.createOverviewReportAndAnswerReports,
 		).toBeCalledWith(expectedNewOverviewReport, expectedNewAnswerReports);

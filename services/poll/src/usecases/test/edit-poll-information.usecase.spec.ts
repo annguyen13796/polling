@@ -3,7 +3,7 @@ import { EditPollInformationDto, IPollRepository, Poll } from '../../domains';
 import {
 	EditPollInformationUseCase,
 	EditPollInformationUseCaseInput,
-} from '../../domains/repositories/edit-poll-information.usecase';
+} from '../edit-poll-information.usecase';
 
 describe('edit poll information', () => {
 	beforeEach(() => {
