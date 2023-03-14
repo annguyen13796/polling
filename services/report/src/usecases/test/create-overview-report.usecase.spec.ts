@@ -43,6 +43,7 @@ describe('CreateOverviewReportUseCase', () => {
 					questionId: 'questionId',
 					content: 'questionContent',
 					answers: ['answer1', 'answer2'],
+					questionType: 'CHECKBOX',
 				},
 			],
 		};
@@ -88,6 +89,7 @@ describe('CreateOverviewReportUseCase', () => {
 					questionId: 'questionId',
 					content: 'questionContent',
 					answers: ['answer1', 'answer2'],
+					questionType: 'CHECKBOX',
 				},
 			],
 		};
@@ -132,6 +134,7 @@ describe('CreateOverviewReportUseCase', () => {
 					questionId: 'questionId',
 					content: 'questionContent',
 					answers: ['answer1', 'answer2'],
+					questionType: 'CHECKBOX',
 				},
 			],
 		};
@@ -176,6 +179,7 @@ describe('CreateOverviewReportUseCase', () => {
 					questionId: 'questionId',
 					content: 'questionContent',
 					answers: ['answer1', 'answer2'],
+					questionType: 'CHECKBOX',
 				},
 			],
 		};
@@ -260,6 +264,7 @@ describe('CreateOverviewReportUseCase', () => {
 					questionId: 'questionId',
 					content: 'questionContent',
 					answers: ['answer1', 'answer2'],
+					questionType: 'CHECKBOX',
 				},
 			],
 		};
@@ -323,6 +328,7 @@ describe('CreateOverviewReportUseCase', () => {
 					questionId: 'questionId',
 					content: 'questionContent',
 					answers: ['answer1', 'answer2'],
+					questionType: 'CHECKBOX',
 				},
 			],
 		};
@@ -363,6 +369,7 @@ describe('CreateOverviewReportUseCase', () => {
 				questionId: mockCreateOverviewReportDto.questions[0].questionId,
 				numberOfVoter: 0,
 				answer: mockCreateOverviewReportDto.questions[0].answers[0],
+				questionType: mockCreateOverviewReportDto.questions[0].questionType,
 			}),
 			new AnswerReport({
 				pollId: pollId,
@@ -373,6 +380,7 @@ describe('CreateOverviewReportUseCase', () => {
 				questionId: mockCreateOverviewReportDto.questions[0].questionId,
 				numberOfVoter: 0,
 				answer: mockCreateOverviewReportDto.questions[0].answers[1],
+				questionType: mockCreateOverviewReportDto.questions[0].questionType,
 			}),
 		];
 
@@ -413,6 +421,7 @@ describe('CreateOverviewReportUseCase', () => {
 					questionId: 'questionId',
 					content: 'questionContent',
 					answers: ['answer1', 'answer2'],
+					questionType: 'CHECKBOX',
 				},
 			],
 		};
@@ -462,6 +471,7 @@ describe('CreateOverviewReportUseCase', () => {
 				questionId: mockCreateOverviewReportDto.questions[0].questionId,
 				numberOfVoter: 0,
 				answer: mockCreateOverviewReportDto.questions[0].answers[0],
+				questionType: mockCreateOverviewReportDto.questions[0].questionType,
 			}),
 			new AnswerReport({
 				pollId: pollId,
@@ -472,6 +482,7 @@ describe('CreateOverviewReportUseCase', () => {
 				questionId: mockCreateOverviewReportDto.questions[0].questionId,
 				numberOfVoter: 0,
 				answer: mockCreateOverviewReportDto.questions[0].answers[1],
+				questionType: mockCreateOverviewReportDto.questions[0].questionType,
 			}),
 		];
 

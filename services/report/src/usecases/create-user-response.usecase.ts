@@ -5,6 +5,7 @@ import {
 	CreateUserResponseResponseDto,
 	IOverviewReportRepository,
 	VoterReport,
+	VoterReportProps,
 } from '../domains';
 
 export class CreateUserResponseUseCaseInput {
@@ -69,7 +70,7 @@ export class CreateUserResponseUseCase {
 		const modifiedAnswerReports: AnswerReport[] = [];
 		for (const question of userResponse) {
 			for (const answer of question.userAnswers) {
-				const newVoterReport = new VoterReport({
+				const newVoterReportProps: VoterReportProps = {
 					pollId: pollId,
 					pollVersion: pollVersion,
 					startDate: startDate,
@@ -77,7 +78,17 @@ export class CreateUserResponseUseCase {
 					questionId: question.questionId,
 					voterEmail: participantEmail,
 					answer: answer,
-				});
+				};
+				if (!question.questionType) {
+					throw new BadRequestException(
+						'Question Type for question is required in user response',
+					);
+				}
+				if (question.questionType === 'TEXT_BOX') {
+					newVoterReportProps.answer = 'Answer';
+					newVoterReportProps.shortAnswer = answer;
+				}
+				const newVoterReport = new VoterReport(newVoterReportProps);
 				const existedAnswerReport =
 					await this.overviewReportRepository.getAnswerReport(
 						pollId,
@@ -85,7 +96,7 @@ export class CreateUserResponseUseCase {
 						startDate,
 						endDate,
 						question.questionId,
-						answer,
+						newVoterReport.answer,
 					);
 				if (!existedAnswerReport) {
 					throw new BadRequestException(

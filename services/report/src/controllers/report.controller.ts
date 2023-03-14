@@ -231,6 +231,7 @@ export const sendAnswersReportOfPollVersionForClient = (
 			pollVersion: answerReport.pollVersion,
 			question: answerReport.question,
 			questionId: answerReport.questionId,
+			questionType: answerReport.questionType,
 		})),
 	});
 };

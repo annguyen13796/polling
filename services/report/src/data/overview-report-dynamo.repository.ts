@@ -8,6 +8,7 @@ import {
 	AnswerReport,
 	IOverviewReportRepository,
 	OverviewReport,
+	OverviewReportProps,
 	VoterReport,
 } from '../domains';
 import {
@@ -37,6 +38,7 @@ interface OverviewReportDataModel {
 	SK?: string;
 	Status: STATUS_TYPE;
 	Participants: string[];
+	BlockedDate?: string;
 }
 
 export class OverviewReportDynamoDBMapper extends DatabaseMapper<
@@ -44,14 +46,18 @@ export class OverviewReportDynamoDBMapper extends DatabaseMapper<
 	OverviewReportDataModel
 > {
 	toDomain(dataModel: OverviewReportDataModel): OverviewReport {
-		const overviewReport = new OverviewReport({
+		const newOverviewReportProps: OverviewReportProps = {
 			pollId: dataModel.PK.split('#')[1],
 			pollVersion: dataModel.SK.split('#')[3],
 			startDate: dataModel.SK.split('#')[5],
 			endDate: dataModel.SK.split('#')[7],
 			participants: dataModel.Participants,
 			status: dataModel.Status,
-		});
+		};
+		if (dataModel.BlockedDate) {
+			newOverviewReportProps.blockedDate = dataModel.BlockedDate;
+		}
+		const overviewReport = new OverviewReport(newOverviewReportProps);
 		return overviewReport;
 	}
 	fromDomain(domainModel: OverviewReport): OverviewReportDataModel {
@@ -61,6 +67,9 @@ export class OverviewReportDynamoDBMapper extends DatabaseMapper<
 			Status: domainModel.status,
 			Participants: domainModel.participants,
 		};
+		if (domainModel.blockedDate) {
+			data.BlockedDate = domainModel.blockedDate;
+		}
 		return data;
 	}
 }
@@ -177,21 +186,12 @@ export class OverviewReportDynamoRepository
 	async updateOverviewReport(
 		modifiedOverviewReport: OverviewReport,
 	): Promise<void> {
-		const params: UpdateCommandInput = {
+		const dataModel = this.mapper.fromDomain(modifiedOverviewReport);
+		const params: PutCommandInput = {
 			TableName: this.config.tableName,
-			Key: {
-				PK: `POLL#${modifiedOverviewReport.pollId}`,
-				SK: `#METADATA#VERSION#${modifiedOverviewReport.pollVersion}#START#${modifiedOverviewReport.startDate}#END#${modifiedOverviewReport.endDate}`,
-			},
-			UpdateExpression: `SET #status= :status `,
-			ExpressionAttributeNames: {
-				'#status': 'Status',
-			},
-			ExpressionAttributeValues: {
-				':status': modifiedOverviewReport.status,
-			},
+			Item: dataModel as any,
 		};
-		await this.dynamoDBDocClient.send(new UpdateCommand(params));
+		await this.dynamoDBDocClient.send(new PutCommand(params));
 	}
 
 	async updateUserResponse(

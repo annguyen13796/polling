@@ -1,0 +1,1 @@
+export type QUESTION_TYPE = 'MULTIPLE' | 'CHECKBOX' | 'TEXT_BOX';

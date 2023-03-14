@@ -1,5 +1,9 @@
 import { DatabaseMapper, DynamoDBRepository } from '@libs/common';
-import { IVoterReportRepository, VoterReport } from '../domains';
+import {
+	IVoterReportRepository,
+	VoterReport,
+	VoterReportProps,
+} from '../domains';
 import {
 	BatchWriteCommand,
 	BatchWriteCommandInput,
@@ -9,6 +13,7 @@ import {
 interface VoterReportDataModel {
 	PK: string | null | undefined;
 	SK?: string;
+	ShortAnswer?: string;
 }
 
 export class VoterReportDynamoDBMapper extends DatabaseMapper<
@@ -16,7 +21,7 @@ export class VoterReportDynamoDBMapper extends DatabaseMapper<
 	VoterReportDataModel
 > {
 	toDomain(dataModel: VoterReportDataModel): VoterReport {
-		const voterReport = new VoterReport({
+		const voterReportProps: VoterReportProps = {
 			pollId: dataModel.PK.split('#')[1],
 			pollVersion: dataModel.PK.split('#')[3],
 			startDate: dataModel.PK.split('#')[5],
@@ -24,7 +29,11 @@ export class VoterReportDynamoDBMapper extends DatabaseMapper<
 			questionId: dataModel.SK.split('#')[2],
 			answer: dataModel.SK.split('#')[4],
 			voterEmail: dataModel.SK.split('#')[6],
-		});
+		};
+		if (dataModel.ShortAnswer) {
+			voterReportProps.shortAnswer = dataModel.ShortAnswer;
+		}
+		const voterReport = new VoterReport(voterReportProps);
 		return voterReport;
 	}
 	fromDomain(domainModel: VoterReport): VoterReportDataModel {
@@ -32,6 +41,9 @@ export class VoterReportDynamoDBMapper extends DatabaseMapper<
 			PK: `POLL#${domainModel.pollId}#VERSION#${domainModel.pollVersion}#START#${domainModel.startDate}#END#${domainModel.endDate}`,
 			SK: `DETAIL#QUES#${domainModel.questionId}#ANSWER#${domainModel.answer}#VOTER#${domainModel.voterEmail}`,
 		};
+		if (domainModel.shortAnswer) {
+			data.ShortAnswer = domainModel.shortAnswer;
+		}
 		return data;
 	}
 }
