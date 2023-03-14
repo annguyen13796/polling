@@ -77,6 +77,7 @@ export class CreateOverviewReportUseCase {
 					questionId: question.questionId,
 					numberOfVoter: 0,
 					answer: answer,
+					questionType: question.questionType,
 				});
 				newAnswerReports.push(newAnswerGeneralReport);
 			}

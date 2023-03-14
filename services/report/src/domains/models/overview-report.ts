@@ -8,6 +8,7 @@ export interface OverviewReportProps {
 	startDate: string | null | undefined;
 	endDate: string | null | undefined;
 	status: STATUS_TYPE | null | undefined;
+	blockedDate?: string;
 	participants: string[] | null | undefined;
 	answerReports?: AnswerReport[];
 }
@@ -31,6 +32,14 @@ export class OverviewReport {
 	}
 	public get participants() {
 		return this.props.participants;
+	}
+
+	public get blockedDate() {
+		return this.props.blockedDate;
+	}
+
+	public updateBlockedDate(date: string) {
+		this.props.blockedDate = date;
 	}
 
 	public updateStatus(status: STATUS_TYPE) {

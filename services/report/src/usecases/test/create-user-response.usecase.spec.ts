@@ -43,7 +43,7 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -85,7 +85,7 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -127,7 +127,7 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -169,7 +169,7 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -211,7 +211,7 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -291,7 +291,7 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -344,7 +344,7 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -390,7 +390,7 @@ describe('CreateUserResponseUseCase', () => {
 		expect(mockOverviewReportRepository.createVoterReports).not.toBeCalled();
 	});
 
-	it(`should throw bad request exception when answer in the dto cant be found `, async () => {
+	it(`should throw bad request exception when questionType is null/undefined `, async () => {
 		const createUserResponseUseCase = new CreateUserResponseUseCase(
 			mockOverviewReportRepository,
 		);
@@ -402,7 +402,68 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: null,
+					userAnswers: ['answer1', 'answer2'],
+				},
+			],
+		};
+
+		const pollId: string = 'pollId';
+		const pollVersion: string = 'pollVersion';
+
+		const createUserResponseUseCaseInput = new CreateUserResponseUseCaseInput(
+			mockCreateUserResponseDto,
+			pollId,
+			pollVersion,
+		);
+
+		const expectedError = new BadRequestException(
+			'Question Type for question is required in user response',
+		);
+
+		const mockExistedOverviewReport: OverviewReport = new OverviewReport({
+			pollId,
+			pollVersion,
+			startDate: mockCreateUserResponseDto.startDate,
+			endDate: mockCreateUserResponseDto.endDate,
+			participants: [],
+			status: 'IN PROGRESS',
+		});
+		mockOverviewReportRepository.getOverviewReportForOccurrence.mockResolvedValue(
+			mockExistedOverviewReport,
+		);
+
+		await expect(
+			createUserResponseUseCase.execute(createUserResponseUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(
+			mockOverviewReportRepository.getOverviewReportForOccurrence,
+		).toBeCalledWith(
+			pollId,
+			pollVersion,
+			mockCreateUserResponseDto.startDate,
+			mockCreateUserResponseDto.endDate,
+		);
+		expect(mockOverviewReportRepository.getAnswerReport).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateUserResponse).not.toBeCalled();
+		expect(mockOverviewReportRepository.updateAnswerReports).not.toBeCalled();
+		expect(mockOverviewReportRepository.createVoterReports).not.toBeCalled();
+	});
+
+	it(`should throw bad request exception when answer in the dto cant be found in database`, async () => {
+		const createUserResponseUseCase = new CreateUserResponseUseCase(
+			mockOverviewReportRepository,
+		);
+
+		const mockCreateUserResponseDto: CreateUserResponseDto = {
+			startDate: 'startDate',
+			endDate: 'endDate',
+			participantEmail: 'khoa.pham@zoi.tech',
+			userResponse: [
+				{
+					questionId: 'questionId',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
 				},
 			],
@@ -441,6 +502,7 @@ describe('CreateUserResponseUseCase', () => {
 			answer: mockCreateUserResponseDto.userResponse[0].userAnswers[0],
 			numberOfVoter: 0,
 			question: 'question content',
+			questionType: mockCreateUserResponseDto.userResponse[0].questionType,
 		});
 		const mockNotExistedAnswerReport: AnswerReport = null;
 		mockOverviewReportRepository.getAnswerReport.mockResolvedValueOnce(
@@ -489,7 +551,7 @@ describe('CreateUserResponseUseCase', () => {
 		expect(mockOverviewReportRepository.createVoterReports).not.toBeCalled();
 	});
 
-	it(`should execute successfully`, async () => {
+	it(`should execute successfully `, async () => {
 		const createUserResponseUseCase = new CreateUserResponseUseCase(
 			mockOverviewReportRepository,
 		);
@@ -501,8 +563,13 @@ describe('CreateUserResponseUseCase', () => {
 			userResponse: [
 				{
 					questionId: 'questionId',
-					question: 'questionContent',
+					questionType: 'CHECKBOX',
 					userAnswers: ['answer1', 'answer2'],
+				},
+				{
+					questionId: 'questionId',
+					questionType: 'TEXT_BOX',
+					userAnswers: ['answer1'],
 				},
 			],
 		};
@@ -527,7 +594,7 @@ describe('CreateUserResponseUseCase', () => {
 		mockOverviewReportRepository.getOverviewReportForOccurrence.mockResolvedValue(
 			mockExistedOverviewReport,
 		);
-		const mockExistedAnswerReport: AnswerReport = new AnswerReport({
+		const mock1stExistedAnswerReport: AnswerReport = new AnswerReport({
 			pollId,
 			pollVersion,
 			startDate: mockCreateUserResponseDto.startDate,
@@ -536,8 +603,9 @@ describe('CreateUserResponseUseCase', () => {
 			answer: mockCreateUserResponseDto.userResponse[0].userAnswers[0],
 			numberOfVoter: 0,
 			question: 'question content',
+			questionType: mockCreateUserResponseDto.userResponse[0].questionType,
 		});
-		const mockAnotherExistedAnswerReport: AnswerReport = new AnswerReport({
+		const mock2ndExistedAnswerReport: AnswerReport = new AnswerReport({
 			pollId,
 			pollVersion,
 			startDate: mockCreateUserResponseDto.startDate,
@@ -546,12 +614,28 @@ describe('CreateUserResponseUseCase', () => {
 			answer: mockCreateUserResponseDto.userResponse[0].userAnswers[1],
 			numberOfVoter: 0,
 			question: 'question content',
+			questionType: mockCreateUserResponseDto.userResponse[0].questionType,
 		});
+		const mock3rdExistedAnswerReport: AnswerReport = new AnswerReport({
+			pollId,
+			pollVersion,
+			startDate: mockCreateUserResponseDto.startDate,
+			endDate: mockCreateUserResponseDto.endDate,
+			questionId: mockCreateUserResponseDto.userResponse[1].questionId,
+			answer: 'Answer',
+			numberOfVoter: 0,
+			question: 'question content',
+			questionType: mockCreateUserResponseDto.userResponse[1].questionType,
+		});
+
 		mockOverviewReportRepository.getAnswerReport.mockResolvedValueOnce(
-			mockExistedAnswerReport,
+			mock1stExistedAnswerReport,
 		);
 		mockOverviewReportRepository.getAnswerReport.mockResolvedValueOnce(
-			mockAnotherExistedAnswerReport,
+			mock2ndExistedAnswerReport,
+		);
+		mockOverviewReportRepository.getAnswerReport.mockResolvedValueOnce(
+			mock3rdExistedAnswerReport,
 		);
 
 		const expectedNewVoterReports: VoterReport[] = [
@@ -573,10 +657,21 @@ describe('CreateUserResponseUseCase', () => {
 				answer: mockCreateUserResponseDto.userResponse[0].userAnswers[1],
 				voterEmail: mockCreateUserResponseDto.participantEmail,
 			}),
+			new VoterReport({
+				pollId,
+				pollVersion,
+				startDate: mockCreateUserResponseDto.startDate,
+				endDate: mockCreateUserResponseDto.endDate,
+				questionId: mockCreateUserResponseDto.userResponse[0].questionId,
+				answer: 'Answer',
+				voterEmail: mockCreateUserResponseDto.participantEmail,
+				shortAnswer: mockCreateUserResponseDto.userResponse[1].userAnswers[0],
+			}),
 		];
 		const expectedModifiedAnswerReports: AnswerReport[] = [
-			mockExistedAnswerReport,
-			mockAnotherExistedAnswerReport,
+			mock1stExistedAnswerReport,
+			mock2ndExistedAnswerReport,
+			mock3rdExistedAnswerReport,
 		];
 
 		const result = await createUserResponseUseCase.execute(
@@ -615,6 +710,17 @@ describe('CreateUserResponseUseCase', () => {
 			mockCreateUserResponseDto.endDate,
 			mockCreateUserResponseDto.userResponse[0].questionId,
 			mockCreateUserResponseDto.userResponse[0].userAnswers[1],
+		);
+		expect(
+			mockOverviewReportRepository.getAnswerReport,
+		).toHaveBeenNthCalledWith(
+			3,
+			pollId,
+			pollVersion,
+			mockCreateUserResponseDto.startDate,
+			mockCreateUserResponseDto.endDate,
+			mockCreateUserResponseDto.userResponse[0].questionId,
+			'Answer',
 		);
 		expect(mockOverviewReportRepository.updateUserResponse).toBeCalledWith(
 			mockExistedOverviewReport,

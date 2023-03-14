@@ -1,5 +1,6 @@
 import { STATUS_TYPE } from '../../constants';
 
 export interface UpdateOverviewReportDto {
-	status: STATUS_TYPE;
+	status?: STATUS_TYPE;
+	blockedDate?: string;
 }

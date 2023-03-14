@@ -18,12 +18,14 @@ import {
 	VoterReport,
 } from '../domains';
 import { VoterReportDynamoRepository } from './voter-report-dynamo.repository';
+import { QUESTION_TYPE } from '../constants';
 
 interface AnswerReportDataModel {
 	PK: string | null | undefined;
 	SK?: string;
 	NumberOfVoter: number;
 	Question: string;
+	QuestionType: QUESTION_TYPE;
 }
 
 export class AnswerGeneralReportDynamoDBMapper extends DatabaseMapper<
@@ -40,6 +42,7 @@ export class AnswerGeneralReportDynamoDBMapper extends DatabaseMapper<
 			answer: dataModel.SK.split('#')[5],
 			question: dataModel.Question,
 			numberOfVoter: dataModel.NumberOfVoter,
+			questionType: dataModel.QuestionType,
 		});
 		return answerGeneralReport;
 	}
@@ -49,6 +52,7 @@ export class AnswerGeneralReportDynamoDBMapper extends DatabaseMapper<
 			SK: `#GENERAL#QUES#${domainModel.questionId}#ANSWER#${domainModel.answer}`,
 			Question: domainModel.question,
 			NumberOfVoter: domainModel.numberOfVoter,
+			QuestionType: domainModel.questionType,
 		};
 		return data;
 	}

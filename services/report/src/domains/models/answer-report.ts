@@ -1,4 +1,5 @@
 import { BadRequestException, isStringEmptyOrUndefined } from '@libs/common';
+import { QUESTION_TYPE } from '../../constants';
 import { VoterReport } from './voter-report';
 
 export interface AnswerReportProps {
@@ -11,6 +12,7 @@ export interface AnswerReportProps {
 	answer: string | null | undefined;
 	numberOfVoter: number | null | undefined;
 	voterReports?: VoterReport[];
+	questionType: QUESTION_TYPE | null | undefined;
 }
 export class AnswerReport {
 	public get pollId() {
@@ -44,6 +46,10 @@ export class AnswerReport {
 		return this.props.answer;
 	}
 
+	public get questionType() {
+		return this.props.questionType;
+	}
+
 	public increaseNumberOfVoterBy(value: number) {
 		this.props.numberOfVoter = this.props.numberOfVoter + value;
 	}
@@ -61,6 +67,7 @@ export class AnswerReport {
 			question,
 			answer,
 			numberOfVoter,
+			questionType,
 		} = props;
 
 		if (isStringEmptyOrUndefined(pollId)) {
@@ -96,6 +103,9 @@ export class AnswerReport {
 
 		if (isStringEmptyOrUndefined(answer)) {
 			throw new BadRequestException('Answer is null/undefined');
+		}
+		if (!questionType) {
+			throw new BadRequestException('Question Type is null/undefined');
 		}
 	}
 }

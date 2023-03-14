@@ -24,7 +24,7 @@ export class UpdateOverviewReportUseCase {
 		input: UpdateOverviewReportUseCaseInput,
 	): Promise<UpdateOverviewReportResponseDto> {
 		const { dto, pollId, pollVersion, startDate, endDate } = input;
-		const { status } = dto;
+		const { status, blockedDate } = dto;
 
 		if (!pollId) {
 			throw new BadRequestException('Poll Id is required');
@@ -41,9 +41,6 @@ export class UpdateOverviewReportUseCase {
 		if (!endDate) {
 			throw new BadRequestException('End Date is required');
 		}
-		if (!status) {
-			throw new BadRequestException('New Status is required');
-		}
 
 		const existedOverviewReport =
 			await this.overviewReportRepository.getOverviewReportForOccurrence(
@@ -57,13 +54,22 @@ export class UpdateOverviewReportUseCase {
 			throw new NotFoundException('Overview Report Not Found');
 		}
 
-		existedOverviewReport.updateStatus(status);
-		await this.overviewReportRepository.updateOverviewReport(
-			existedOverviewReport,
-		);
+		if (status) {
+			existedOverviewReport.updateStatus(status);
+			if (blockedDate) {
+				existedOverviewReport.updateBlockedDate(blockedDate);
+			}
+			await this.overviewReportRepository.updateOverviewReport(
+				existedOverviewReport,
+			);
+
+			return {
+				message: 'update overview report status successfully',
+			};
+		}
 
 		return {
-			message: 'update overview report successfully',
+			message: 'nothing to update',
 		};
 	}
 }

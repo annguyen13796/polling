@@ -8,6 +8,7 @@ export interface VoterReportProps {
 	questionId: string | null | undefined;
 	answer: string | null | undefined;
 	voterEmail: string | null | undefined;
+	shortAnswer?: string;
 }
 
 export class VoterReport {
@@ -31,6 +32,9 @@ export class VoterReport {
 	}
 	public get voterEmail() {
 		return this.props.voterEmail;
+	}
+	public get shortAnswer() {
+		return this.props.shortAnswer;
 	}
 
 	constructor(private readonly props: VoterReportProps) {

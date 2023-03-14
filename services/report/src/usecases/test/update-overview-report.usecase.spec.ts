@@ -163,39 +163,6 @@ describe('UpdateOverviewReportUseCase', () => {
 		).not.toBeCalled();
 		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
 	});
-	it(`should throw new status missing when status in dto is undefined`, async () => {
-		const updateOverviewReportUseCase = new UpdateOverviewReportUseCase(
-			mockOverviewReportRepository,
-		);
-
-		const mockUpdateOverviewReportDto: UpdateOverviewReportDto = {
-			status: undefined,
-		};
-		const pollId: string = 'pollId';
-		const pollVersion: string = 'pollVersion';
-		const startDate: string = 'startDate';
-		const endDate: string = 'endDate';
-
-		const updateOverviewReportUseCaseInput =
-			new UpdateOverviewReportUseCaseInput(
-				mockUpdateOverviewReportDto,
-				pollId,
-				pollVersion,
-				startDate,
-				endDate,
-			);
-
-		const expectedError = new BadRequestException('New Status is required');
-
-		await expect(
-			updateOverviewReportUseCase.execute(updateOverviewReportUseCaseInput),
-		).rejects.toThrowError(expectedError);
-
-		expect(
-			mockOverviewReportRepository.getOverviewReportForOccurrence,
-		).not.toBeCalled();
-		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
-	});
 
 	it(`should throw bad request exception when overview report is not found`, async () => {
 		const updateOverviewReportUseCase = new UpdateOverviewReportUseCase(
@@ -235,7 +202,7 @@ describe('UpdateOverviewReportUseCase', () => {
 		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
 	});
 
-	it(`should execute successfully`, async () => {
+	it(`should update status successfully `, async () => {
 		const updateOverviewReportUseCase = new UpdateOverviewReportUseCase(
 			mockOverviewReportRepository,
 		);
@@ -257,7 +224,6 @@ describe('UpdateOverviewReportUseCase', () => {
 				endDate,
 			);
 
-		const expectedError = new NotFoundException('Overview Report Not Found');
 		const mockExistedOverviewReport: OverviewReport = new OverviewReport({
 			pollId,
 			pollVersion,
@@ -274,7 +240,7 @@ describe('UpdateOverviewReportUseCase', () => {
 			updateOverviewReportUseCaseInput,
 		);
 		expect(result).toEqual({
-			message: 'update overview report successfully',
+			message: 'update overview report status successfully',
 		});
 
 		expect(
@@ -283,5 +249,100 @@ describe('UpdateOverviewReportUseCase', () => {
 		expect(mockOverviewReportRepository.updateOverviewReport).toBeCalledWith(
 			mockExistedOverviewReport,
 		);
+	});
+
+	it(`should update status and blockDate successfully `, async () => {
+		const updateOverviewReportUseCase = new UpdateOverviewReportUseCase(
+			mockOverviewReportRepository,
+		);
+
+		const mockUpdateOverviewReportDto: UpdateOverviewReportDto = {
+			status: 'CLOSED',
+			blockedDate: 'blockDate',
+		};
+		const pollId: string = 'pollId';
+		const pollVersion: string = 'pollVersion';
+		const startDate: string = 'startDate';
+		const endDate: string = 'endDate';
+
+		const updateOverviewReportUseCaseInput =
+			new UpdateOverviewReportUseCaseInput(
+				mockUpdateOverviewReportDto,
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+			);
+
+		const mockExistedOverviewReport: OverviewReport = new OverviewReport({
+			pollId,
+			pollVersion,
+			startDate,
+			endDate,
+			participants: [],
+			status: 'IN PROGRESS',
+		});
+		mockOverviewReportRepository.getOverviewReportForOccurrence.mockResolvedValue(
+			mockExistedOverviewReport,
+		);
+
+		const result = await updateOverviewReportUseCase.execute(
+			updateOverviewReportUseCaseInput,
+		);
+		expect(result).toEqual({
+			message: 'update overview report status successfully',
+		});
+
+		expect(
+			mockOverviewReportRepository.getOverviewReportForOccurrence,
+		).toBeCalledWith(pollId, pollVersion, startDate, endDate);
+		expect(mockOverviewReportRepository.updateOverviewReport).toBeCalledWith(
+			mockExistedOverviewReport,
+		);
+	});
+
+	it(`should execute successfully when nothing is updated`, async () => {
+		const updateOverviewReportUseCase = new UpdateOverviewReportUseCase(
+			mockOverviewReportRepository,
+		);
+
+		const mockUpdateOverviewReportDto: UpdateOverviewReportDto = {};
+		const pollId: string = 'pollId';
+		const pollVersion: string = 'pollVersion';
+		const startDate: string = 'startDate';
+		const endDate: string = 'endDate';
+
+		const updateOverviewReportUseCaseInput =
+			new UpdateOverviewReportUseCaseInput(
+				mockUpdateOverviewReportDto,
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+			);
+
+		const mockExistedOverviewReport: OverviewReport = new OverviewReport({
+			pollId,
+			pollVersion,
+			startDate,
+			endDate,
+			participants: [],
+			status: 'IN PROGRESS',
+		});
+		mockOverviewReportRepository.getOverviewReportForOccurrence.mockResolvedValue(
+			mockExistedOverviewReport,
+		);
+
+		const result = await updateOverviewReportUseCase.execute(
+			updateOverviewReportUseCaseInput,
+		);
+		expect(result).toEqual({
+			message: 'nothing to update',
+		});
+
+		expect(
+			mockOverviewReportRepository.getOverviewReportForOccurrence,
+		).toBeCalledWith(pollId, pollVersion, startDate, endDate);
+		expect(mockOverviewReportRepository.updateOverviewReport).not.toBeCalled();
 	});
 });

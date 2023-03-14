@@ -1,6 +1,8 @@
+import { QUESTION_TYPE } from '../../constants';
+
 export interface SingleQuestionResponse {
 	questionId: string;
-	question: string;
+	questionType: QUESTION_TYPE;
 	userAnswers: string[];
 }
 export interface CreateUserResponseDto {
