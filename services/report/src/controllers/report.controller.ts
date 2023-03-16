@@ -61,6 +61,7 @@ export const sendGetOverviewReportsForPoll = (
 			endDate: element.endDate,
 			status: element.status,
 			participants: element.participants,
+			blockedDate: element.blockedDate,
 		})),
 	});
 };
@@ -106,6 +107,7 @@ export const sendGetOverviewReportForOccurrence = (
 			endDate: result.overviewReport.endDate,
 			status: result.overviewReport.status,
 			participants: result.overviewReport.participants,
+			blockedDate: result.overviewReport.blockedDate,
 		},
 	});
 };
@@ -287,6 +289,7 @@ const sendVoterOfAnswerReportsToClient = (
 			questionId: element.questionId,
 			startDate: element.startDate,
 			voterEmail: element.voterEmail,
+			shortAnswer: element.shortAnswer,
 		})),
 	});
 };
