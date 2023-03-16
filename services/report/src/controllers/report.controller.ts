@@ -251,8 +251,15 @@ export const getVoterReportsForAnswer = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { questionId, answer, pollId, timeInterval, version } =
-			request.params;
+		const {
+			questionId,
+			answer: answerInBase64,
+			pollId,
+			timeInterval,
+			version,
+		} = request.params;
+
+		const answer = Buffer.from(answerInBase64, 'base64').toString('ascii');
 		const startDate = timeInterval.split('_')[0];
 		const endDate = timeInterval.split('_')[1];
 		const result = await getVoterOfAnswerReportsUseCase.execute(

@@ -49,7 +49,6 @@ export class GetVoterOfAnswerReportsUseCase {
 		if (!answer) {
 			throw new BadRequestException('Answer is required');
 		}
-
 		const voterReports =
 			await this.overviewReportRepository.getVoterReportsOfAnswer(
 				pollId,

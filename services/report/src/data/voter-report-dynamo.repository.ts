@@ -108,11 +108,9 @@ export class VoterReportDynamoRepository
 				':sortKeyPattern': `DETAIL#QUES#${questionId}#ANSWER#${answer}#VOTER`,
 			},
 		};
-
 		const { Items } = await this.dynamoDBDocClient.send(
 			new QueryCommand(params),
 		);
-
 		if (Items) {
 			const voterReports = Items.map((item: VoterReportDataModel) =>
 				this.mapper.toDomain(item),
