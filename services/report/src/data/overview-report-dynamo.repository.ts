@@ -1,7 +1,9 @@
 import {
+	addZeroPadding,
 	DatabaseMapper,
 	DynamoDBConfig,
 	DynamoDBRepository,
+	removeZeroPadding,
 	UnknownException,
 } from '@libs/common';
 import {
@@ -21,7 +23,7 @@ import {
 	UpdateCommand,
 	UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb';
-import { STATUS_TYPE } from '../constants';
+import { POLL_VERSION_STRING_LENGTH, STATUS_TYPE } from '../constants';
 import { VoterReportDynamoRepository } from './voter-report-dynamo.repository';
 import {
 	AnswerGeneralReportDynamoRepository,
@@ -46,9 +48,10 @@ export class OverviewReportDynamoDBMapper extends DatabaseMapper<
 	OverviewReportDataModel
 > {
 	toDomain(dataModel: OverviewReportDataModel): OverviewReport {
+		const domainPollVersion = removeZeroPadding(dataModel.SK.split('#')[3]);
 		const newOverviewReportProps: OverviewReportProps = {
 			pollId: dataModel.PK.split('#')[1],
-			pollVersion: dataModel.SK.split('#')[3],
+			pollVersion: domainPollVersion,
 			startDate: dataModel.SK.split('#')[5],
 			endDate: dataModel.SK.split('#')[7],
 			participants: dataModel.Participants,
@@ -61,9 +64,13 @@ export class OverviewReportDynamoDBMapper extends DatabaseMapper<
 		return overviewReport;
 	}
 	fromDomain(domainModel: OverviewReport): OverviewReportDataModel {
+		const dataModelPollVersion = addZeroPadding(
+			domainModel.pollVersion,
+			POLL_VERSION_STRING_LENGTH,
+		);
 		const data: OverviewReportDataModel = {
 			PK: `POLL#${domainModel.pollId}`,
-			SK: `#METADATA#VERSION#${domainModel.pollVersion}#START#${domainModel.startDate}#END#${domainModel.endDate}`,
+			SK: `#METADATA#VERSION#${dataModelPollVersion}#START#${domainModel.startDate}#END#${domainModel.endDate}`,
 			Status: domainModel.status,
 			Participants: domainModel.participants,
 		};
@@ -164,11 +171,15 @@ export class OverviewReportDynamoRepository
 		startDate: string,
 		endDate: string,
 	): Promise<OverviewReport> {
+		const dataModelPollVersion = addZeroPadding(
+			pollVersion,
+			POLL_VERSION_STRING_LENGTH,
+		);
 		const params: GetCommandInput = {
 			TableName: this.config.tableName,
 			Key: {
 				PK: `POLL#${pollId}`,
-				SK: `#METADATA#VERSION#${pollVersion}#START#${startDate}#END#${endDate}`,
+				SK: `#METADATA#VERSION#${dataModelPollVersion}#START#${startDate}#END#${endDate}`,
 			},
 		};
 
@@ -197,11 +208,15 @@ export class OverviewReportDynamoRepository
 	async updateUserResponse(
 		modifiedOverviewReport: OverviewReport,
 	): Promise<void> {
+		const dataModelPollVersion = addZeroPadding(
+			modifiedOverviewReport.pollVersion,
+			POLL_VERSION_STRING_LENGTH,
+		);
 		const params: UpdateCommandInput = {
 			TableName: this.config.tableName,
 			Key: {
 				PK: `POLL#${modifiedOverviewReport.pollId}`,
-				SK: `#METADATA#VERSION#${modifiedOverviewReport.pollVersion}#START#${modifiedOverviewReport.startDate}#END#${modifiedOverviewReport.endDate}`,
+				SK: `#METADATA#VERSION#${dataModelPollVersion}#START#${modifiedOverviewReport.startDate}#END#${modifiedOverviewReport.endDate}`,
 			},
 			UpdateExpression: `SET #participants= :participants `,
 			ExpressionAttributeNames: {
