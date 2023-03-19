@@ -250,7 +250,7 @@ export class PollDynamoRepository
 				SK: `POLL#${pollId}`,
 				PK: `POLL#${pollId}`,
 			},
-			...(description
+			...(typeof description === 'string'
 				? {
 						UpdateExpression: 'set Title = :title, Description = :description',
 						ExpressionAttributeValues: {
