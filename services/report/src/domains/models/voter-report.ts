@@ -12,31 +12,6 @@ export interface VoterReportProps {
 }
 
 export class VoterReport {
-	public get pollId() {
-		return this.props.pollId;
-	}
-	public get pollVersion() {
-		return this.props.pollVersion;
-	}
-	public get startDate() {
-		return this.props.startDate;
-	}
-	public get endDate() {
-		return this.props.endDate;
-	}
-	public get questionId() {
-		return this.props.questionId;
-	}
-	public get answer() {
-		return this.props.answer;
-	}
-	public get voterEmail() {
-		return this.props.voterEmail;
-	}
-	public get shortAnswer() {
-		return this.props.shortAnswer;
-	}
-
 	constructor(private readonly props: VoterReportProps) {
 		if (!props) {
 			throw new BadRequestException('Props of question is null/undefined');
@@ -79,5 +54,37 @@ export class VoterReport {
 		if (isStringEmptyOrUndefined(answer)) {
 			throw new BadRequestException('Answer is null/undefined');
 		}
+	}
+
+	public get pollId() {
+		return this.props.pollId;
+	}
+
+	public get pollVersion() {
+		return this.props.pollVersion;
+	}
+
+	public get startDate() {
+		return this.props.startDate;
+	}
+
+	public get endDate() {
+		return this.props.endDate;
+	}
+
+	public get questionId() {
+		return this.props.questionId;
+	}
+
+	public get answer() {
+		return this.props.answer;
+	}
+
+	public get voterEmail() {
+		return this.props.voterEmail;
+	}
+
+	public get shortAnswer() {
+		return this.props.shortAnswer;
 	}
 }

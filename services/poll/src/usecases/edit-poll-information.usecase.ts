@@ -40,7 +40,13 @@ export class EditPollInformationUseCase {
 			throw new NotFoundException(`Poll with id ${pollId} is not existed`);
 		}
 
-		await this.pollRepository.updatePoll(pollId, title, description);
+		if (title !== existedPoll.title) {
+			existedPoll.updateTitle(title);
+		}
+		if (typeof description === 'string') {
+			existedPoll.updateDescription(description);
+		}
+		await this.pollRepository.updatePoll(existedPoll);
 
 		return { message: 'Update Poll Information successfully' };
 	}

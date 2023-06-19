@@ -7,9 +7,9 @@ export const decodeParams = async (
 	next: NextFunction,
 ) => {
 	try {
-		const urlParams = request.params?.url;
+		const encodedURL = request.params?.url;
 
-		const pollId = atob(urlParams);
+		const pollId = Buffer.from(encodedURL, 'base64').toString('utf-8');
 
 		if (!pollId) {
 			throw new BadRequestException('Invalid Poll');

@@ -1,8 +1,13 @@
 import { SignUpUseCase, SignUpUseCaseInput } from '../sign-up.usecase';
-import { IUserRepository, User } from '../../domains';
+import {
+	Email,
+	IUserRepository,
+	Password,
+	SignUpDto,
+	User,
+	Username,
+} from '../../domains';
 import { BadRequestException } from '@libs/common';
-
-// import { v4 as uuid } from 'uuid';
 
 jest.mock('uuid', () => {
 	return {
@@ -12,119 +17,174 @@ jest.mock('uuid', () => {
 	};
 });
 
-describe('SignUpUseCase', () => {
-	describe('execute', () => {
-		let userRepository: IUserRepository;
-		let signupUseCaseInput: SignUpUseCaseInput;
+describe('SignUpUseCase test', () => {
+	const mockUserRepository: jest.Mocked<IUserRepository> = {
+		create: jest.fn(),
+		findByEmail: jest.fn(),
+		update: jest.fn(),
+	};
 
-		const userRepoMockCreate = jest.fn();
-		const userRepoMockUpdate = jest.fn();
-		const userRepoMockFindByEmail = jest.fn();
+	const mockUserModel: jest.Mocked<
+		Pick<User, 'createAccessToken' | 'createIdToken' | 'hasMatchingPassword'>
+	> = {
+		createAccessToken: jest.fn(),
+		createIdToken: jest.fn(),
+		hasMatchingPassword: jest.fn(),
+	};
 
-		beforeEach(() => {
-			userRepository = {
-				create: userRepoMockCreate,
-				update: userRepoMockUpdate,
-				findByEmail: userRepoMockFindByEmail,
-			};
+	it('should throw error when Email is not valid', async () => {
+		const mockSignupUseCase = new SignUpUseCase(mockUserRepository);
+
+		const mockSignupUseDto: SignUpDto = {
+			email: 'wrong-email-format',
+			password: 'P@ssw0rd',
+			username: 'username',
+		};
+
+		const mockSignupUseCaseInput = new SignUpUseCaseInput(mockSignupUseDto);
+
+		Email.isValid = jest.fn().mockReturnValue(false);
+		Password.isValid = jest.fn();
+		Username.isValid = jest.fn();
+
+		const expectedError = new BadRequestException('Email is not valid');
+
+		await expect(
+			mockSignupUseCase.execute(mockSignupUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(Email.isValid).toBeCalledWith(mockSignupUseDto.email);
+		expect(Password.isValid).not.toBeCalled();
+		expect(Username.isValid).not.toBeCalled();
+		expect(mockUserRepository.findByEmail).not.toBeCalled();
+		expect(mockUserRepository.create).not.toBeCalled();
+	});
+
+	it('should throw error when Password is not valid', async () => {
+		const mockSignupUseCase = new SignUpUseCase(mockUserRepository);
+
+		const mockSignupUseDto: SignUpDto = {
+			email: 'email@gmail.com',
+			password: 'wrong-password-format',
+			username: 'username',
+		};
+
+		Email.isValid = jest.fn().mockReturnValue(true);
+		Password.isValid = jest.fn().mockReturnValue(false);
+		Username.isValid = jest.fn();
+
+		const mockSignupUseCaseInput = new SignUpUseCaseInput(mockSignupUseDto);
+
+		const expectedError = new BadRequestException('Password is not valid');
+
+		await expect(
+			mockSignupUseCase.execute(mockSignupUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(Email.isValid).toBeCalledWith(mockSignupUseDto.email);
+		expect(Password.isValid).toBeCalledWith(mockSignupUseDto.password);
+		expect(Username.isValid).not.toBeCalled();
+		expect(mockUserRepository.findByEmail).not.toBeCalled();
+		expect(mockUserRepository.create).not.toBeCalled();
+	});
+
+	it('should throw error when UserName is not valid', async () => {
+		const mockSignupUseCase = new SignUpUseCase(mockUserRepository);
+
+		const mockSignupUseDto: SignUpDto = {
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+			username: '$^%&*',
+		};
+
+		Email.isValid = jest.fn().mockReturnValue(true);
+		Password.isValid = jest.fn().mockReturnValue(true);
+		Username.isValid = jest.fn().mockReturnValue(false);
+
+		const mockSignupUseCaseInput = new SignUpUseCaseInput(mockSignupUseDto);
+
+		const expectedError = new BadRequestException('Username is not valid');
+
+		await expect(
+			mockSignupUseCase.execute(mockSignupUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(Email.isValid).toBeCalledWith(mockSignupUseDto.email);
+		expect(Password.isValid).toBeCalledWith(mockSignupUseDto.password);
+		expect(Username.isValid).toBeCalledWith(mockSignupUseDto.username);
+		expect(mockUserRepository.findByEmail).not.toBeCalled();
+		expect(mockUserRepository.create).not.toBeCalled();
+	});
+
+	it('should throw error when user is existed', async () => {
+		const mockSignupUseCase = new SignUpUseCase(mockUserRepository);
+
+		const mockSignupUseDto: SignUpDto = {
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+			username: 'username',
+		};
+
+		Email.isValid = jest.fn().mockReturnValue(true);
+		Password.isValid = jest.fn().mockReturnValue(true);
+		Username.isValid = jest.fn().mockReturnValue(true);
+
+		const mockSignupUseCaseInput = new SignUpUseCaseInput(mockSignupUseDto);
+
+		const mockExistedUser = new User({
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+			username: 'username',
 		});
 
-		afterEach(() => {
-			jest.clearAllMocks();
+		mockUserRepository.findByEmail.mockResolvedValueOnce(mockExistedUser);
+
+		const expectedError = new BadRequestException('User is existed');
+
+		await expect(
+			mockSignupUseCase.execute(mockSignupUseCaseInput),
+		).rejects.toThrowError(expectedError);
+
+		expect(Email.isValid).toBeCalledWith(mockSignupUseDto.email);
+		expect(Password.isValid).toBeCalledWith(mockSignupUseDto.password);
+		expect(Username.isValid).toBeCalledWith(mockSignupUseDto.username);
+		expect(mockUserRepository.findByEmail).toBeCalledWith(
+			mockSignupUseDto.email,
+		);
+		expect(mockUserRepository.create).not.toBeCalled();
+	});
+
+	it('should execute successfully with valid dto', async () => {
+		const mockSignupUseCase = new SignUpUseCase(mockUserRepository);
+
+		const mockSignupUseDto: SignUpDto = {
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+			username: 'username',
+		};
+
+		Email.isValid = jest.fn().mockReturnValue(true);
+		Password.isValid = jest.fn().mockReturnValue(true);
+		Username.isValid = jest.fn().mockReturnValue(true);
+
+		const mockSignupUseCaseInput = new SignUpUseCaseInput(mockSignupUseDto);
+		const mockUser = new User({
+			email: 'email@gmail.com',
+			password: 'P@ssw0rd',
+			username: 'username',
 		});
 
-		it('should throw Email is not valid', async () => {
-			const signupUseCase = new SignUpUseCase(userRepository);
-			signupUseCaseInput = {
-				dto: {
-					email: 'asd',
-					password: 'asd',
-					username: 'asd',
-				},
-			};
-			await expect(
-				signupUseCase.execute(signupUseCaseInput),
-			).rejects.toThrowError(new BadRequestException('Email is not valid'));
-		});
+		mockUserRepository.findByEmail.mockResolvedValueOnce(null);
 
-		it('should throw Password is not valid', async () => {
-			const signupUseCase = new SignUpUseCase(userRepository);
-			signupUseCaseInput = {
-				dto: {
-					email: 'Namkhoa@gmail.com',
-					password: 'asd',
-					username: 'asd',
-				},
-			};
-			await expect(
-				signupUseCase.execute(signupUseCaseInput),
-			).rejects.toThrowError(new BadRequestException('Password is not valid'));
-		});
+		const result = await mockSignupUseCase.execute(mockSignupUseCaseInput);
 
-		it('should throw UserName is not valid', async () => {
-			const signupUseCase = new SignUpUseCase(userRepository);
-			signupUseCaseInput = {
-				dto: {
-					email: 'Namkhoa@gmail.com',
-					password: 'P@ssw0rd',
-					username: 'a',
-				},
-			};
-			await expect(
-				signupUseCase.execute(signupUseCaseInput),
-			).rejects.toThrowError(new BadRequestException('Username is not valid'));
-		});
-
-		it('should call findByEmail then throw exception when user is existed', async () => {
-			const signupUseCase = new SignUpUseCase(userRepository);
-			signupUseCaseInput = {
-				dto: {
-					email: 'Namkhoa@gmail.com',
-					password: 'P@ssw0rd',
-					username: 'aaaaaaaaaaa',
-				},
-			};
-			const returnUserMock = new User({
-				email: 'Namkhoa@gmail.com',
-				password: 'P@ssw0rd',
-				username: 'aaaaaaaaaaa',
-			});
-
-			userRepoMockFindByEmail.mockResolvedValueOnce(returnUserMock);
-
-			await expect(
-				signupUseCase.execute(signupUseCaseInput),
-			).rejects.toThrowError(new BadRequestException('User is existed'));
-			expect(userRepoMockFindByEmail).toBeCalledWith(
-				signupUseCaseInput.dto.email,
-			);
-		});
-
-		it('should call findByEmail,create user then return success', async () => {
-			const signupUseCase = new SignUpUseCase(userRepository);
-			signupUseCaseInput = {
-				dto: {
-					email: 'Namkhoa@gmail.com',
-					password: 'P@ssw0rd',
-					username: 'aaaaaaaaaaa',
-				},
-			};
-			const newUser = new User({
-				email: 'Namkhoa@gmail.com',
-				password: 'P@ssw0rd',
-				username: 'aaaaaaaaaaa',
-			});
-
-			userRepoMockFindByEmail.mockResolvedValueOnce(null);
-
-			const value = await signupUseCase.execute(signupUseCaseInput);
-			expect(userRepoMockFindByEmail).toBeCalledWith(
-				signupUseCaseInput.dto.email,
-			);
-			expect(userRepoMockCreate).toBeCalledWith(newUser);
-			expect(value).toEqual({
-				message: 'Signup successfully',
-			});
-		});
+		expect(result).toEqual({ message: 'Signup successfully' });
+		expect(Email.isValid).toBeCalledWith(mockSignupUseDto.email);
+		expect(Password.isValid).toBeCalledWith(mockSignupUseDto.password);
+		expect(Username.isValid).toBeCalledWith(mockSignupUseDto.username);
+		expect(mockUserRepository.findByEmail).toBeCalledWith(
+			mockSignupUseDto.email,
+		);
+		expect(mockUserRepository.create).toBeCalledWith(mockUser);
 	});
 });

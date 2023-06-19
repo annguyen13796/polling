@@ -17,13 +17,11 @@ describe('delete question by id use case test', () => {
 		deletePollById: jest.fn(),
 		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
-		generateVoteURL: jest.fn(),
-		updatePollGeneralInformation: jest.fn(),
+		updatePoll: jest.fn(),
 		createQuestion: jest.fn(),
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
-		updatePoll: jest.fn(),
 	};
 
 	it('Should throw error when questionId is missing', async () => {

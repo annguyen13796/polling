@@ -64,7 +64,7 @@ export class CreateQuestionUseCase {
 				`Answer list of this question type can not be empty`,
 			);
 		}
-
+		// TODO: change name to existedPoll at line bellow
 		const isPollExisted = await this.pollRepository.findPollById(pollId);
 		if (isPollExisted === null) {
 			throw new NotFoundException(`Poll with id ${pollId} is not existed`);

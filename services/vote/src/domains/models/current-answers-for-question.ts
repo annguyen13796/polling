@@ -1,6 +1,6 @@
 import { BadRequestException, isStringEmptyOrUndefined } from '@libs/common';
 
-export interface DraftAnswerForQuestionProps {
+export interface CurrentAnswersForQuestionProps {
 	pollId: string | null | undefined;
 	pollVersion: string | null | undefined;
 	startDate: string | null | undefined;
@@ -11,7 +11,7 @@ export interface DraftAnswerForQuestionProps {
 	answers: string[] | null | undefined;
 }
 
-export class DraftAnswersForQuestion {
+export class CurrentAnswersForQuestion {
 	public get pollId() {
 		return this.props.pollId;
 	}
@@ -41,7 +41,7 @@ export class DraftAnswersForQuestion {
 		return this.props.answers;
 	}
 
-	constructor(private readonly props: DraftAnswerForQuestionProps) {
+	constructor(private readonly props: CurrentAnswersForQuestionProps) {
 		if (!props) {
 			throw new BadRequestException('Props of question is null/undefined');
 		}

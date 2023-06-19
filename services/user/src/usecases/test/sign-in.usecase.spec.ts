@@ -7,13 +7,13 @@ describe('SignInUseCase test', () => {
 		jest.clearAllMocks();
 	});
 
-	const userRepositoryMock: jest.Mocked<IUserRepository> = {
+	const mockUserRepository: jest.Mocked<IUserRepository> = {
 		create: jest.fn(),
 		findByEmail: jest.fn(),
 		update: jest.fn(),
 	};
 
-	const userModelMock: jest.Mocked<
+	const mockUserModel: jest.Mocked<
 		Pick<User, 'createAccessToken' | 'createIdToken' | 'hasMatchingPassword'>
 	> = {
 		createAccessToken: jest.fn(),
@@ -21,143 +21,143 @@ describe('SignInUseCase test', () => {
 		hasMatchingPassword: jest.fn(),
 	};
 
-	const jwtMock: JwtConfig = {
+	const mockJwt: JwtConfig = {
 		expiresIn: '30d',
 		secretKeyOfAccessToken: 'accessTokenSecret',
 		secretKeyOfIdToken: 'idTokenSecret',
 	};
 
 	it('should throw error when email is missing', async () => {
-		const signInDtoMock: SignInDto = {
+		const mockSignInDto: SignInDto = {
 			email: null,
 			password: 'P@ssw0rd',
 		};
 
-		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+		const mockSignInUseCase = new SignInUseCase(mockUserRepository);
 
 		const expectedError = new NotFoundException('Missing email');
 
 		await expect(
-			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+			mockSignInUseCase.execute(new SignInUseCaseInput(mockSignInDto, mockJwt)),
 		).rejects.toThrow(expectedError);
 
-		expect(userRepositoryMock.findByEmail).not.toBeCalled();
-		expect(userModelMock.createAccessToken).not.toBeCalled();
-		expect(userModelMock.createIdToken).not.toBeCalled();
-		expect(userModelMock.hasMatchingPassword).not.toBeCalled();
+		expect(mockUserRepository.findByEmail).not.toBeCalled();
+		expect(mockUserModel.hasMatchingPassword).not.toBeCalled();
+		expect(mockUserModel.createAccessToken).not.toBeCalled();
+		expect(mockUserModel.createIdToken).not.toBeCalled();
 	});
 
 	it('should throw error when password is missing', async () => {
-		const signInDtoMock: SignInDto = {
+		const mockSignInDto: SignInDto = {
 			email: 'email@gmail.com',
 			password: null,
 		};
 
-		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+		const mockSignInUseCase = new SignInUseCase(mockUserRepository);
 
 		const expectedError = new BadRequestException('Missing password');
 
 		await expect(
-			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+			mockSignInUseCase.execute(new SignInUseCaseInput(mockSignInDto, mockJwt)),
 		).rejects.toThrow(expectedError);
 
-		expect(userRepositoryMock.findByEmail).not.toBeCalled();
-		expect(userModelMock.createAccessToken).not.toBeCalled();
-		expect(userModelMock.createIdToken).not.toBeCalled();
-		expect(userModelMock.hasMatchingPassword).not.toBeCalled();
+		expect(mockUserRepository.findByEmail).not.toBeCalled();
+		expect(mockUserModel.createAccessToken).not.toBeCalled();
+		expect(mockUserModel.createIdToken).not.toBeCalled();
+		expect(mockUserModel.hasMatchingPassword).not.toBeCalled();
 	});
 
 	it('should throw error when user is not existed', async () => {
-		const signInDtoMock: SignInDto = {
+		const mockSignInDto: SignInDto = {
 			email: 'email@gmail.com',
 			password: 'P@ssw0rd',
 		};
 
-		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+		const mockSignInUseCase = new SignInUseCase(mockUserRepository);
 
 		const expectedError = new BadRequestException('User is not existed');
 
-		userRepositoryMock.findByEmail.mockResolvedValueOnce(null);
+		mockUserRepository.findByEmail.mockResolvedValueOnce(null);
 
 		await expect(
-			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+			mockSignInUseCase.execute(new SignInUseCaseInput(mockSignInDto, mockJwt)),
 		).rejects.toThrow(expectedError);
 
-		expect(userRepositoryMock.findByEmail).toBeCalledWith('email@gmail.com');
-		expect(userModelMock.createAccessToken).not.toBeCalled();
-		expect(userModelMock.createIdToken).not.toBeCalled();
-		expect(userModelMock.hasMatchingPassword).not.toBeCalled();
+		expect(mockUserRepository.findByEmail).toBeCalledWith('email@gmail.com');
+		expect(mockUserModel.hasMatchingPassword).not.toBeCalled();
+		expect(mockUserModel.createAccessToken).not.toBeCalled();
+		expect(mockUserModel.createIdToken).not.toBeCalled();
 	});
 
 	it('should throw error when password is incorrect', async () => {
-		const signInDtoMock: SignInDto = {
+		const mockSignInDto: SignInDto = {
 			email: 'email@gmail.com',
 			password: 'P@ssw0rd',
 		};
 
-		const existedUserMock: User = new User({
+		const mockExistedUser: User = new User({
 			email: 'email@gmail.com',
 			password: 'anotherP@ssw0rd',
 			username: 'username',
 			id: 'random id',
 		});
 
-		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+		const mockSignInUseCase = new SignInUseCase(mockUserRepository);
 
-		userRepositoryMock.findByEmail.mockResolvedValueOnce(existedUserMock);
+		mockUserRepository.findByEmail.mockResolvedValueOnce(mockExistedUser);
 
-		existedUserMock.hasMatchingPassword = userModelMock.hasMatchingPassword;
-		userModelMock.hasMatchingPassword.mockReturnValueOnce(false);
+		mockExistedUser.hasMatchingPassword = mockUserModel.hasMatchingPassword;
+		mockUserModel.hasMatchingPassword.mockReturnValueOnce(false);
 
 		const expectedError = new BadRequestException('Password is incorrect');
 
 		await expect(
-			signInUseCaseMock.execute(new SignInUseCaseInput(signInDtoMock, jwtMock)),
+			mockSignInUseCase.execute(new SignInUseCaseInput(mockSignInDto, mockJwt)),
 		).rejects.toThrow(expectedError);
 
-		expect(userRepositoryMock.findByEmail).toBeCalledWith('email@gmail.com');
-		expect(userModelMock.hasMatchingPassword).toBeCalledWith('P@ssw0rd');
-		expect(userModelMock.createAccessToken).not.toBeCalled();
-		expect(userModelMock.createIdToken).not.toBeCalled();
+		expect(mockUserRepository.findByEmail).toBeCalledWith('email@gmail.com');
+		expect(mockUserModel.hasMatchingPassword).toBeCalledWith('P@ssw0rd');
+		expect(mockUserModel.createAccessToken).not.toBeCalled();
+		expect(mockUserModel.createIdToken).not.toBeCalled();
 	});
 
 	it('should execute successfully with valid credential', async () => {
-		const signInDtoMock: SignInDto = {
+		const mockSignInDto: SignInDto = {
 			email: 'email@gmail.com',
 			password: 'P@ssw0rd',
 		};
 
-		const existedUserMock: User = new User({
+		const mockExistedUser: User = new User({
 			email: 'email@gmail.com',
 			password: 'P@ssw0rd',
 			username: 'username',
 			id: 'id',
 		});
 
-		const signInUseCaseMock = new SignInUseCase(userRepositoryMock);
+		const mockSignInUseCase = new SignInUseCase(mockUserRepository);
 
-		userRepositoryMock.findByEmail.mockResolvedValueOnce(existedUserMock);
+		mockUserRepository.findByEmail.mockResolvedValueOnce(mockExistedUser);
 
-		existedUserMock.hasMatchingPassword = userModelMock.hasMatchingPassword;
-		userModelMock.hasMatchingPassword.mockReturnValueOnce(true);
+		mockExistedUser.hasMatchingPassword = mockUserModel.hasMatchingPassword;
+		mockUserModel.hasMatchingPassword.mockReturnValueOnce(true);
 
-		existedUserMock.createAccessToken = userModelMock.createAccessToken;
-		userModelMock.createAccessToken.mockReturnValueOnce('accessToken');
+		mockExistedUser.createAccessToken = mockUserModel.createAccessToken;
+		mockUserModel.createAccessToken.mockReturnValueOnce('accessToken');
 
-		existedUserMock.createIdToken = userModelMock.createIdToken;
-		userModelMock.createIdToken.mockReturnValueOnce('idToken');
+		mockExistedUser.createIdToken = mockUserModel.createIdToken;
+		mockUserModel.createIdToken.mockReturnValueOnce('idToken');
 
-		const result = await signInUseCaseMock.execute(
-			new SignInUseCaseInput(signInDtoMock, jwtMock),
+		const result = await mockSignInUseCase.execute(
+			new SignInUseCaseInput(mockSignInDto, mockJwt),
 		);
 
 		expect(result).toEqual({
 			accessToken: 'accessToken',
 			idToken: 'idToken',
 		});
-		expect(userRepositoryMock.findByEmail).toBeCalledWith('email@gmail.com');
-		expect(userModelMock.hasMatchingPassword).toBeCalledWith('P@ssw0rd');
-		expect(userModelMock.createAccessToken).toBeCalled();
-		expect(userModelMock.createIdToken).toBeCalled();
+		expect(mockUserRepository.findByEmail).toBeCalledWith('email@gmail.com');
+		expect(mockUserModel.hasMatchingPassword).toBeCalledWith('P@ssw0rd');
+		expect(mockUserModel.createAccessToken).toBeCalled();
+		expect(mockUserModel.createIdToken).toBeCalled();
 	});
 });

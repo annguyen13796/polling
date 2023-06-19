@@ -1,18 +1,8 @@
-import { BadRequestException, NotFoundException } from '@libs/common';
+import { BadRequestException } from '@libs/common';
+import { IDraftRepository, PutDraftDto } from '../../domains';
 import {
-	Draft,
-	DraftAnswersForQuestion,
-	IDraftRepository,
-	PutDraftAnswersForQuestionDto,
-	PutDraftInformationDto,
-} from '../../domains';
-import {
-	PutDraftAnswersForQuestionUseCase,
-	PutDraftAnswersForQuestionUseCaseInput,
-} from '../put-draft-answers-for-question.usecase';
-import {
-	PutDraftInformationUseCase,
-	PutDraftInformationUseCaseInput,
+	PutDraftUseCase,
+	PutDraftUseCaseInput,
 } from '../put-draft-information.usecase';
 
 describe('PutDraftAnswersForQuestionUseCase', () => {
@@ -22,19 +12,17 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 
 	const mockDraftRepository: jest.Mocked<IDraftRepository> = {
 		create: jest.fn(),
-		getDraftAnswers: jest.fn(),
-		getDraftInformation: jest.fn(),
-		putDraftAnswersForQuestion: jest.fn(),
-		putDraftInformation: jest.fn(),
+		getCurrentAnswersForDraft: jest.fn(),
+		getDraft: jest.fn(),
+		putCurrentAnswersForQuestion: jest.fn(),
+		putDraft: jest.fn(),
 		update: jest.fn(),
 	};
 
 	it(`should throw poll id missing when pollId is undefined`, async () => {
-		const putDraftInformationUseCase = new PutDraftInformationUseCase(
-			mockDraftRepository,
-		);
+		const putDraftUseCase = new PutDraftUseCase(mockDraftRepository);
 
-		const mockPutDraftInformationDto: PutDraftInformationDto = {
+		const mockPutDraftDto: PutDraftDto = {
 			hasBeenSubmitted: false,
 		};
 		const pollId: string = undefined;
@@ -43,8 +31,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const putDraftInformationUseCaseInput = new PutDraftInformationUseCaseInput(
-			mockPutDraftInformationDto,
+		const putDraftUseCaseInput = new PutDraftUseCaseInput(
+			mockPutDraftDto,
 			pollId,
 			pollVersion,
 			startDate,
@@ -55,18 +43,16 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const expectedError = new BadRequestException('Poll Id is missing');
 
 		await expect(
-			putDraftInformationUseCase.execute(putDraftInformationUseCaseInput),
+			putDraftUseCase.execute(putDraftUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftInformation).not.toBeCalled();
+		expect(mockDraftRepository.putDraft).not.toBeCalled();
 	});
 
 	it(`should throw poll version missing when pollVersion is undefined`, async () => {
-		const putDraftInformationUseCase = new PutDraftInformationUseCase(
-			mockDraftRepository,
-		);
+		const putDraftUseCase = new PutDraftUseCase(mockDraftRepository);
 
-		const mockPutDraftInformationDto: PutDraftInformationDto = {
+		const mockPutDraftDto: PutDraftDto = {
 			hasBeenSubmitted: false,
 		};
 		const pollId: string = 'pollId';
@@ -75,8 +61,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const putDraftInformationUseCaseInput = new PutDraftInformationUseCaseInput(
-			mockPutDraftInformationDto,
+		const putDraftUseCaseInput = new PutDraftUseCaseInput(
+			mockPutDraftDto,
 			pollId,
 			pollVersion,
 			startDate,
@@ -87,18 +73,16 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const expectedError = new BadRequestException('Version is missing');
 
 		await expect(
-			putDraftInformationUseCase.execute(putDraftInformationUseCaseInput),
+			putDraftUseCase.execute(putDraftUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftInformation).not.toBeCalled();
+		expect(mockDraftRepository.putDraft).not.toBeCalled();
 	});
 
 	it(`should throw start date missing when startDate is undefined`, async () => {
-		const putDraftInformationUseCase = new PutDraftInformationUseCase(
-			mockDraftRepository,
-		);
+		const putDraftUseCase = new PutDraftUseCase(mockDraftRepository);
 
-		const mockPutDraftInformationDto: PutDraftInformationDto = {
+		const mockPutDraftDto: PutDraftDto = {
 			hasBeenSubmitted: false,
 		};
 		const pollId: string = 'pollId';
@@ -107,8 +91,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const putDraftInformationUseCaseInput = new PutDraftInformationUseCaseInput(
-			mockPutDraftInformationDto,
+		const putDraftUseCaseInput = new PutDraftUseCaseInput(
+			mockPutDraftDto,
 			pollId,
 			pollVersion,
 			startDate,
@@ -119,18 +103,16 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const expectedError = new BadRequestException('Start Date is missing');
 
 		await expect(
-			putDraftInformationUseCase.execute(putDraftInformationUseCaseInput),
+			putDraftUseCase.execute(putDraftUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftInformation).not.toBeCalled();
+		expect(mockDraftRepository.putDraft).not.toBeCalled();
 	});
 
 	it(`should throw end date missing when startDate is undefined`, async () => {
-		const putDraftInformationUseCase = new PutDraftInformationUseCase(
-			mockDraftRepository,
-		);
+		const putDraftUseCase = new PutDraftUseCase(mockDraftRepository);
 
-		const mockPutDraftInformationDto: PutDraftInformationDto = {
+		const mockPutDraftDto: PutDraftDto = {
 			hasBeenSubmitted: false,
 		};
 		const pollId: string = 'pollId';
@@ -139,8 +121,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const endDate: string = undefined;
 		const voterEmail: string = 'voterEmail';
 
-		const putDraftInformationUseCaseInput = new PutDraftInformationUseCaseInput(
-			mockPutDraftInformationDto,
+		const putDraftUseCaseInput = new PutDraftUseCaseInput(
+			mockPutDraftDto,
 			pollId,
 			pollVersion,
 			startDate,
@@ -151,18 +133,16 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const expectedError = new BadRequestException('End Date is missing');
 
 		await expect(
-			putDraftInformationUseCase.execute(putDraftInformationUseCaseInput),
+			putDraftUseCase.execute(putDraftUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftInformation).not.toBeCalled();
+		expect(mockDraftRepository.putDraft).not.toBeCalled();
 	});
 
 	it(`should throw voter email missing when voterEmail is undefined`, async () => {
-		const putDraftInformationUseCase = new PutDraftInformationUseCase(
-			mockDraftRepository,
-		);
+		const putDraftUseCase = new PutDraftUseCase(mockDraftRepository);
 
-		const mockPutDraftInformationDto: PutDraftInformationDto = {
+		const mockPutDraftDto: PutDraftDto = {
 			hasBeenSubmitted: false,
 		};
 		const pollId: string = 'pollId';
@@ -171,8 +151,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = undefined;
 
-		const putDraftInformationUseCaseInput = new PutDraftInformationUseCaseInput(
-			mockPutDraftInformationDto,
+		const putDraftUseCaseInput = new PutDraftUseCaseInput(
+			mockPutDraftDto,
 			pollId,
 			pollVersion,
 			startDate,
@@ -183,18 +163,16 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const expectedError = new BadRequestException('Voter Email is missing');
 
 		await expect(
-			putDraftInformationUseCase.execute(putDraftInformationUseCaseInput),
+			putDraftUseCase.execute(putDraftUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftInformation).not.toBeCalled();
+		expect(mockDraftRepository.putDraft).not.toBeCalled();
 	});
 
 	it(`should execute successfully `, async () => {
-		const putDraftInformationUseCase = new PutDraftInformationUseCase(
-			mockDraftRepository,
-		);
+		const putDraftUseCase = new PutDraftUseCase(mockDraftRepository);
 
-		const mockPutDraftInformationDto: PutDraftInformationDto = {
+		const mockPutDraftDto: PutDraftDto = {
 			hasBeenSubmitted: false,
 		};
 		const pollId: string = 'pollId';
@@ -203,8 +181,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const putDraftInformationUseCaseInput = new PutDraftInformationUseCaseInput(
-			mockPutDraftInformationDto,
+		const putDraftUseCaseInput = new PutDraftUseCaseInput(
+			mockPutDraftDto,
 			pollId,
 			pollVersion,
 			startDate,
@@ -212,11 +190,9 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			voterEmail,
 		);
 
-		const result = await putDraftInformationUseCase.execute(
-			putDraftInformationUseCaseInput,
-		);
+		const result = await putDraftUseCase.execute(putDraftUseCaseInput);
 		expect(result).toEqual({ message: 'put draft information successfully' });
 
-		expect(mockDraftRepository.putDraftInformation).toBeCalled();
+		expect(mockDraftRepository.putDraft).toBeCalled();
 	});
 });

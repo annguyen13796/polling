@@ -1,29 +1,29 @@
 import { NextFunction, Request, Response } from 'express';
 import { ApiErrorMapper } from '@libs/common';
 import {
-	GetDraftAnswersResponseDto,
-	PutDraftAnswersForQuestionDto,
-	PutDraftInformationDto,
+	GetCurrentAnswersForDraftResponseDto,
+	PutCurrentAnswersForQuestionDto,
+	PutDraftDto,
 } from '../domains';
 import {
-	GetDraftAnswersUseCaseInput,
-	PutDraftAnswersForQuestionUseCaseInput,
-	PutDraftInformationUseCaseInput,
+	GetCurrentAnswersForDraftUseCaseInput,
+	PutCurrentAnswersForQuestionUseCaseInput,
+	PutDraftUseCaseInput,
 } from '../usecases';
 import {
-	getDraftAnswersUseCase,
-	putDraftAnswersForQuestionUseCase,
-	putDraftInformationUseCase,
+	getCurrentAnswersForDraftUseCase,
+	putCurrentAnswersForQuestionUseCase,
+	putDraftUseCase,
 } from '../di';
 
 type PollId_pollVersion_startDate_endDate_voterEmail = string;
 type DraftIdType = PollId_pollVersion_startDate_endDate_voterEmail;
-interface ReqParamTypeGetDraftAnswersForQuestion {
+
+interface GetCurrentAnswersForDraftRequestParamType {
 	draftId: DraftIdType;
 }
-
-export const getDraftAnswers = async (
-	request: Request<ReqParamTypeGetDraftAnswersForQuestion, any, any, any>,
+export const getCurrentAnswersForDraft = async (
+	request: Request<GetCurrentAnswersForDraftRequestParamType, any, any, any>,
 	response: Response,
 	next: NextFunction,
 ) => {
@@ -35,7 +35,7 @@ export const getDraftAnswers = async (
 		const endDate = chainedUrl.split('_')[3];
 		const voterEmail = chainedUrl.split('_')[4];
 
-		const input = new GetDraftAnswersUseCaseInput(
+		const input = new GetCurrentAnswersForDraftUseCaseInput(
 			pollId,
 			pollVersion,
 			startDate,
@@ -43,19 +43,19 @@ export const getDraftAnswers = async (
 			voterEmail,
 		);
 
-		const result = await getDraftAnswersUseCase.execute(input);
-		next(sendGetDraftAnswersForUser(response, result));
+		const result = await getCurrentAnswersForDraftUseCase.execute(input);
+		next(sendGetCurrentAnswersForDraft(response, result));
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);
 	}
 };
 
-interface ReqParamTypePutDraftAnswersForQuestion {
+interface PutCurrentAnswersForQuestionRequestParamType {
 	draftId: DraftIdType;
 	questionId: string;
 }
-export const putDraftAnswersForQuestion = async (
-	request: Request<ReqParamTypePutDraftAnswersForQuestion, any, any, any>,
+export const putCurrentAnswersForQuestion = async (
+	request: Request<PutCurrentAnswersForQuestionRequestParamType, any, any, any>,
 	response: Response,
 ) => {
 	try {
@@ -67,8 +67,8 @@ export const putDraftAnswersForQuestion = async (
 		const voterEmail = chainedUrl.split('_')[4];
 
 		const questionId = request.params.questionId;
-		const dto = request.body as PutDraftAnswersForQuestionDto;
-		const input = new PutDraftAnswersForQuestionUseCaseInput(
+		const dto = request.body as PutCurrentAnswersForQuestionDto;
+		const input = new PutCurrentAnswersForQuestionUseCaseInput(
 			dto,
 			pollId,
 			pollVersion,
@@ -77,7 +77,7 @@ export const putDraftAnswersForQuestion = async (
 			voterEmail,
 			questionId,
 		);
-		const result = await putDraftAnswersForQuestionUseCase.execute(input);
+		const result = await putCurrentAnswersForQuestionUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {
@@ -85,11 +85,11 @@ export const putDraftAnswersForQuestion = async (
 	}
 };
 
-interface ReqParamTypePutGeneralVotingStatusOfUser {
+interface PutDraftRequestParamType {
 	draftId: DraftIdType;
 }
-export const putDraftInformation = async (
-	request: Request<ReqParamTypePutGeneralVotingStatusOfUser, any, any, any>,
+export const putDraft = async (
+	request: Request<PutDraftRequestParamType, any, any, any>,
 	response: Response,
 ) => {
 	try {
@@ -99,8 +99,8 @@ export const putDraftInformation = async (
 		const startDate = chainedUrl.split('_')[2];
 		const endDate = chainedUrl.split('_')[3];
 		const voterEmail = chainedUrl.split('_')[4];
-		const dto = request.body as PutDraftInformationDto;
-		const input = new PutDraftInformationUseCaseInput(
+		const dto = request.body as PutDraftDto;
+		const input = new PutDraftUseCaseInput(
 			dto,
 			pollId,
 			pollVersion,
@@ -108,7 +108,7 @@ export const putDraftInformation = async (
 			endDate,
 			voterEmail,
 		);
-		const result = await putDraftInformationUseCase.execute(input);
+		const result = await putDraftUseCase.execute(input);
 
 		return response.send(result);
 	} catch (error) {
@@ -116,26 +116,28 @@ export const putDraftInformation = async (
 	}
 };
 
-export const sendGetDraftAnswersForUser = (
+export const sendGetCurrentAnswersForDraft = (
 	response: Response,
-	result: GetDraftAnswersResponseDto,
+	result: GetCurrentAnswersForDraftResponseDto,
 ) => {
 	try {
-		const parsedDraftAnswers = result.draftAnswers.map((element) => {
-			return {
-				pollId: element.pollId,
-				pollVersion: element.pollVersion,
-				starDate: element.startDate,
-				endDate: element.endDate,
-				voterEmail: element.voterEmail,
-				questionId: element.questionId,
-				question: element.question,
-				answers: element.answers,
-			};
-		});
+		const parsedDraftAnswersForQuestions = result.draftAnswers.map(
+			(element) => {
+				return {
+					pollId: element.pollId,
+					pollVersion: element.pollVersion,
+					starDate: element.startDate,
+					endDate: element.endDate,
+					voterEmail: element.voterEmail,
+					questionId: element.questionId,
+					question: element.question,
+					answers: element.answers,
+				};
+			},
+		);
 		response.send({
 			message: 'get draft answers successfully',
-			draftAnswers: parsedDraftAnswers,
+			draftAnswers: parsedDraftAnswersForQuestions,
 		});
 	} catch (error) {
 		return ApiErrorMapper.toErrorResponse(error, response);

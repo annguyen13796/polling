@@ -1,3 +1,3 @@
-export * from './get-draft-answers.usecase';
-export * from './put-draft-answers-for-question.usecase';
+export * from './get-current-answers-for-draft.usecase';
+export * from './put-current-answers-for-question.usecase';
 export * from './put-draft-information.usecase';

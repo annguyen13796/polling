@@ -11,6 +11,7 @@ export interface IAnswerGeneralReportRepository
 		endDate: string,
 		startItem: { PK: string; SK?: string } | null,
 	): Promise<QueryCommandReturnType<AnswerReport>>;
+
 	getAnswerReport(
 		pollId: string,
 		pollVersion: string,
@@ -19,6 +20,7 @@ export interface IAnswerGeneralReportRepository
 		questionId: string,
 		answer: string,
 	): Promise<AnswerReport>;
+
 	getVotersOfSpecificAnswer(
 		pollId: string,
 		pollVersion: string,
@@ -27,6 +29,7 @@ export interface IAnswerGeneralReportRepository
 		questionId: string,
 		answer: string,
 	): Promise<VoterReport[] | null>;
+
 	putAnswerReports(answerReports: AnswerReport[]): Promise<void>;
 
 	createVoterReports(newVoterReports: VoterReport[]): Promise<void>;

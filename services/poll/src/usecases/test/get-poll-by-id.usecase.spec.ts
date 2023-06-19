@@ -17,13 +17,11 @@ describe('get Poll by Id usecase test', () => {
 		deletePollById: jest.fn(),
 		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
-		generateVoteURL: jest.fn(),
-		updatePollGeneralInformation: jest.fn(),
+		updatePoll: jest.fn(),
 		createQuestion: jest.fn(),
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
-		updatePoll: jest.fn(),
 	};
 
 	it('Should throw error when poll Id is missing', async () => {

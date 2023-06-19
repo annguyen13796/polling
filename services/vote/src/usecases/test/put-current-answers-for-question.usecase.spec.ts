@@ -1,14 +1,14 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
 import {
 	Draft,
-	DraftAnswersForQuestion,
+	CurrentAnswersForQuestion,
 	IDraftRepository,
-	PutDraftAnswersForQuestionDto,
+	PutCurrentAnswersForQuestionDto,
 } from '../../domains';
 import {
-	PutDraftAnswersForQuestionUseCase,
-	PutDraftAnswersForQuestionUseCaseInput,
-} from '../put-draft-answers-for-question.usecase';
+	PutCurrentAnswersForQuestionUseCase,
+	PutCurrentAnswersForQuestionUseCaseInput,
+} from '../put-current-answers-for-question.usecase';
 
 describe('PutDraftAnswersForQuestionUseCase', () => {
 	beforeEach(() => {
@@ -17,21 +17,22 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 
 	const mockDraftRepository: jest.Mocked<IDraftRepository> = {
 		create: jest.fn(),
-		getDraftAnswers: jest.fn(),
-		getDraftInformation: jest.fn(),
-		putDraftAnswersForQuestion: jest.fn(),
-		putDraftInformation: jest.fn(),
+		getCurrentAnswersForDraft: jest.fn(),
+		getDraft: jest.fn(),
+		putCurrentAnswersForQuestion: jest.fn(),
+		putDraft: jest.fn(),
 		update: jest.fn(),
 	};
 
 	it(`should throw poll id missing when pollId is undefined`, async () => {
-		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+		const putCurrentAnswersForQuestionUseCase =
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = undefined;
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = 'startDate';
@@ -39,9 +40,9 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const voterEmail: string = 'voterEmail';
 		const questionId: string = 'questionId';
 
-		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+		const putCurrentAnswersForQuestionUseCaseInput =
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -53,22 +54,23 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const expectedError = new BadRequestException('Poll Id is missing');
 
 		await expect(
-			putDraftAnswersForQuestionUseCase.execute(
-				putDraftAnswersForQuestionUseCaseInput,
+			putCurrentAnswersForQuestionUseCase.execute(
+				putCurrentAnswersForQuestionUseCaseInput,
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should throw poll version missing when pollId is undefined`, async () => {
 		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = undefined;
 		const startDate: string = 'startDate';
@@ -77,8 +79,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const questionId: string = 'questionId';
 
 		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -95,17 +97,18 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should throw start date missing when startDate is undefined`, async () => {
 		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = undefined;
@@ -114,8 +117,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const questionId: string = 'questionId';
 
 		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -132,17 +135,18 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should throw end date missing when endDate is undefined`, async () => {
 		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = 'startDate';
@@ -151,8 +155,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const questionId: string = 'questionId';
 
 		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -169,17 +173,18 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should throw voter email missing when voterEmail is undefined`, async () => {
 		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = 'startDate';
@@ -188,8 +193,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const questionId: string = 'questionId';
 
 		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -206,17 +211,18 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should throw question id missing when questionId is undefined`, async () => {
 		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = 'startDate';
@@ -225,8 +231,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const questionId: string = undefined;
 
 		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -243,17 +249,18 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should throw question missing when question in dto is undefined`, async () => {
 		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: '',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: '',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = 'startDate';
@@ -262,8 +269,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const questionId: string = 'questionId';
 
 		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -280,17 +287,18 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should throw answers missing when answers in dto is undefined`, async () => {
 		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: null,
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: null,
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = 'startDate';
@@ -299,8 +307,8 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const questionId: string = 'questionId';
 
 		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -317,17 +325,18 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 			),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).not.toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).not.toBeCalled();
 	});
 
 	it(`should execute successfully`, async () => {
-		const putDraftAnswersForQuestionUseCase =
-			new PutDraftAnswersForQuestionUseCase(mockDraftRepository);
+		const putCurrentAnswersForQuestionUseCase =
+			new PutCurrentAnswersForQuestionUseCase(mockDraftRepository);
 
-		const mockPutDraftAnswersForQuestionDto: PutDraftAnswersForQuestionDto = {
-			question: 'mock question',
-			answers: ['mock answer1', 'mock answer2'],
-		};
+		const mockPutCurrentAnswersForQuestionDto: PutCurrentAnswersForQuestionDto =
+			{
+				question: 'mock question',
+				answers: ['mock answer1', 'mock answer2'],
+			};
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
 		const startDate: string = 'startDate';
@@ -335,9 +344,9 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 		const voterEmail: string = 'voterEmail';
 		const questionId: string = 'questionId';
 
-		const putDraftAnswersForQuestionUseCaseInput =
-			new PutDraftAnswersForQuestionUseCaseInput(
-				mockPutDraftAnswersForQuestionDto,
+		const putCurrentAnswersForQuestionUseCaseInput =
+			new PutCurrentAnswersForQuestionUseCaseInput(
+				mockPutCurrentAnswersForQuestionDto,
 				pollId,
 				pollVersion,
 				startDate,
@@ -346,13 +355,13 @@ describe('PutDraftAnswersForQuestionUseCase', () => {
 				questionId,
 			);
 
-		const result = await putDraftAnswersForQuestionUseCase.execute(
-			putDraftAnswersForQuestionUseCaseInput,
+		const result = await putCurrentAnswersForQuestionUseCase.execute(
+			putCurrentAnswersForQuestionUseCaseInput,
 		);
 		expect(result).toEqual({
-			message: 'put draft answers for question successfully',
+			message: 'put answers for question successfully',
 		});
 
-		expect(mockDraftRepository.putDraftAnswersForQuestion).toBeCalled();
+		expect(mockDraftRepository.putCurrentAnswersForQuestion).toBeCalled();
 	});
 });

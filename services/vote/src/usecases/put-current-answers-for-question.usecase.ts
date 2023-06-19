@@ -1,14 +1,14 @@
 import { BadRequestException } from '@libs/common';
 import {
-	DraftAnswersForQuestion,
+	CurrentAnswersForQuestion,
 	IDraftRepository,
-	PutDraftAnswersForQuestionDto,
-	PutDraftAnswersForQuestionResponseDto,
+	PutCurrentAnswersForQuestionDto,
+	PutCurrentAnswersForQuestionResponseDto,
 } from '../domains';
 
-export class PutDraftAnswersForQuestionUseCaseInput {
+export class PutCurrentAnswersForQuestionUseCaseInput {
 	constructor(
-		public readonly dto: PutDraftAnswersForQuestionDto,
+		public readonly dto: PutCurrentAnswersForQuestionDto,
 		public readonly pollId: string,
 		public readonly pollVersion: string,
 		public readonly startDate: string,
@@ -18,12 +18,12 @@ export class PutDraftAnswersForQuestionUseCaseInput {
 	) {}
 }
 
-export class PutDraftAnswersForQuestionUseCase {
+export class PutCurrentAnswersForQuestionUseCase {
 	constructor(private readonly draftRepository: IDraftRepository) {}
 
 	async execute(
-		input: PutDraftAnswersForQuestionUseCaseInput,
-	): Promise<PutDraftAnswersForQuestionResponseDto> {
+		input: PutCurrentAnswersForQuestionUseCaseInput,
+	): Promise<PutCurrentAnswersForQuestionResponseDto> {
 		const {
 			dto,
 			pollId,
@@ -65,7 +65,7 @@ export class PutDraftAnswersForQuestionUseCase {
 			throw new BadRequestException('Answers List is missing');
 		}
 
-		const newDraftAnswersForQuestion = new DraftAnswersForQuestion({
+		const newAnswersForQuestion = new CurrentAnswersForQuestion({
 			pollId: pollId,
 			pollVersion: pollVersion,
 			startDate: startDate,
@@ -76,9 +76,9 @@ export class PutDraftAnswersForQuestionUseCase {
 			answers: answers,
 		});
 
-		await this.draftRepository.putDraftAnswersForQuestion(
-			newDraftAnswersForQuestion,
+		await this.draftRepository.putCurrentAnswersForQuestion(
+			newAnswersForQuestion,
 		);
-		return { message: 'put draft answers for question successfully' };
+		return { message: 'put answers for question successfully' };
 	}
 }

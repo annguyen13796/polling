@@ -17,13 +17,11 @@ describe('edit poll information', () => {
 		deletePollById: jest.fn(),
 		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
-		generateVoteURL: jest.fn(),
-		updatePollGeneralInformation: jest.fn(),
+		updatePoll: jest.fn(),
 		createQuestion: jest.fn(),
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
-		updatePoll: jest.fn(),
 	};
 
 	it('Should throw error when pollId is missing', async () => {
@@ -133,7 +131,7 @@ describe('edit poll information', () => {
 		expect(mockPollRepository.findPollById).not.toBeCalled();
 	});
 
-	it('Should edit question successfully with pollId, questionId, questionDto; poll and question are existed in DB', async () => {
+	it('Should execute successfully with valid dto', async () => {
 		const mockEditPollDto: EditPollInformationDto = {
 			title: 'abcdef',
 			description: 'jalkdfd',
@@ -163,10 +161,7 @@ describe('edit poll information', () => {
 		const result = await mockEditPollUseCase.execute(editPollUseCaseInput);
 
 		expect(result).toEqual({ message: 'Update Poll Information successfully' });
-		expect(mockPollRepository.updatePoll).toHaveBeenCalledWith(
-			pollId,
-			mockEditPollDto.title,
-			mockEditPollDto.description,
-		);
+		expect(mockPollRepository.findPollById).toBeCalledWith(pollId);
+		expect(mockPollRepository.updatePoll).toHaveBeenCalledWith(existedPoll);
 	});
 });

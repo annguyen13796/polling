@@ -18,15 +18,5 @@ export interface IPollRepository extends IRepository<Poll> {
 	): Promise<Question | null>;
 	updateQuestionGeneralInformation(modifiedQuestion: Question): Promise<void>;
 	deleteQuestionById(pollId: string, questionId: string): Promise<boolean>;
-	updatePollGeneralInformation(
-		pollId: string,
-		newVersion: string,
-		voteURL?: string,
-	): Promise<void>;
-	generateVoteURL(pollId: string): string;
-	updatePoll(
-		pollId: string,
-		title: string,
-		description?: string,
-	): Promise<void>;
+	updatePoll(modifiedPoll: Poll): Promise<void>;
 }

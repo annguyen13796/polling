@@ -61,25 +61,39 @@ export class ReleasedQuestionDynamoRepository
 		const allQuestionsDataSegments = ramda.splitEvery(25, questions);
 
 		const numberOfBatchQueries = Math.ceil(questions.length / 25);
-		await Promise.all(
-			[...Array(numberOfBatchQueries)].map(async (_, index) => {
-				const questionsSegment = allQuestionsDataSegments[index];
 
-				const params: BatchWriteCommandInput = {
-					RequestItems: {
-						[this.config.tableName]: questionsSegment.map((question) => {
-							return {
-								PutRequest: {
-									Item: this.mapper.fromDomain(question, version),
-								},
-							};
-						}),
-					},
-				};
+		for (let i = 0; i < numberOfBatchQueries; i++) {
+			const questionsSegment = allQuestionsDataSegments[i];
 
-				await this.dynamoDBDocClient.send(new BatchWriteCommand(params));
-			}),
-		);
+			const params: BatchWriteCommandInput = {
+				RequestItems: {
+					[this.config.tableName]: questionsSegment.map((question) => {
+						return {
+							PutRequest: {
+								Item: this.mapper.fromDomain(question, version),
+							},
+						};
+					}),
+				},
+			};
+
+			const { UnprocessedItems } = await this.dynamoDBDocClient.send(
+				new BatchWriteCommand(params),
+			);
+
+			let unprocessedItems = UnprocessedItems;
+
+			while (
+				unprocessedItems &&
+				unprocessedItems[this.config.tableName]?.length > 0
+			) {
+				const retryUnprocessedItemsResult = await this.dynamoDBDocClient.send(
+					new BatchWriteCommand({ RequestItems: unprocessedItems }),
+				);
+
+				unprocessedItems = retryUnprocessedItemsResult.UnprocessedItems;
+			}
+		}
 	}
 
 	async getAllQuestionsOfLatestRelease(

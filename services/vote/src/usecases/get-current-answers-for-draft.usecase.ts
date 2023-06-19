@@ -1,7 +1,10 @@
 import { BadRequestException } from '@libs/common';
-import { GetDraftAnswersResponseDto, IDraftRepository } from '../domains';
+import {
+	GetCurrentAnswersForDraftResponseDto,
+	IDraftRepository,
+} from '../domains';
 
-export class GetDraftAnswersUseCaseInput {
+export class GetCurrentAnswersForDraftUseCaseInput {
 	constructor(
 		public readonly pollId: string,
 		public readonly pollVersion: string,
@@ -11,12 +14,12 @@ export class GetDraftAnswersUseCaseInput {
 	) {}
 }
 
-export class GetDraftAnswersUseCase {
+export class GetCurrentAnswersForDraftUseCase {
 	constructor(private readonly draftRepository: IDraftRepository) {}
 
 	async execute(
-		input: GetDraftAnswersUseCaseInput,
-	): Promise<GetDraftAnswersResponseDto> {
+		input: GetCurrentAnswersForDraftUseCaseInput,
+	): Promise<GetCurrentAnswersForDraftResponseDto> {
 		const { pollId, pollVersion, startDate, endDate, voterEmail } = input;
 
 		if (!pollId) {
@@ -38,27 +41,27 @@ export class GetDraftAnswersUseCase {
 			throw new BadRequestException('Voter Email is missing');
 		}
 
-		const draftInformationObject =
-			await this.draftRepository.getDraftInformation(
-				pollId,
-				pollVersion,
-				startDate,
-				endDate,
-				voterEmail,
-			);
-		if (draftInformationObject && draftInformationObject.hasBeenSubmitted) {
-			throw new BadRequestException('You have already voted');
-		}
-		const draftAnswersForUser = await this.draftRepository.getDraftAnswers(
+		const existedDraft = await this.draftRepository.getDraft(
 			pollId,
 			pollVersion,
 			startDate,
 			endDate,
 			voterEmail,
 		);
+		if (existedDraft && existedDraft.hasBeenSubmitted) {
+			throw new BadRequestException('You have already voted');
+		}
+		const currentAnswersForDraft =
+			await this.draftRepository.getCurrentAnswersForDraft(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 		return {
 			message: 'get draft answers successfully',
-			draftAnswers: draftAnswersForUser,
+			draftAnswers: currentAnswersForDraft,
 		};
 	}
 }

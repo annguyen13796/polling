@@ -1,18 +1,21 @@
 import express, { Router } from 'express';
 import {
-	getDraftAnswers,
-	putDraftAnswersForQuestion,
-	putDraftInformation,
+	getCurrentAnswersForDraft,
+	putCurrentAnswersForQuestion,
+	putDraft,
 } from '../controllers';
 
 const router: Router = express.Router();
-router.get('/drafts/:draftId/answers-for-questions', getDraftAnswers);
+router.get('/drafts/:draftId/answers-for-questions', getCurrentAnswersForDraft);
 
 router.put(
 	'/drafts/:draftId/answers-for-questions/:questionId',
-	putDraftAnswersForQuestion,
+	putCurrentAnswersForQuestion,
 );
 
-router.put('/drafts/:draftId', putDraftInformation);
+router.put('/drafts/:draftId', putDraft);
 
 export const voteRouter: Router = router;
+
+
+// votes/:id

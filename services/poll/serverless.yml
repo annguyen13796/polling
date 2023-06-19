@@ -1,5 +1,8 @@
 service: PL-poll
 
+# plugins:
+#   - serverless-offline
+
 provider:
   name: aws
   runtime: nodejs18.x
@@ -24,6 +27,9 @@ provider:
   apiGateway:
     restApiId: 24dp6xrmlb
     restApiRootResourceId: cq0b9cenbg
+
+package:
+  excludeDevDependencies: true
 
 functions:
   createPoll:
@@ -107,6 +113,3 @@ functions:
           path: /forms/{url}
           method: GET
           cors: true
-
-plugins:
-  - serverless-offline

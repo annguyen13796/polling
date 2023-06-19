@@ -27,7 +27,7 @@ export class ReleasePollUseCase {
 		const { startDate, endDate } = dto;
 
 		if (!pollId) {
-			throw new BadRequestException('pollId is missing');
+			throw new BadRequestException('PollId is missing');
 		}
 
 		const isMissingFields = !startDate || !endDate;
@@ -60,7 +60,7 @@ export class ReleasePollUseCase {
 
 		const releasedPoll = new ReleasedPoll({
 			pollId: existedPoll.id,
-			version: String(Number(existedPoll.version) + 1),
+			version: String(Number(existedPoll.latestVersion) + 1),
 			questions: questionsToPackage,
 			startDate: startDate,
 			endDate: endDate,
@@ -70,29 +70,22 @@ export class ReleasePollUseCase {
 			releasedPoll,
 		);
 
-		existedPoll.version = releasedPoll.version;
+		existedPoll.updateLatestVersion(releasedPoll.version);
 
-		const isNotVoteURLGenerated = !existedPoll.voteLink;
-		if (isNotVoteURLGenerated) {
-			const voteURL = this.pollRepository.generateVoteURL(existedPoll.id);
+		// TODO: Check grammar
+		const isNotVoteLinkGenerated = !existedPoll.voteLink;
+		if (isNotVoteLinkGenerated) {
+			const newVoteLink = existedPoll.generateVoteLink(existedPoll.id);
 
-			existedPoll.voteLink = voteURL;
-			await this.pollRepository.updatePollGeneralInformation(
-				existedPoll.id,
-				existedPoll.version,
-				existedPoll.voteLink,
-			);
+			existedPoll.setVoteLink(newVoteLink);
 		}
 
-		await this.pollRepository.updatePollGeneralInformation(
-			existedPoll.id,
-			existedPoll.version,
-		);
+		await this.pollRepository.updatePoll(existedPoll);
 
 		return {
-			message: 'Successfully publish poll',
+			message: 'Successfully release new version',
 			voteLink: existedPoll.voteLink,
-			version: releasedPoll.version,
+			version: existedPoll.latestVersion,
 			startDate: releasedPoll.startDate,
 			endDate: releasedPoll.endDate,
 		};

@@ -1,4 +1,4 @@
-export interface GetDraftAnswersForUserDto {
+export interface GetCurrentAnswersForDraftDto {
 	pollId: string;
 	pollVersion: string;
 	startDate: string;

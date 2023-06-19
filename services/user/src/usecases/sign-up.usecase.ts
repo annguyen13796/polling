@@ -13,6 +13,7 @@ export class SignUpUseCase {
 		const { email, password, username } = dto;
 
 		const isNotValidEmail = !Email.isValid(email);
+
 		if (isNotValidEmail) {
 			throw new BadRequestException('Email is not valid');
 		}

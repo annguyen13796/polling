@@ -22,6 +22,9 @@ provider:
     restApiId: 24dp6xrmlb
     restApiRootResourceId: cq0b9cenbg
 
+package:
+  excludeDevDependencies: true
+
 functions:
   signin:
     handler: dist/index.handler
@@ -37,6 +40,5 @@ functions:
           path: /auth/signup
           method: POST
           cors: true
-
-plugins:
-  - serverless-offline
+# plugins:
+#   - serverless-offline

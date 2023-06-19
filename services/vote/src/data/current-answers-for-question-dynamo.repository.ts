@@ -4,8 +4,8 @@ import {
 	UnknownException,
 } from '@libs/common';
 import {
-	DraftAnswersForQuestion,
-	IDraftAnswersForQuestionRepository,
+	CurrentAnswersForQuestion,
+	ICurrentAnswersForQuestionRepository,
 } from '../domains';
 
 import {
@@ -15,19 +15,21 @@ import {
 	PutCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 
-interface DraftAnswersDataModel {
+interface CurrentAnswersForQuestionDataModel {
 	PK: string | null | undefined;
 	SK?: string;
 	Question: string | null;
 	Answers: string[] | null;
 }
 
-export class DraftAnswersForQuestionDynamoDBMapper extends DatabaseMapper<
-	DraftAnswersForQuestion,
-	DraftAnswersDataModel
+export class CurrentAnswersForQuestionDynamoDBMapper extends DatabaseMapper<
+	CurrentAnswersForQuestion,
+	CurrentAnswersForQuestionDataModel
 > {
-	toDomain(dataModel: DraftAnswersDataModel): DraftAnswersForQuestion {
-		const draftAnswersForQuestion = new DraftAnswersForQuestion({
+	toDomain(
+		dataModel: CurrentAnswersForQuestionDataModel,
+	): CurrentAnswersForQuestion {
+		const currentAnswersForQuestion = new CurrentAnswersForQuestion({
 			pollId: dataModel.PK.split('#')[1],
 			pollVersion: dataModel.PK.split('#')[3],
 			startDate: dataModel.PK.split('#')[5],
@@ -37,10 +39,12 @@ export class DraftAnswersForQuestionDynamoDBMapper extends DatabaseMapper<
 			question: dataModel.Question,
 			answers: dataModel.Answers,
 		});
-		return draftAnswersForQuestion;
+		return currentAnswersForQuestion;
 	}
-	fromDomain(domainModel: DraftAnswersForQuestion): DraftAnswersDataModel {
-		const data: DraftAnswersDataModel = {
+	fromDomain(
+		domainModel: CurrentAnswersForQuestion,
+	): CurrentAnswersForQuestionDataModel {
+		const data: CurrentAnswersForQuestionDataModel = {
 			PK: `POLL#${domainModel.pollId}#VERSION#${domainModel.pollVersion}#START#${domainModel.startDate}#END#${domainModel.endDate}`,
 			SK: `VOTER#${domainModel.voterEmail}#QUES#${domainModel.questionId}`,
 			Question: domainModel.question,
@@ -50,17 +54,20 @@ export class DraftAnswersForQuestionDynamoDBMapper extends DatabaseMapper<
 	}
 }
 
-export class DraftAnswersForQuestionDynamoRepository
-	extends DynamoDBRepository<DraftAnswersForQuestion, DraftAnswersDataModel>
-	implements IDraftAnswersForQuestionRepository
+export class CurrentAnswersForQuestionDynamoRepository
+	extends DynamoDBRepository<
+		CurrentAnswersForQuestion,
+		CurrentAnswersForQuestionDataModel
+	>
+	implements ICurrentAnswersForQuestionRepository
 {
-	async getDraftAnswers(
+	async getCurrentAnswersForDraft(
 		pollId: string,
 		pollVersion: string,
 		startDate: string,
 		endDate: string,
 		voterEmail: string,
-	): Promise<DraftAnswersForQuestion[]> {
+	): Promise<CurrentAnswersForQuestion[]> {
 		const params: QueryCommandInput = {
 			TableName: this.config.tableName,
 			KeyConditionExpression: `PK = :partitionKeyValue AND begins_with(SK,:sortKeyValue)`,
@@ -75,15 +82,17 @@ export class DraftAnswersForQuestionDynamoRepository
 		);
 		if (Items && Items.length) {
 			const draftAnswersForUser = Items.map((element) => {
-				return this.mapper.toDomain(element as DraftAnswersDataModel);
+				return this.mapper.toDomain(
+					element as CurrentAnswersForQuestionDataModel,
+				);
 			});
 			return draftAnswersForUser;
 		}
 		return [];
 	}
 
-	async putDraftAnswersForQuestion(
-		draftAnswers: DraftAnswersForQuestion,
+	async putCurrentAnswersForQuestion(
+		draftAnswers: CurrentAnswersForQuestion,
 	): Promise<void> {
 		try {
 			const dataModel = this.mapper.fromDomain(draftAnswers);

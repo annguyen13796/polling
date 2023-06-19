@@ -38,3 +38,14 @@ router.get(
 router.post('/detail/:pollId/versions/:pollVersion/time', createUserResponse);
 
 export const reportRouter: Router = router;
+
+// overview-reports
+// post
+
+// overview-reports/:id
+
+// overview-reports
+// Query Params
+
+// answer-reports
+// 

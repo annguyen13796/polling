@@ -1,15 +1,8 @@
 import { IRepository } from '@libs/common';
-import { Draft, CurrentAnswersForQuestion } from '../models';
+import { CurrentAnswersForQuestion } from '../models';
 
-export interface IDraftRepository extends IRepository<Draft> {
-	getDraft(
-		pollId: string,
-		pollVersion: string,
-		startDate: string,
-		endDate: string,
-		voterEmail: string,
-	): Promise<Draft | null>;
-	putDraft(newDraftObject: Draft): Promise<void>;
+export interface ICurrentAnswersForQuestionRepository
+	extends IRepository<CurrentAnswersForQuestion> {
 	getCurrentAnswersForDraft(
 		pollId: string,
 		pollVersion: string,
