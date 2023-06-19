@@ -23,6 +23,9 @@ provider:
     restApiId: 24dp6xrmlb
     restApiRootResourceId: cq0b9cenbg
 
+package:
+  excludeDevDependencies: true
+
 functions:
   getDraftAnswers:
     handler: dist/index.handler
@@ -45,6 +48,5 @@ functions:
           path: /votes/drafts/{draftId}
           method: PUT
           cors: true
-
-plugins:
-  - serverless-offline
+# plugins:
+#   - serverless-offline

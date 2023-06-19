@@ -34,6 +34,7 @@ export class DeleteQuestionByIdUseCase {
 			questionId,
 		);
 
+		// TODO: Falsy
 		if (isDeleted === false) {
 			throw new NotFoundException('Question is not existed');
 		}

@@ -1,4 +1,8 @@
-import { DatabaseMapper, DynamoDBRepository } from '@libs/common';
+import {
+	DatabaseMapper,
+	DynamoDBRepository,
+	UnknownException,
+} from '@libs/common';
 import {
 	IVoterReportRepository,
 	VoterReport,
@@ -53,41 +57,46 @@ export class VoterReportDynamoRepository
 	implements IVoterReportRepository
 {
 	async putVoterReports(voterReports: VoterReport[]): Promise<void> {
-		const singleBatchRequest = [];
-		let count = 0;
-		for (const element of voterReports) {
-			const recordDynamodb = this.mapper.fromDomain(element);
-			const singlePutRequest = {
-				PutRequest: {
-					Item: recordDynamodb,
+		while (voterReports.length > 0) {
+			const lastPosition = voterReports.length < 25 ? voterReports.length : 25;
+			const singleBatchRequest = voterReports
+				.splice(0, lastPosition)
+				.map((voterReport) => this.mapper.fromDomain(voterReport))
+				.map((voterRecord) => ({
+					PutRequest: {
+						Item: voterRecord,
+					},
+				}));
+			let params: BatchWriteCommandInput = {
+				RequestItems: {
+					[this.config.tableName]: singleBatchRequest,
 				},
 			};
-			singleBatchRequest.push(singlePutRequest);
-			count += 1;
-			if (count === 25 || count === voterReports.length) {
-				let params: BatchWriteCommandInput = {
-					RequestItems: {
-						[this.config.tableName]: singleBatchRequest,
-					},
-				};
 
-				let keepBatchingCurrentRequest = true;
-				while (keepBatchingCurrentRequest) {
-					const { UnprocessedItems } = await this.dynamoDBDocClient.send(
-						new BatchWriteCommand(params),
-					);
+			let keepBatchingCurrentRequest = true;
+			let batchingTime = 0;
+			while (keepBatchingCurrentRequest && batchingTime < 3) {
+				const { UnprocessedItems } = await this.dynamoDBDocClient.send(
+					new BatchWriteCommand(params),
+				);
 
-					if (Object.keys(UnprocessedItems).length !== 0) {
-						params = {
-							RequestItems: {
-								[this.config.tableName]: UnprocessedItems.report,
-							},
-						};
-					} else {
-						keepBatchingCurrentRequest = false;
-					}
+				if (Object.keys(UnprocessedItems).length !== 0) {
+					params = {
+						RequestItems: {
+							[this.config.tableName]: UnprocessedItems.report,
+						},
+					};
+				} else {
+					keepBatchingCurrentRequest = false;
+					break;
 				}
-				singleBatchRequest.splice(0, singleBatchRequest.length);
+
+				batchingTime++;
+				if (batchingTime === 3) {
+					throw new UnknownException(
+						'something wrong in the batch write, please try again later',
+					);
+				}
 			}
 		}
 	}

@@ -26,6 +26,7 @@ export class GetLatestReleaseUseCase {
 		}
 
 		const existedPoll = await this.pollRepository.findPollById(pollId);
+		// TODO: Falsy
 		if (existedPoll === null) {
 			throw new NotFoundException('Poll is not existed');
 		}
@@ -33,7 +34,7 @@ export class GetLatestReleaseUseCase {
 		const latestReleasedPollInformation =
 			await this.releasedPollRepository.getLatestReleaseInformation(
 				existedPoll.id,
-				existedPoll.version,
+				existedPoll.latestVersion,
 			);
 
 		if (latestReleasedPollInformation === null) {
@@ -45,7 +46,7 @@ export class GetLatestReleaseUseCase {
 		const questionsByLatestReleasesPoll =
 			await this.releasedPollRepository.getQuestionsOfLatestRelease(
 				existedPoll.id,
-				existedPoll.version,
+				existedPoll.latestVersion,
 			);
 
 		if (questionsByLatestReleasesPoll === null) {

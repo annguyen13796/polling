@@ -41,6 +41,8 @@ export class CreateOverviewReportUseCase {
 		if (!endDate) {
 			throw new BadRequestException('End Date is required');
 		}
+
+		// TODO Should create new variable
 		if (!questions || questions.length === 0) {
 			throw new BadRequestException('Questions List cant be null/empty');
 		}
@@ -65,6 +67,7 @@ export class CreateOverviewReportUseCase {
 			participants: null,
 		});
 
+		// TODO: Should use .map function
 		const newAnswerReports: AnswerReport[] = [];
 		for (const question of questions) {
 			for (const answer of question.answers) {
@@ -87,6 +90,7 @@ export class CreateOverviewReportUseCase {
 			await this.overviewReportRepository.getOverviewReportsForPoll(pollId, 1);
 		if (oldOverviewReports.length > 0) {
 			const lastOverviewReport = oldOverviewReports[0];
+			// TODO: Remove hard code value
 			lastOverviewReport.updateStatus('CLOSED');
 			await this.overviewReportRepository.updateOverviewReport(
 				lastOverviewReport,

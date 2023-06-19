@@ -8,4 +8,4 @@ export * from './release-poll.usecase';
 export * from './edit-question.usecase';
 export * from './delete-question-by-id.usecase';
 export * from './get-latest-release.usecase';
-export * from '../domains/repositories/edit-poll-information.usecase';
+export * from './edit-poll-information.usecase';

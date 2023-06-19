@@ -25,13 +25,11 @@ describe('get latest release test suite', () => {
 		getQuestionsByPollId: jest.fn(),
 		update: jest.fn(),
 		findPollById: jest.fn(),
-		generateVoteURL: jest.fn(),
-		updatePollGeneralInformation: jest.fn(),
+		updatePoll: jest.fn(),
 		createQuestion: jest.fn(),
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
-		updatePoll: jest.fn(),
 	};
 
 	const mockReleasedPollRepository: jest.Mocked<IReleasedPollRepository> = {
@@ -117,7 +115,7 @@ describe('get latest release test suite', () => {
 			creatorEmail: 'an@gmail.com',
 			title: 'sometitle',
 			description: 'somedescription',
-			version: '0',
+			latestVersion: '0',
 		});
 
 		mockPollRepository.findPollById.mockResolvedValueOnce(mockPoll);
@@ -159,7 +157,7 @@ describe('get latest release test suite', () => {
 			creatorEmail: 'an@gmail.com',
 			title: 'sometitle',
 			description: 'somedescription',
-			version: '2',
+			latestVersion: '2',
 		});
 
 		const newReleasedPoll = new ReleasedPoll({
@@ -190,10 +188,10 @@ describe('get latest release test suite', () => {
 		expect(mockPollRepository.findPollById).toBeCalledWith('123');
 		expect(
 			mockReleasedPollRepository.getLatestReleaseInformation,
-		).toBeCalledWith(mockPoll.id, mockPoll.version);
+		).toBeCalledWith(mockPoll.id, mockPoll.latestVersion);
 		expect(
 			mockReleasedPollRepository.getQuestionsOfLatestRelease,
-		).toBeCalledWith(mockPoll.id, mockPoll.version);
+		).toBeCalledWith(mockPoll.id, mockPoll.latestVersion);
 	});
 
 	it('should throw error when getQuestionsByLatestRelease execute fail', async () => {
@@ -215,7 +213,7 @@ describe('get latest release test suite', () => {
 			creatorEmail: 'an@gmail.com',
 			title: 'sometitle',
 			description: 'somedescription',
-			version: '2',
+			latestVersion: '2',
 		});
 
 		const mockReleasedPoll = new ReleasedPoll({
@@ -244,7 +242,7 @@ describe('get latest release test suite', () => {
 		expect(mockPollRepository.findPollById).toBeCalledWith('123');
 		expect(
 			mockReleasedPollRepository.getQuestionsOfLatestRelease,
-		).toBeCalledWith(mockPoll.id, mockPoll.version);
+		).toBeCalledWith(mockPoll.id, mockPoll.latestVersion);
 	});
 
 	it('should execute successfully', async () => {
@@ -266,7 +264,7 @@ describe('get latest release test suite', () => {
 			creatorEmail: 'an@gmail.com',
 			title: 'sometitle',
 			description: 'somedescription',
-			version: '2',
+			latestVersion: '2',
 		});
 
 		const mockReleasedPoll = new ReleasedPoll({
@@ -306,10 +304,10 @@ describe('get latest release test suite', () => {
 		expect(mockPollRepository.findPollById).toBeCalledWith('123');
 		expect(
 			mockReleasedPollRepository.getLatestReleaseInformation,
-		).toBeCalledWith(mockPoll.id, mockPoll.version);
+		).toBeCalledWith(mockPoll.id, mockPoll.latestVersion);
 		expect(
 			mockReleasedPollRepository.getQuestionsOfLatestRelease,
-		).toBeCalledWith(mockPoll.id, mockPoll.version);
+		).toBeCalledWith(mockPoll.id, mockPoll.latestVersion);
 		expect(result).toEqual<GetLatestReleaseResponseDto>({
 			message: 'Successfully get latest release',
 			latestRelease: new ReleasedPoll({

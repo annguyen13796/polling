@@ -17,13 +17,11 @@ describe('GetQuestionsByPollIdUseCase', () => {
 		deletePollById: jest.fn(),
 		getQuestionsByPollId: jest.fn(),
 		findPollById: jest.fn(),
-		generateVoteURL: jest.fn(),
-		updatePollGeneralInformation: jest.fn(),
+		updatePoll: jest.fn(),
 		createQuestion: jest.fn(),
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
 		deleteQuestionById: jest.fn(),
-		updatePoll: jest.fn(),
 	};
 
 	test(`Get poll's list question failed when pollId is blank`, async () => {

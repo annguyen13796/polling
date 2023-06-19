@@ -14,15 +14,11 @@
 		"build": "tsc -p tsconfig.build.json"
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "^3.259.0",
-		"@aws-sdk/lib-dynamodb": "^3.259.0",
 		"@libs/common": "file:../../libs/common",
-		"aws-sdk": "^2.1312.0",
 		"body-parser": "^1.20.1",
 		"cors": "^2.8.5",
 		"dotenv": "^16.0.3",
 		"express": "^4.18.2",
-		"jsonwebtoken": "^8.5.1",
 		"moment": "^2.29.4",
 		"moment-timezone": "^0.5.40",
 		"ramda": "^0.28.0",
@@ -30,18 +26,18 @@
 		"rimraf": "^3.0.2",
 		"rxjs": "^6.6.6",
 		"serverless-http": "^3.1.1",
-		"tslib": "^2.4.1",
-		"uuid": "^9.0.0"
+		"tslib": "^2.4.1"
 	},
 	"devDependencies": {
+		"@aws-sdk/client-dynamodb": "^3.259.0",
+		"@aws-sdk/lib-dynamodb": "^3.259.0",
+		"aws-sdk": "^2.1312.0",
 		"@types/body-parser": "^1.19.2",
 		"@types/cors": "^2.8.6",
 		"@types/dotenv": "^8.2.0",
 		"@types/express": "^4.17.15",
-		"@types/jsonwebtoken": "^9.0.0",
 		"@types/node": "^14.14.36",
 		"@types/ramda": "^0.28.23",
-		"@types/uuid": "^9.0.0",
 		"serverless-offline": "^12.0.4",
 		"ts-loader": "^8.0.18",
 		"ts-node": "10.6.0",

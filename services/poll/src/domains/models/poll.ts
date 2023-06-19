@@ -2,17 +2,23 @@ import { isStringEmptyOrUndefined, BadRequestException } from '@libs/common';
 import moment from 'moment';
 import { POLL_STATUS } from '../../constants';
 import { Question } from './question';
+import { ReleasedPoll } from './released-poll';
 
 export interface PollProps {
+	// TODO: creatorEmail should be owner/ type can be a sub entity
 	creatorEmail: string | null | undefined;
 	title: string | null | undefined;
 	description: string | null | undefined;
 	createdAt?: string;
-	questions?: Question[];
 	id?: string;
-	version?: string;
+	latestVersion?: string;
+	// TODO: change the naming convention of line bellow
 	status?: POLL_STATUS;
 	voteLink?: string;
+	questions?: Question[];
+	// TODO: remove this line bellow
+	releases?: ReleasedPoll[];
+	// TODO: add meta data (updateAt and version)
 }
 
 export class Poll {
@@ -29,20 +35,8 @@ export class Poll {
 		return this.props.createdAt;
 	}
 
-	public get version() {
-		return this.props.version;
-	}
-
-	public set version(ver) {
-		this.props.version = ver;
-	}
-
-	public get questions() {
-		return this.props.questions;
-	}
-
-	public set questions(listQuestion: Question[]) {
-		this.props.questions = listQuestion;
+	public get latestVersion() {
+		return this.props.latestVersion;
 	}
 
 	public get id() {
@@ -57,10 +51,6 @@ export class Poll {
 		return this.props.voteLink;
 	}
 
-	public set voteLink(url: string) {
-		this.props.voteLink = url;
-	}
-
 	constructor(private readonly props: PollProps) {
 		if (!props) {
 			throw new BadRequestException('Props of poll is null/undefined');
@@ -71,7 +61,7 @@ export class Poll {
 			title,
 			createdAt,
 			id,
-			version,
+			latestVersion,
 			status,
 			questions,
 			voteLink,
@@ -96,11 +86,12 @@ export class Poll {
 		}
 
 		if (!id) {
+			// TODO: compare this with toString
 			this.props.id = String(timestampToMillisecond);
 		}
 
-		if (!version) {
-			this.props.version = '0';
+		if (!latestVersion) {
+			this.props.latestVersion = '0';
 		}
 
 		if (!questions) {
@@ -114,5 +105,26 @@ export class Poll {
 		if (!voteLink) {
 			this.props.voteLink = '';
 		}
+	}
+
+	public updateTitle(newTitle: string) {
+		this.props.title = newTitle;
+	}
+	public updateDescription(newDescription: string) {
+		this.props.description = newDescription;
+	}
+
+	public updateLatestVersion(newLatestVersion: string) {
+		this.props.latestVersion = newLatestVersion;
+	}
+
+	public generateVoteLink(pollId: string): string {
+		const encodePollId = Buffer.from(pollId).toString('base64');
+
+		return encodePollId;
+	}
+
+	public setVoteLink(url: string) {
+		this.props.voteLink = url;
 	}
 }

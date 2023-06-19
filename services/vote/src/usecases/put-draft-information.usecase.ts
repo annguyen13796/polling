@@ -2,13 +2,13 @@ import { BadRequestException } from '@libs/common';
 import {
 	Draft,
 	IDraftRepository,
-	PutDraftAnswersForQuestionResponseDto,
-	PutDraftInformationDto,
+	PutDraftDto,
+	PutDraftResponseDto,
 } from '../domains';
 
-export class PutDraftInformationUseCaseInput {
+export class PutDraftUseCaseInput {
 	constructor(
-		public readonly dto: PutDraftInformationDto,
+		public readonly dto: PutDraftDto,
 		public readonly pollId: string,
 		public readonly pollVersion: string,
 		public readonly startDate: string,
@@ -17,12 +17,10 @@ export class PutDraftInformationUseCaseInput {
 	) {}
 }
 
-export class PutDraftInformationUseCase {
+export class PutDraftUseCase {
 	constructor(private readonly draftRepository: IDraftRepository) {}
 
-	async execute(
-		input: PutDraftInformationUseCaseInput,
-	): Promise<PutDraftAnswersForQuestionResponseDto> {
+	async execute(input: PutDraftUseCaseInput): Promise<PutDraftResponseDto> {
 		const { dto, pollId, pollVersion, startDate, endDate, voterEmail } = input;
 		const { hasBeenSubmitted } = dto;
 
@@ -51,7 +49,7 @@ export class PutDraftInformationUseCase {
 			voterEmail: voterEmail,
 			hasBeenSubmitted: hasBeenSubmitted,
 		});
-		await this.draftRepository.putDraftInformation(newDraftInformation);
+		await this.draftRepository.putDraft(newDraftInformation);
 		return { message: 'put draft information successfully' };
 	}
 }

@@ -23,6 +23,9 @@ provider:
     restApiId: 24dp6xrmlb
     restApiRootResourceId: cq0b9cenbg
 
+package:
+  excludeDevDependencies: true
+
 functions:
   getOverviewReportsForPoll:
     handler: dist/index.handler
@@ -73,5 +76,5 @@ functions:
           path: /reports/detail/{pollId}/versions/{pollVersion}/time
           method: POST
           cors: true
-plugins:
-  - serverless-offline
+# plugins:
+#   - serverless-offline

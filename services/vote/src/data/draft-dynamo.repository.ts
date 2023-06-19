@@ -4,7 +4,7 @@ import {
 	DynamoDBRepository,
 	UnknownException,
 } from '@libs/common';
-import { Draft, DraftAnswersForQuestion, IDraftRepository } from '../domains';
+import { Draft, CurrentAnswersForQuestion, IDraftRepository } from '../domains';
 
 import {
 	GetCommandInput,
@@ -12,7 +12,7 @@ import {
 	PutCommandInput,
 	PutCommand,
 } from '@aws-sdk/lib-dynamodb';
-import { DraftAnswersForQuestionDynamoRepository } from './draft-answers-for-question-dynamo.repository';
+import { CurrentAnswersForQuestionDynamoRepository } from './current-answers-for-question-dynamo.repository';
 
 interface DraftDataModel {
 	PK: string | null | undefined;
@@ -47,22 +47,22 @@ export class DraftDynamoRepository
 	implements IDraftRepository
 {
 	constructor(
-		protected readonly draftAnswersForQuestionDynamodbRepository: DraftAnswersForQuestionDynamoRepository,
+		protected readonly draftAnswersForQuestionDynamodbRepository: CurrentAnswersForQuestionDynamoRepository,
 		protected readonly config: DynamoDBConfig,
 		protected readonly mapper: DraftDynamoDBMapper,
 	) {
 		super(config, mapper);
 	}
 
-	async getDraftAnswers(
+	async getCurrentAnswersForDraft(
 		pollId: string,
 		pollVersion: string,
 		startDate: string,
 		endDate: string,
 		voterEmail: string,
-	): Promise<DraftAnswersForQuestion[]> {
+	): Promise<CurrentAnswersForQuestion[]> {
 		const data =
-			await this.draftAnswersForQuestionDynamodbRepository.getDraftAnswers(
+			await this.draftAnswersForQuestionDynamodbRepository.getCurrentAnswersForDraft(
 				pollId,
 				pollVersion,
 				startDate,
@@ -71,14 +71,14 @@ export class DraftDynamoRepository
 			);
 		return data;
 	}
-	async putDraftAnswersForQuestion(
-		draftAnswers: DraftAnswersForQuestion,
+	async putCurrentAnswersForQuestion(
+		draftAnswers: CurrentAnswersForQuestion,
 	): Promise<void> {
-		await this.draftAnswersForQuestionDynamodbRepository.putDraftAnswersForQuestion(
+		await this.draftAnswersForQuestionDynamodbRepository.putCurrentAnswersForQuestion(
 			draftAnswers,
 		);
 	}
-	async getDraftInformation(
+	async getDraft(
 		pollId: string,
 		pollVersion: string,
 		startDate: string,
@@ -101,7 +101,7 @@ export class DraftDynamoRepository
 		}
 		return null;
 	}
-	async putDraftInformation(newDraftObject: Draft): Promise<void> {
+	async putDraft(newDraftObject: Draft): Promise<void> {
 		try {
 			const dataModel = this.mapper.fromDomain(newDraftObject);
 			const params: PutCommandInput = {

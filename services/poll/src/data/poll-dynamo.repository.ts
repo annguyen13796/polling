@@ -5,8 +5,10 @@ import {
 	GetCommandInput,
 	GetCommand,
 	QueryCommandInput,
-	UpdateCommandInput,
-	UpdateCommand,
+	BatchWriteCommandInput,
+	BatchWriteCommand,
+	PutCommandInput,
+	PutCommand,
 } from '@aws-sdk/lib-dynamodb';
 import {
 	Poll,
@@ -18,6 +20,7 @@ import { DynamoDBConfig } from '@libs/common';
 import { DynamoDBRepository, DatabaseMapper } from '@libs/common';
 import { QuestionDynamoRepository } from './question-dynamo.repository';
 import { POLL_STATUS } from '../constants';
+import * as ramda from 'ramda';
 
 interface PollDataModel {
 	PK: string | null | undefined;
@@ -39,7 +42,7 @@ export class PollDynamoDBMapper extends DatabaseMapper<Poll, PollDataModel> {
 			title: dataModel.Title,
 			description: dataModel.Description,
 			createdAt: dataModel.CreatedAt,
-			version: dataModel.Version,
+			latestVersion: dataModel.Version,
 			status: dataModel.Status,
 			voteLink: dataModel.VoteLink,
 		});
@@ -52,7 +55,7 @@ export class PollDynamoDBMapper extends DatabaseMapper<Poll, PollDataModel> {
 			Title: domainModel.title,
 			Description: domainModel.description,
 			CreatedAt: domainModel.createdAt,
-			Version: domainModel.version,
+			Version: domainModel.latestVersion,
 			CreatorEmail: domainModel.creatorEmail,
 			Status: domainModel.status,
 			VoteLink: domainModel.voteLink,
@@ -187,85 +190,58 @@ export class PollDynamoRepository
 			await this.questionRepository.getQuestionsByPollId(pollId);
 
 		if (questionsByPollId?.length) {
-			await Promise.all(
-				questionsByPollId.map(async (question: Question) => {
-					const params: DeleteCommandInput = {
-						TableName: this.config.tableName,
-						Key: {
-							PK: `POLL#${pollId}`,
-							SK: `QUES#${question.questionId}`,
-						},
-					};
+			const questionsDataSegments = ramda.splitEvery(25, questionsByPollId);
 
-					return await this.dynamoDBDocClient.send(new DeleteCommand(params));
-				}),
-			);
+			const numberOfBatchQueries = Math.ceil(questionsByPollId.length / 25);
+
+			for (let i = 0; i < numberOfBatchQueries; i++) {
+				const questionsSegment = questionsDataSegments[i];
+
+				const params: BatchWriteCommandInput = {
+					RequestItems: {
+						[this.config.tableName]: questionsSegment.map(
+							(question: Question) => {
+								return {
+									DeleteRequest: {
+										Key: {
+											PK: `POLL#${pollId}`,
+											SK: `QUES#${question.questionId}`,
+										},
+									},
+								};
+							},
+						),
+					},
+				};
+
+				const { UnprocessedItems } = await this.dynamoDBDocClient.send(
+					new BatchWriteCommand(params),
+				);
+
+				let unprocessedItems = UnprocessedItems;
+
+				while (
+					unprocessedItems &&
+					unprocessedItems[this.config.tableName]?.length > 0
+				) {
+					const retryUnprocessedItemsResult = await this.dynamoDBDocClient.send(
+						new BatchWriteCommand({ RequestItems: unprocessedItems }),
+					);
+
+					unprocessedItems = retryUnprocessedItemsResult.UnprocessedItems;
+				}
+			}
 		}
 	}
 
-	generateVoteURL(pollId: string): string {
-		const encodePollId = btoa(`${pollId}`);
+	async updatePoll(modifiedPoll: Poll): Promise<void> {
+		const pollDataModel = this.mapper.fromDomain(modifiedPoll);
 
-		return encodePollId;
-	}
-
-	async updatePollGeneralInformation(
-		pollId: string,
-		newVersion: string,
-		voteURL?: string,
-	): Promise<void> {
-		const params: UpdateCommandInput = {
+		const params: PutCommandInput = {
 			TableName: this.config.tableName,
-			Key: {
-				SK: `POLL#${pollId}`,
-				PK: `POLL#${pollId}`,
-			},
-			...(voteURL
-				? {
-						UpdateExpression: 'set Version = :newVersion, VoteLink = :voteURL',
-						ExpressionAttributeValues: {
-							':newVersion': newVersion,
-							':voteURL': voteURL,
-						},
-				  }
-				: {
-						UpdateExpression: 'set Version = :newVersion',
-						ExpressionAttributeValues: {
-							':newVersion': newVersion,
-						},
-				  }),
+			Item: pollDataModel,
 		};
 
-		await this.dynamoDBDocClient.send(new UpdateCommand(params));
-	}
-
-	async updatePoll(
-		pollId: string,
-		title: string,
-		description?: string,
-	): Promise<void> {
-		const params: UpdateCommandInput = {
-			TableName: this.config.tableName,
-			Key: {
-				SK: `POLL#${pollId}`,
-				PK: `POLL#${pollId}`,
-			},
-			...(typeof description === 'string'
-				? {
-						UpdateExpression: 'set Title = :title, Description = :description',
-						ExpressionAttributeValues: {
-							':title': title,
-							':description': description,
-						},
-				  }
-				: {
-						UpdateExpression: 'set Title = :title',
-						ExpressionAttributeValues: {
-							':title': title,
-						},
-				  }),
-		};
-
-		await this.dynamoDBDocClient.send(new UpdateCommand(params));
+		await this.dynamoDBDocClient.send(new PutCommand(params));
 	}
 }

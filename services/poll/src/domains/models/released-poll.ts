@@ -65,7 +65,9 @@ export class ReleasedPoll {
 		const timestampToMillisecond = moment().valueOf();
 
 		if (!createdAt) {
-			this.props.createdAt = moment(timestampToMillisecond).toISOString(true);
+			this.props.createdAt = moment(timestampToMillisecond)
+				.utc()
+				.toISOString(true);
 		}
 	}
 }

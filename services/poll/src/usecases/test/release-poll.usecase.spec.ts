@@ -28,13 +28,11 @@ describe('create vote link test suite', () => {
 		getQuestionsByPollId: jest.fn(),
 		update: jest.fn(),
 		findPollById: jest.fn(),
-		generateVoteURL: jest.fn(),
-		updatePollGeneralInformation: jest.fn(),
+		updatePoll: jest.fn(),
 		createQuestion: jest.fn(),
 		deleteQuestionById: jest.fn(),
 		findQuestionByPollIdAndQuestionId: jest.fn(),
 		updateQuestionGeneralInformation: jest.fn(),
-		updatePoll: jest.fn(),
 	};
 
 	const mockReleasedPollRepository: jest.Mocked<IReleasedPollRepository> = {
@@ -64,7 +62,7 @@ describe('create vote link test suite', () => {
 			mockReleasePollDto,
 		);
 
-		const expectedError = new BadRequestException('pollId is missing');
+		const expectedError = new BadRequestException('PollId is missing');
 
 		await expect(
 			mockReleasePollUseCase.execute(mockReleasePollUseCaseInput),
@@ -75,7 +73,7 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).not.toBeCalled();
-		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePoll).not.toBeCalled();
 	});
 
 	it('Should throw error when start date is missing', async () => {
@@ -106,7 +104,7 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).not.toBeCalled();
-		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePoll).not.toBeCalled();
 	});
 
 	it('Should throw error when end date is missing', async () => {
@@ -137,7 +135,7 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).not.toBeCalled();
-		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePoll).not.toBeCalled();
 	});
 
 	it('Should throw error when poll is not existed', async () => {
@@ -170,7 +168,7 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).not.toBeCalled();
-		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePoll).not.toBeCalled();
 	});
 
 	it('Should throw error when poll is existed but no question provided for releasing', async () => {
@@ -211,7 +209,7 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).not.toBeCalled();
-		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePoll).not.toBeCalled();
 	});
 
 	it('Should throw error when packageQuestionsWithVersion failed', async () => {
@@ -282,10 +280,10 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).toBeCalledWith(mockReleasedPoll);
-		expect(mockPollRepository.updatePollGeneralInformation).not.toBeCalled();
+		expect(mockPollRepository.updatePoll).not.toBeCalled();
 	});
 
-	it('Should execute successfully with valid data and generate url when poll does not have url yet', async () => {
+	it('Should execute successfully with valid data and generate vote link when poll does not have one yet', async () => {
 		const mockReleasedPollUseCase = new ReleasePollUseCase(
 			mockPollRepository,
 			mockReleasedPollRepository,
@@ -325,8 +323,8 @@ describe('create vote link test suite', () => {
 			.mockReturnValue(new Date().getMilliseconds);
 
 		const mockReleasedPoll = new ReleasedPoll({
-			pollId: '123',
-			version: String(Number(mockPoll.version) + 1),
+			pollId: mockPoll.id,
+			version: String(Number(mockPoll.latestVersion) + 1),
 			questions: mockQuestions,
 			startDate: mockReleasePollDto.startDate,
 			endDate: mockReleasePollDto.endDate,
@@ -340,11 +338,11 @@ describe('create vote link test suite', () => {
 
 		mockReleasedPollRepository.packageQuestionsWithReleasedPoll.mockResolvedValueOnce();
 
-		mockPollRepository.updatePollGeneralInformation.mockResolvedValueOnce();
+		mockPollRepository.updatePoll.mockResolvedValueOnce();
 
-		mockPollRepository.generateVoteURL.mockReturnValueOnce(
-			'a-random-string-as-url',
-		);
+		mockPoll.generateVoteLink = jest
+			.fn()
+			.mockReturnValueOnce('an-encoded-string-as-link');
 
 		const result = await mockReleasedPollUseCase.execute(
 			mockReleasedPollUseCaseInput,
@@ -355,20 +353,16 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).toBeCalledWith(mockReleasedPoll);
-		expect(mockPollRepository.updatePollGeneralInformation).toBeCalledWith(
-			mockPoll.id,
-			mockPoll.version,
-			mockPoll.voteLink,
-		);
+		expect(mockPollRepository.updatePoll).toBeCalledWith(mockPoll);
 		expect(result).toEqual({
-			message: 'Successfully publish poll',
+			message: 'Successfully release new version',
 			voteLink: mockPoll.voteLink,
 			version: mockReleasedPoll.version,
 			startDate: mockReleasedPoll.startDate,
 			endDate: mockReleasedPoll.endDate,
 		});
 	});
-	it('Should execute successfully when update to new version and poll already has the vote url', async () => {
+	it('Should execute successfully when updating to a new version and poll already has the vote link', async () => {
 		const mockReleasedPollUseCase = new ReleasePollUseCase(
 			mockPollRepository,
 			mockReleasedPollRepository,
@@ -390,6 +384,7 @@ describe('create vote link test suite', () => {
 			description: 'somedesc',
 			title: 'sometitle',
 			id: '123',
+			voteLink: 'some-link',
 		});
 
 		const mockQuestions = [
@@ -409,7 +404,7 @@ describe('create vote link test suite', () => {
 
 		const mockReleasedPoll = new ReleasedPoll({
 			pollId: '123',
-			version: String(Number(mockPoll.version) + 1),
+			version: String(Number(mockPoll.latestVersion) + 1),
 			questions: mockQuestions,
 			startDate: mockReleasePollDto.startDate,
 			endDate: mockReleasePollDto.endDate,
@@ -423,7 +418,7 @@ describe('create vote link test suite', () => {
 
 		mockReleasedPollRepository.packageQuestionsWithReleasedPoll.mockResolvedValueOnce();
 
-		mockPollRepository.updatePollGeneralInformation.mockResolvedValueOnce();
+		mockPollRepository.updatePoll.mockResolvedValueOnce();
 
 		const result = await mockReleasedPollUseCase.execute(
 			mockReleasedPollUseCaseInput,
@@ -434,12 +429,9 @@ describe('create vote link test suite', () => {
 		expect(
 			mockReleasedPollRepository.packageQuestionsWithReleasedPoll,
 		).toBeCalledWith(mockReleasedPoll);
-		expect(mockPollRepository.updatePollGeneralInformation).toBeCalledWith(
-			mockPoll.id,
-			mockPoll.version,
-		);
+		expect(mockPollRepository.updatePoll).toBeCalledWith(mockPoll);
 		expect(result).toEqual({
-			message: 'Successfully publish poll',
+			message: 'Successfully release new version',
 			voteLink: mockPoll.voteLink,
 			version: mockReleasedPoll.version,
 			startDate: mockReleasedPoll.startDate,

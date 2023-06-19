@@ -1,13 +1,13 @@
 import { BadRequestException, NotFoundException } from '@libs/common';
 import {
 	Draft,
-	DraftAnswersForQuestion,
+	CurrentAnswersForQuestion,
 	IDraftRepository,
 } from '../../domains';
 import {
-	GetDraftAnswersUseCase,
-	GetDraftAnswersUseCaseInput,
-} from '../get-draft-answers.usecase';
+	GetCurrentAnswersForDraftUseCase,
+	GetCurrentAnswersForDraftUseCaseInput,
+} from '../get-current-answers-for-draft.usecase';
 
 describe('GetDraftAnswersUseCase', () => {
 	beforeEach(() => {
@@ -16,17 +16,16 @@ describe('GetDraftAnswersUseCase', () => {
 
 	const mockDraftRepository: jest.Mocked<IDraftRepository> = {
 		create: jest.fn(),
-		getDraftAnswers: jest.fn(),
-		getDraftInformation: jest.fn(),
-		putDraftAnswersForQuestion: jest.fn(),
-		putDraftInformation: jest.fn(),
+		getCurrentAnswersForDraft: jest.fn(),
+		getDraft: jest.fn(),
+		putCurrentAnswersForQuestion: jest.fn(),
+		putDraft: jest.fn(),
 		update: jest.fn(),
 	};
 
 	it(`should throw poll id missing when pollId is undefined`, async () => {
-		const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
-			mockDraftRepository,
-		);
+		const getCurrentAnswersForDraftUseCase =
+			new GetCurrentAnswersForDraftUseCase(mockDraftRepository);
 
 		const pollId: string = undefined;
 		const pollVersion: string = 'pollVersion';
@@ -34,28 +33,28 @@ describe('GetDraftAnswersUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const getDraftAnswersUseCaseInput = new GetDraftAnswersUseCaseInput(
-			pollId,
-			pollVersion,
-			startDate,
-			endDate,
-			voterEmail,
-		);
+		const getDraftAnswersUseCaseInput =
+			new GetCurrentAnswersForDraftUseCaseInput(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 
 		const expectedError = new BadRequestException('Poll Id is missing');
 
 		await expect(
-			getDraftAnswersUseCase.execute(getDraftAnswersUseCaseInput),
+			getCurrentAnswersForDraftUseCase.execute(getDraftAnswersUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.getDraftInformation).not.toBeCalled();
-		expect(mockDraftRepository.getDraftAnswers).not.toBeCalled();
+		expect(mockDraftRepository.getDraft).not.toBeCalled();
+		expect(mockDraftRepository.getCurrentAnswersForDraft).not.toBeCalled();
 	});
 
 	it(`should throw version missing when pollVersion is undefined`, async () => {
-		const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
-			mockDraftRepository,
-		);
+		const getCurrentAnswersForDraftUseCase =
+			new GetCurrentAnswersForDraftUseCase(mockDraftRepository);
 
 		const pollId: string = 'pollId';
 		const pollVersion: string = undefined;
@@ -63,28 +62,28 @@ describe('GetDraftAnswersUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const getDraftAnswersUseCaseInput = new GetDraftAnswersUseCaseInput(
-			pollId,
-			pollVersion,
-			startDate,
-			endDate,
-			voterEmail,
-		);
+		const getDraftAnswersUseCaseInput =
+			new GetCurrentAnswersForDraftUseCaseInput(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 
 		const expectedError = new BadRequestException('Version is missing');
 
 		await expect(
-			getDraftAnswersUseCase.execute(getDraftAnswersUseCaseInput),
+			getCurrentAnswersForDraftUseCase.execute(getDraftAnswersUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.getDraftInformation).not.toBeCalled();
-		expect(mockDraftRepository.getDraftAnswers).not.toBeCalled();
+		expect(mockDraftRepository.getDraft).not.toBeCalled();
+		expect(mockDraftRepository.getCurrentAnswersForDraft).not.toBeCalled();
 	});
 
 	it(`should throw poll Start Date missing when startDate is undefined`, async () => {
-		const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
-			mockDraftRepository,
-		);
+		const getCurrentAnswersForDraftUseCase =
+			new GetCurrentAnswersForDraftUseCase(mockDraftRepository);
 
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
@@ -92,28 +91,28 @@ describe('GetDraftAnswersUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const getDraftAnswersUseCaseInput = new GetDraftAnswersUseCaseInput(
-			pollId,
-			pollVersion,
-			startDate,
-			endDate,
-			voterEmail,
-		);
+		const getDraftAnswersUseCaseInput =
+			new GetCurrentAnswersForDraftUseCaseInput(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 
 		const expectedError = new BadRequestException('Start Date is missing');
 
 		await expect(
-			getDraftAnswersUseCase.execute(getDraftAnswersUseCaseInput),
+			getCurrentAnswersForDraftUseCase.execute(getDraftAnswersUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.getDraftInformation).not.toBeCalled();
-		expect(mockDraftRepository.getDraftAnswers).not.toBeCalled();
+		expect(mockDraftRepository.getDraft).not.toBeCalled();
+		expect(mockDraftRepository.getCurrentAnswersForDraft).not.toBeCalled();
 	});
 
 	it(`should throw poll End Date missing when endDate is undefined`, async () => {
-		const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
-			mockDraftRepository,
-		);
+		const getCurrentAnswersForDraftUseCase =
+			new GetCurrentAnswersForDraftUseCase(mockDraftRepository);
 
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
@@ -121,28 +120,28 @@ describe('GetDraftAnswersUseCase', () => {
 		const endDate: string = undefined;
 		const voterEmail: string = 'voterEmail';
 
-		const getDraftAnswersUseCaseInput = new GetDraftAnswersUseCaseInput(
-			pollId,
-			pollVersion,
-			startDate,
-			endDate,
-			voterEmail,
-		);
+		const getDraftAnswersUseCaseInput =
+			new GetCurrentAnswersForDraftUseCaseInput(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 
 		const expectedError = new BadRequestException('End Date is missing');
 
 		await expect(
-			getDraftAnswersUseCase.execute(getDraftAnswersUseCaseInput),
+			getCurrentAnswersForDraftUseCase.execute(getDraftAnswersUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.getDraftInformation).not.toBeCalled();
-		expect(mockDraftRepository.getDraftAnswers).not.toBeCalled();
+		expect(mockDraftRepository.getDraft).not.toBeCalled();
+		expect(mockDraftRepository.getCurrentAnswersForDraft).not.toBeCalled();
 	});
 
 	it(`should throw poll Voter Email missing when voterEmail is undefined`, async () => {
-		const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
-			mockDraftRepository,
-		);
+		const getCurrentAnswersForDraftUseCase =
+			new GetCurrentAnswersForDraftUseCase(mockDraftRepository);
 
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
@@ -150,28 +149,28 @@ describe('GetDraftAnswersUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = undefined;
 
-		const getDraftAnswersUseCaseInput = new GetDraftAnswersUseCaseInput(
-			pollId,
-			pollVersion,
-			startDate,
-			endDate,
-			voterEmail,
-		);
+		const getDraftAnswersUseCaseInput =
+			new GetCurrentAnswersForDraftUseCaseInput(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 
 		const expectedError = new BadRequestException('Voter Email is missing');
 
 		await expect(
-			getDraftAnswersUseCase.execute(getDraftAnswersUseCaseInput),
+			getCurrentAnswersForDraftUseCase.execute(getDraftAnswersUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.getDraftInformation).not.toBeCalled();
-		expect(mockDraftRepository.getDraftAnswers).not.toBeCalled();
+		expect(mockDraftRepository.getDraft).not.toBeCalled();
+		expect(mockDraftRepository.getCurrentAnswersForDraft).not.toBeCalled();
 	});
 
 	it(`should throw BadRequestException when already voted`, async () => {
-		const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
-			mockDraftRepository,
-		);
+		const getCurrentAnswersForDraftUseCase =
+			new GetCurrentAnswersForDraftUseCase(mockDraftRepository);
 
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
@@ -179,13 +178,14 @@ describe('GetDraftAnswersUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const getDraftAnswersUseCaseInput = new GetDraftAnswersUseCaseInput(
-			pollId,
-			pollVersion,
-			startDate,
-			endDate,
-			voterEmail,
-		);
+		const getDraftAnswersUseCaseInput =
+			new GetCurrentAnswersForDraftUseCaseInput(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 
 		const mockReturnDraft: Draft = new Draft({
 			pollId,
@@ -195,27 +195,26 @@ describe('GetDraftAnswersUseCase', () => {
 			hasBeenSubmitted: true,
 			voterEmail,
 		});
-		mockDraftRepository.getDraftInformation.mockResolvedValue(mockReturnDraft);
+		mockDraftRepository.getDraft.mockResolvedValue(mockReturnDraft);
 		const expectedError = new BadRequestException('You have already voted');
 
 		await expect(
-			getDraftAnswersUseCase.execute(getDraftAnswersUseCaseInput),
+			getCurrentAnswersForDraftUseCase.execute(getDraftAnswersUseCaseInput),
 		).rejects.toThrowError(expectedError);
 
-		expect(mockDraftRepository.getDraftInformation).toBeCalledWith(
+		expect(mockDraftRepository.getDraft).toBeCalledWith(
 			pollId,
 			pollVersion,
 			startDate,
 			endDate,
 			voterEmail,
 		);
-		expect(mockDraftRepository.getDraftAnswers).not.toBeCalled();
+		expect(mockDraftRepository.getCurrentAnswersForDraft).not.toBeCalled();
 	});
 
 	it(`should get draft answers successfully`, async () => {
-		const getDraftAnswersUseCase = new GetDraftAnswersUseCase(
-			mockDraftRepository,
-		);
+		const getCurrentAnswersForDraftUseCase =
+			new GetCurrentAnswersForDraftUseCase(mockDraftRepository);
 
 		const pollId: string = 'pollId';
 		const pollVersion: string = 'pollVersion';
@@ -223,13 +222,14 @@ describe('GetDraftAnswersUseCase', () => {
 		const endDate: string = 'endDate';
 		const voterEmail: string = 'voterEmail';
 
-		const getDraftAnswersUseCaseInput = new GetDraftAnswersUseCaseInput(
-			pollId,
-			pollVersion,
-			startDate,
-			endDate,
-			voterEmail,
-		);
+		const getCurrentAnswersForDraftUseCaseInput =
+			new GetCurrentAnswersForDraftUseCaseInput(
+				pollId,
+				pollVersion,
+				startDate,
+				endDate,
+				voterEmail,
+			);
 
 		const mockReturnDraft: Draft = new Draft({
 			pollId,
@@ -239,8 +239,8 @@ describe('GetDraftAnswersUseCase', () => {
 			hasBeenSubmitted: false,
 			voterEmail,
 		});
-		const mockReturnDraftAnswersForQuestions: DraftAnswersForQuestion[] = [
-			new DraftAnswersForQuestion({
+		const mockReturnDraftAnswersForQuestions: CurrentAnswersForQuestion[] = [
+			new CurrentAnswersForQuestion({
 				pollId,
 				pollVersion,
 				startDate,
@@ -251,27 +251,27 @@ describe('GetDraftAnswersUseCase', () => {
 				answers: ['mock answer1', 'mock answer2'],
 			}),
 		];
-		mockDraftRepository.getDraftInformation.mockResolvedValue(mockReturnDraft);
-		mockDraftRepository.getDraftAnswers.mockResolvedValue(
+		mockDraftRepository.getDraft.mockResolvedValue(mockReturnDraft);
+		mockDraftRepository.getCurrentAnswersForDraft.mockResolvedValue(
 			mockReturnDraftAnswersForQuestions,
 		);
 
-		const result = await getDraftAnswersUseCase.execute(
-			getDraftAnswersUseCaseInput,
+		const result = await getCurrentAnswersForDraftUseCase.execute(
+			getCurrentAnswersForDraftUseCaseInput,
 		);
 		expect(result).toEqual({
 			message: 'get draft answers successfully',
 			draftAnswers: mockReturnDraftAnswersForQuestions,
 		});
 
-		expect(mockDraftRepository.getDraftInformation).toBeCalledWith(
+		expect(mockDraftRepository.getDraft).toBeCalledWith(
 			pollId,
 			pollVersion,
 			startDate,
 			endDate,
 			voterEmail,
 		);
-		expect(mockDraftRepository.getDraftAnswers).toBeCalledWith(
+		expect(mockDraftRepository.getCurrentAnswersForDraft).toBeCalledWith(
 			pollId,
 			pollVersion,
 			startDate,

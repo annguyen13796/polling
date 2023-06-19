@@ -1,5 +1,5 @@
 import { BadRequestException, isStringEmptyOrUndefined } from '@libs/common';
-import { DraftAnswersForQuestion } from './draft-answers-for-question';
+import { CurrentAnswersForQuestion } from './current-answers-for-question';
 
 export interface DraftProps {
 	pollId: string | null | undefined;
@@ -7,8 +7,8 @@ export interface DraftProps {
 	startDate: string | null | undefined;
 	endDate: string | null | undefined;
 	voterEmail: string | null | undefined;
-	draftAnswers?: DraftAnswersForQuestion[];
 	hasBeenSubmitted: boolean | null | undefined;
+	currentAnswersForQuestions?: CurrentAnswersForQuestion[];
 }
 
 export class Draft {

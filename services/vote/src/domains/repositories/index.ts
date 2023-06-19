@@ -1,2 +1,2 @@
-export * from './draft-answers-for-question.repository';
+export * from './current-answers-for-question.repository';
 export * from './draft.repository';
