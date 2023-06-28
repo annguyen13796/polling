@@ -6,6 +6,9 @@ build
 node_modules
 ./package-lock.json
 package-lock.json
+*/**/node_modules/
+*/**/package-lock.json
+*/**/jspm_packages/
 # Logs
 logs
 *.log
@@ -46,3 +49,4 @@ lerna-debug.log*
 **/.serverless
 /build
 services/**/dist
+*/**/.serverless/
