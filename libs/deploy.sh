@@ -2,6 +2,6 @@
 
 onBeforeCommand "DEPLOYING LIBS"
 
-prioritizedComponents=('common')
+prioritizedComponents=('layers')
 
 deploySubComponents "${prioritizedComponents[*]}"

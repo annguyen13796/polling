@@ -1,0 +1,13 @@
+{
+	"name": "polling-common-layers",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"install:node": "npm i && cd ../common && npm run build && cd ../layers && cd ./src/common/nodejs && npm i && cd ../../.. && sls deploy"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": ""
+}
