@@ -12,7 +12,9 @@
 		"test:watch": "jest --watch",
 		"test:cov": "jest --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-		"test:e2e": "jest --config ./test/jest-e2e.json"
+		"test:e2e": "jest --config ./test/jest-e2e.json",
+		"install:libs": "cd libs/src/common; rm -rf node_modules; rm -rf package-lock.json; npm i",
+		"install:node": "rm -rf node_modules; rm -rf package-lock.json; npm i; cd services; sh install-modules.sh"
 	},
 	"repository": {
 		"type": "git",

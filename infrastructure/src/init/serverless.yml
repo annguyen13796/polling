@@ -1,0 +1,39 @@
+service: polling-infrastructure-init
+
+frameworkVersion: '3.32.2'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  custom: ${file(../../../config/serverless-provider.json)}
+  stage: ${self:provider.custom.stage}
+  profile: ${self:provider.custom.profile}
+  region: ${self:provider.custom.region}
+
+custom:
+  config: ${file(../../config.js)}
+
+resources:
+  Resources:
+    deploymentBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-bucket-${self:provider.stage}
+    # Auth
+    jwtSecretValue:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Name: ${self:custom.config.JWT_SECRET_KEY_NAME}
+        Description: Key for jwt encode
+        GenerateSecretString:
+          PasswordLength: 30
+          ExcludeCharacters: '"@/\'
+
+  Outputs:
+    deploymentBucketName:
+      Description: 'The bucket name of the deployment bucket'
+      Value: !Ref deploymentBucket
+
+    jwtSecret:
+      Description: 'JWT for Polling'
+      Value: !Ref jwtSecretValue

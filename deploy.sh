@@ -1,27 +1,28 @@
-echo "Deploy Polling PROJECT"
+#!/bin/bash
 
-cd libs/common; rm -rf node_modules; rm -rf package-log.json; npm i; rm-rf dist; npm run build; npm prune --production
+# fail on error
+set -e
+# exec common script to import function
+. ./__cicd__/common.sh
 
+onBeforeCommand "SYSTEM INFORMATION"
+# npm version should be 7.x.x to install omit dev successfully
+echo NPM VERSION: $(npm -v)
+onAfterCommand "SYSTEM INFORMATION"
 
-cd ../..
-echo "Deploy User Service"
-cd services/user; rm -rf node_modules; rm -rf package-log.json; npm i; rm-rf dist; npm run build; npm prune --production
-sls deploy
+installRunTimeNodePackage
 
+onBeforeCommand "SERVICE DEPLOYMENT"
 
-cd ../..
-echo "Deploy Poll Service"
-cd services/poll; rm -rf node_modules; rm -rf package-log.json; npm i; rm-rf dist; npm run build; npm prune --production
-sls deploy
+services=('infrastructure' 'libs' 'services')
 
+for ((i = 0; i < ${#services[@]}; i++)); do
+  service=${services[$i]}
+  onBeforeCommand "DEPLOYING SERVICE: ${service}"
+  invokeDeployScript $service "deploy"
 
-cd ../..
-echo "Deploy Report Service"
-cd services/report; rm -rf node_modules; rm -rf package-log.json; npm i; rm-rf dist; npm run build; npm prune --production
-sls deploy
+  onAfterCommand "DEPLOYING SERVICE: ${service}"
+done
 
+onAfterCommand "SERVICE DEPLOYMENT"
 
-cd ../..
-echo "Deploy Vote Service"
-cd services/vote; rm -rf node_modules; rm -rf package-log.json; npm i; rm-rf dist; npm run build; npm prune --production
-sls deploy

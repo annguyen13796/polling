@@ -31,8 +31,8 @@
 		"outDir": "./dist",
 		"typeRoots": ["./src/types", "./node_modules/@types"],
 		"paths": {
-			"@libs/common": ["./libs/common/src/index.ts"]
-			// "@libs/common/*": ["./libs/common/src/*"]
+			"@libs/common": ["libs/src/common/src/index.ts"]
+			// "@libs/common/*": ["libs/src/common/src/*"]
 		}
 	}
 }

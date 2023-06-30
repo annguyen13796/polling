@@ -1,0 +1,31 @@
+image: node:16.20.0
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: always
+# Variables set in the GitLab UI are not passed down to service containers.
+variables:
+  AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+  AWS_PROFILE: $AWS_PROFILE
+  AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  environment:
+    name: ${CI_COMMIT_BRANCH}
+  before_script:
+    - npm install -g serverless@3.32.2
+    - serverless config credentials --provider aws --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile ${AWS_PROFILE}
+  tags:
+    - public
+  script:
+    - bash deploy.sh
+  only:
+    - develop
+    - master
+  except:
+    - tags

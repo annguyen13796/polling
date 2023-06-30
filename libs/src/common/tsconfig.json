@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"target": "ES2015" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+		"module": "CommonJS" /* Specify what module code is generated. */,
+		"sourceMap": true,
+		"outDir": "./dist" /* Specify an output folder for all emitted files. */,
+		"noImplicitAny": true,
+		"declaration": true
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "test", "dist"]
+}

@@ -1,14 +1,17 @@
 # compiled output
-dist
-build
-/dist
-/dist/*
 node_modules
-./package-lock.json
 package-lock.json
 */**/node_modules/
 */**/package-lock.json
 */**/jspm_packages/
+/.pnp
+.pnp.js
+
+# build 
+dist
+build
+
+
 # Logs
 logs
 *.log
@@ -17,8 +20,12 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# OS
+# MISC
 .DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Tests
 /coverage
@@ -40,13 +47,9 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-#compile
-*.js
-*.js.map
-*.d.ts
-.env
 #serverless
-**/.serverless
-/build
-services/**/dist
+admin.env
+.env
+_meta
+.serverless
 */**/.serverless/

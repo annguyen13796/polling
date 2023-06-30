@@ -1,0 +1,30 @@
+service: polling-infrastructure-api-gateway
+
+frameworkVersion: '3.32.2'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  custom: ${file(../../../config/serverless-provider.json)}
+  stage: ${self:provider.custom.stage}
+  profile: ${self:provider.custom.profile}
+  region: ${self:provider.custom.region}
+
+custom:
+  config: ${file(../../config.js)}
+  api:
+    name: 'polling-api'
+resources:
+  Resources:
+    ApiGatewayRestApi:
+      Type: AWS::ApiGateway::RestApi
+      Properties:
+        Name: ${self:custom.api.name}
+
+  Outputs:
+    restApiId:
+      Value:
+        Ref: ApiGatewayRestApi
+    restApiRootResourceId:
+      Value:
+        Fn::GetAtt: [ApiGatewayRestApi, RootResourceId]

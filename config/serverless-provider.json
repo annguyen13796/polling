@@ -1,0 +1,5 @@
+{
+	"region": "${opt:region, 'eu-central-1'}",
+	"profile": "${opt:profile, 'polling-dev'}",
+	"stage": "${opt:stage, 'dev'}"
+}

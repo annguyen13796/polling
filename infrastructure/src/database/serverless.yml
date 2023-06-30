@@ -1,0 +1,19 @@
+service: polling-infrastructure-database
+
+frameworkVersion: '3.32.2'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  custom: ${file(../../../config/serverless-provider.json)}
+  stage: ${self:provider.custom.stage}
+  profile: ${self:provider.custom.profile}
+  region: ${self:provider.custom.region}
+
+custom:
+  config: ${file(../../config.js)}
+
+resources:
+  Resources:
+
+  Outputs:
