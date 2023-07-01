@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable global-require */
 const path = require('path');
 
 const getConfigFactory = ({ filename }) => {

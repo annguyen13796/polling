@@ -1,0 +1,6 @@
+deploymentBucketName: '${cf:polling-infrastructure-init-${self:provider.stage}.deploymentBucketName}'
+
+restApiId: ${cf:polling-infrastructure-api-gateway-${self:provider.stage}.restApiId}
+restApiRootResourceId: ${cf:polling-infrastructure-api-gateway-${self:provider.stage}.restApiRootResourceId}
+
+jwtSecret: ${ssm:/aws/reference/secretsmanager/${self:custom.config.JWT_SECRET_KEY_NAME}}

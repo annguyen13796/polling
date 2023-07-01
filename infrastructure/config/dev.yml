@@ -1,0 +1,5 @@
+# SSM configuration
+
+JWT_SECRET_KEY_NAME: polling-jwt_secret
+
+STAGE: dev
